@@ -5,8 +5,8 @@ import io.undertow.servlet.ServletExtension;
 module com.jwebmp.guiced.rest {
 
 	exports com.jwebmp.guiced.rest;
-	//exports com.jwebmp.guiced.rest.implementations;
 
+	exports com.jwebmp.guiced.rest.internal to com.jwebmp.guiced.swagger;
 
 	requires com.jwebmp.guicedinjection;
 	requires com.google.guice.extensions.servlet;

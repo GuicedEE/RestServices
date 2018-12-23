@@ -2,6 +2,8 @@ package com.jwebmp.guiced.rest;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Singleton;
+import com.google.inject.matcher.Matchers;
+import com.jwebmp.guiced.rest.implementations.RestEasyPackagesTypeInterceptor;
 import com.jwebmp.guicedservlets.services.GuiceSiteInjectorModule;
 import com.jwebmp.guicedservlets.services.IGuiceSiteBinder;
 import org.jboss.resteasy.plugins.guice.GuiceResteasyBootstrapServletContextListener;
@@ -20,16 +22,12 @@ public class RestEasyModule
 		//Nothing Needed
 	}
 
-	public RestEasyModule(final String path)
-	{
-		RestEasyModule.path = path;
-	}
-
 	@Override
 	public void onBind(GuiceSiteInjectorModule module)
 	{
 		module.install(new JaxrsModule());
-		module.bind(GuiceResteasyBootstrapServletContextListener.class).in(Singleton.class);
+		module.bind(GuiceResteasyBootstrapServletContextListener.class)
+		      .in(Singleton.class);
 		module.bind(HttpServletDispatcher.class)
 		      .in(Singleton.class);
 
@@ -45,6 +43,8 @@ public class RestEasyModule
 			module.serve$(path + "/*")
 			      .with(HttpServletDispatcher.class, initParams);
 		}
+
+		module.bindListener(Matchers.any(), new RestEasyPackagesTypeInterceptor());
 	}
 
 	public static String getPath()
