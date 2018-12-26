@@ -22,6 +22,8 @@ module com.jwebmp.guiced.rest {
 
 	//Undertow Registrations
 	requires static undertow.servlet;
+	//JDK 11 Tests
+	requires static java.net.http;
 
 	requires com.jwebmp.guicedservlets;
 
