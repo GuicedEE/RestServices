@@ -18,7 +18,6 @@ module com.jwebmp.guiced.rest {
 	requires resteasy.guice;
 
 	requires com.google.common;
-	requires resteasy.core;
 
 	//Undertow Registrations
 	requires static undertow.servlet;
