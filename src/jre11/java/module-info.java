@@ -25,6 +25,7 @@ module com.jwebmp.guiced.rest {
 	requires static java.net.http;
 
 	requires com.jwebmp.guicedservlets;
+	requires resteasy.jaxrs;
 
 	provides com.jwebmp.guicedservlets.services.IGuiceSiteBinder with RestEasyModule;
 	provides ServletExtension with RestEasyUndertowServletExtension;
