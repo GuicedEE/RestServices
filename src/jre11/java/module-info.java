@@ -1,7 +1,3 @@
-import com.jwebmp.guiced.rest.RestEasyModule;
-import com.jwebmp.guiced.rest.implementations.RestEasyUndertowServletExtension;
-import io.undertow.servlet.ServletExtension;
-
 module com.jwebmp.guiced.rest {
 
 	exports com.jwebmp.guiced.rest;
@@ -27,6 +23,6 @@ module com.jwebmp.guiced.rest {
 	requires com.jwebmp.guicedservlets;
 	requires resteasy.jaxrs;
 
-	provides com.jwebmp.guicedservlets.services.IGuiceSiteBinder with RestEasyModule;
-	provides ServletExtension with RestEasyUndertowServletExtension;
+	provides com.jwebmp.guicedservlets.services.IGuiceSiteBinder with com.jwebmp.guiced.rest.RestEasyModule;
+	provides io.undertow.servlet.ServletExtension with com.jwebmp.guiced.rest.implementations.RestEasyUndertowServletExtension;
 }
