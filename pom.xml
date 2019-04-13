@@ -35,13 +35,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.jwebmp</groupId>
-            <artifactId>jwebmp-undertow</artifactId>
-            <version>${project.version}</version>
-            <classifier>${jwebmp.runtime.classifier}</classifier>
+            <groupId>com.jwebmp.guicedee.servlets</groupId>
+            <artifactId>guiced-undertow</artifactId>
             <scope>test</scope>
-            <!--<optional>true</optional>-->
-            <type>jar</type>
         </dependency>
 
         <dependency>
