@@ -22,39 +22,46 @@
         <dependency>
             <groupId>com.jwebmp.guicedee.servlets</groupId>
             <artifactId>guiced-servlets</artifactId>
+            <type>jar</type>
         </dependency>
 
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
+            <type>jar</type>
         </dependency>
 
         <dependency>
             <groupId>com.jwebmp.inject.extensions</groupId>
             <artifactId>guice-servlet</artifactId>
+            <type>jar</type>
         </dependency>
 
         <dependency>
             <groupId>com.jwebmp.guicedee.servlets</groupId>
             <artifactId>guiced-undertow</artifactId>
             <scope>test</scope>
+            <type>jar</type>
         </dependency>
 
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
+            <type>jar</type>
         </dependency>
 
         <dependency>
             <groupId>io.undertow</groupId>
             <artifactId>undertow-servlet</artifactId>
             <optional>true</optional>
+            <type>jar</type>
         </dependency>
 
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
             <scope>test</scope>
+            <type>jar</type>
         </dependency>
 
         <!-- Rest EASY -->
@@ -62,16 +69,19 @@
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-guice</artifactId>
+            <type>jar</type>
         </dependency>
 
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-servlet-initializer</artifactId>
+            <type>jar</type>
         </dependency>
 
         <dependency>
             <groupId>org.jboss.spec.javax.annotation</groupId>
             <artifactId>jboss-annotations-api_1.3_spec</artifactId>
+            <type>jar</type>
         </dependency>
 
 
