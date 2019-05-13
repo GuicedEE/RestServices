@@ -9,7 +9,7 @@ module com.jwebmp.guiced.rest {
 	requires com.google.guice;
 
 	requires javax.servlet.api;
-	requires beta.jboss.jaxrs.api_2_1;
+
 	requires resteasy.client;
 	requires resteasy.guice;
 
@@ -21,7 +21,7 @@ module com.jwebmp.guiced.rest {
 	requires static java.net.http;
 
 	requires com.jwebmp.guicedservlets;
-	requires resteasy.jaxrs;
+	requires resteasy.core;
 
 	provides com.jwebmp.guicedservlets.services.IGuiceSiteBinder with com.jwebmp.guiced.rest.RestEasyModule;
 	provides io.undertow.servlet.ServletExtension with com.jwebmp.guiced.rest.implementations.RestEasyUndertowServletExtension;
