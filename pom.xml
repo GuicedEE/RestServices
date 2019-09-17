@@ -50,11 +50,15 @@
             <type>jar</type>
         </dependency>
 
+
         <dependency>
-            <groupId>io.undertow</groupId>
+            <groupId>com.jwebmp.thirdparty.undertow</groupId>
+            <artifactId>undertow-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jwebmp.thirdparty.undertow</groupId>
             <artifactId>undertow-servlet</artifactId>
-            <optional>true</optional>
-            <type>jar</type>
         </dependency>
 
         <dependency>
