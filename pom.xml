@@ -62,7 +62,7 @@
         </dependency>
 
         <dependency>
-            <groupId>commons-logging</groupId>
+            <groupId>com.jwebmp.jpms.commons</groupId>
             <artifactId>commons-logging</artifactId>
             <scope>test</scope>
             <type>jar</type>
