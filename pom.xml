@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.jwebmp.guicedee.servlets</groupId>
+        <groupId>com.jwebmp.jpms.guicedee.servlets</groupId>
         <artifactId>servlets-parent</artifactId>
         <version>0.0.0_0-SNAPSHOT</version>
     </parent>
@@ -20,7 +20,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.jwebmp.guicedee.servlets</groupId>
+            <groupId>com.jwebmp.jpms.guicedee.servlets</groupId>
             <artifactId>guiced-servlets</artifactId>
             <type>jar</type>
             </dependency>
@@ -32,13 +32,13 @@
             </dependency>
 
         <dependency>
-            <groupId>com.jwebmp.inject.extensions</groupId>
+            <groupId>com.jwebmp.jpms.thirdparty</groupId>
             <artifactId>guice-servlet</artifactId>
             <type>jar</type>
             </dependency>
 
         <dependency>
-            <groupId>com.jwebmp.guicedee.servlets</groupId>
+            <groupId>com.jwebmp.jpms.guicedee.servlets</groupId>
             <artifactId>guiced-undertow</artifactId>
             <scope>test</scope>
             <type>jar</type>
@@ -52,17 +52,17 @@
 
 
         <dependency>
-            <groupId>com.jwebmp.jpms.thirdparty.undertow</groupId>
+            <groupId>com.jwebmp.jpms.thirdparty</groupId>
             <artifactId>undertow-core</artifactId><type>jar</type>
             </dependency>
 
         <dependency>
-            <groupId>com.jwebmp.jpms.thirdparty.undertow</groupId>
+            <groupId>com.jwebmp.jpms.thirdparty</groupId>
             <artifactId>undertow-servlet</artifactId><type>jar</type>
             </dependency>
 
         <dependency>
-            <groupId>com.jwebmp.jpms.thirdparty.commons</groupId>
+            <groupId>com.jwebmp.jpms.thirdparty</groupId>
             <artifactId>commons-logging</artifactId>
             <scope>test</scope>
             <type>jar</type>
