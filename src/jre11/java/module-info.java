@@ -1,29 +1,51 @@
-module com.jwebmp.guiced.rest {
+import com.guicedee.guicedinjection.interfaces.IGuiceConfigurator;
+import com.guicedee.guicedinjection.interfaces.IGuicePostStartup;
+import com.guicedee.guicedinjection.interfaces.IGuicePreStartup;
+import com.guicedee.guicedservlets.rest.RestModule;
+import com.guicedee.guicedservlets.rest.implementations.JaxRSUndertowDeploymentConfigurator;
+import com.guicedee.guicedservlets.rest.implementations.RestServiceScannerConfig;
+import com.guicedee.guicedservlets.rest.services.JaxRsPostStartup;
+import com.guicedee.guicedservlets.rest.services.JaxRsPreStartup;
+import com.guicedee.guicedservlets.services.IGuiceSiteBinder;
+import com.guicedee.guicedservlets.undertow.services.UndertowDeploymentConfigurator;
 
-	exports com.jwebmp.guiced.rest;
+module com.guicedee.guicedservlets.rest {
 
-	exports com.jwebmp.guiced.rest.internal to com.jwebmp.guiced.swagger;
+	exports com.guicedee.guicedservlets.rest;
 
-	requires com.jwebmp.guicedinjection;
+	exports com.guicedee.guicedservlets.rest.internal;
+
+	requires com.guicedee.guicedinjection;
 	requires com.google.guice.extensions.servlet;
 	requires com.google.guice;
 
-	requires javax.servlet.api;
+	requires com.guicedee.guicedservlets.undertow;
 
-	requires resteasy.client;
-	requires resteasy.guice;
+	requires com.fasterxml.jackson.databind;
+
+	requires javax.servlet.api;
 
 	requires com.google.common;
 
 	//Undertow Registrations
-	requires static undertow.servlet;
+	requires undertow.servlet;
+	requires undertow.core;
 	//JDK 11 Tests
 	requires static java.net.http;
 
-	requires com.jwebmp.guicedservlets;
-	requires static resteasy.core;
-	requires static beta.jboss.jaxrs.api_2_1;
+	requires com.guicedee.guicedservlets;
 
-	provides com.jwebmp.guicedservlets.services.IGuiceSiteBinder with com.jwebmp.guiced.rest.RestEasyModule;
-	provides io.undertow.servlet.ServletExtension with com.jwebmp.guiced.rest.implementations.RestEasyUndertowServletExtension;
+	requires java.ws.rs;
+
+	requires io.github.classgraph;
+	requires org.apache.cxf;
+	requires aopalliance;
+	requires javax.inject;
+
+	provides IGuicePostStartup with JaxRsPostStartup;
+	provides UndertowDeploymentConfigurator with JaxRSUndertowDeploymentConfigurator;
+
+	provides IGuiceSiteBinder with RestModule;
+	provides IGuicePreStartup with JaxRsPreStartup;
+	provides IGuiceConfigurator with RestServiceScannerConfig;
 }

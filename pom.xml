@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.jwebmp.jpms.guicedee.servlets</groupId>
+        <groupId>com.guicedee.servlets</groupId>
         <artifactId>servlets-parent</artifactId>
         <version>0.0.0_0-SNAPSHOT</version>
     </parent>
@@ -18,89 +18,56 @@
     </description>
     <url>https://github.com/GedMarc/GuicedRestServices</url>
 
+    <properties>
+
+    </properties>
     <dependencies>
-        <dependency>
-            <groupId>com.jwebmp.jpms.guicedee.servlets</groupId>
-            <artifactId>guiced-servlets</artifactId>
-            <type>jar</type>
-            </dependency>
 
         <dependency>
-            <groupId>com.jwebmp.jpms.thirdparty</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <type>jar</type>
-            </dependency>
+            <groupId>com.guicedee.services</groupId>
+            <artifactId>org.apache.cxf</artifactId>
+        </dependency>
 
         <dependency>
-            <groupId>com.jwebmp.jpms.thirdparty</groupId>
-            <artifactId>guice-servlet</artifactId>
-            <type>jar</type>
-            </dependency>
-
-        <dependency>
-            <groupId>com.jwebmp.jpms.guicedee.servlets</groupId>
+            <groupId>com.guicedee.servlets</groupId>
             <artifactId>guiced-undertow</artifactId>
-            <scope>test</scope>
-            <type>jar</type>
-            </dependency>
+        </dependency>
 
         <dependency>
-            <groupId>com.jwebmp.jpms.thirdparty</groupId>
-            <artifactId>guava</artifactId>
+            <groupId>com.guicedee.services</groupId>
+            <artifactId>undertow-servlet</artifactId>
             <type>jar</type>
         </dependency>
 
-
-        <dependency>
-            <groupId>com.jwebmp.jpms.thirdparty</groupId>
-            <artifactId>undertow-core</artifactId><type>jar</type>
-            </dependency>
-
-        <dependency>
-            <groupId>com.jwebmp.jpms.thirdparty</groupId>
-            <artifactId>undertow-servlet</artifactId><type>jar</type>
-            </dependency>
-
-        <dependency>
-            <groupId>com.jwebmp.jpms.thirdparty</groupId>
-            <artifactId>commons-logging</artifactId>
-            <scope>test</scope>
-            <type>jar</type>
-            </dependency>
-
-        <!-- Rest EASY -->
-
-        <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-guice</artifactId>
-            <type>jar</type>
-            </dependency>
-
-        <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-servlet-initializer</artifactId>
-            <type>jar</type>
-            </dependency>
+       <dependency>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId><type>jar</type>
-            </dependency>
+            <artifactId>junit-jupiter-api</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-all</artifactId><type>jar</type>
-            </dependency>
+            <artifactId>hamcrest-all</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId><type>jar</type>
-            </dependency>
+            <artifactId>assertj-core</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId><type>jar</type>
-            </dependency>
+            <artifactId>mockito-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.guicedee.services</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
 
     </dependencies>
 
@@ -117,5 +84,87 @@
         <system>TeamCity</system>
         <url>http://jwebmp.com/teamcity</url>
     </ciManagement>
+
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven.jar.version}</version>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Multi-Release>true</Multi-Release>
+                        </manifestEntries>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <configuration>
+                    <artifactSet>
+                        <includes>
+                            <include>org.jboss.resteasy:resteasy-servlet-initializer:*</include>
+                        </includes>
+                    </artifactSet>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>module-info.java</exclude>
+                            </excludes>
+                        </filter>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>1.java</exclude>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.moditect</groupId>
+                <artifactId>moditect-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-module-infos</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>add-module-info</goal>
+                        </goals>
+                        <configuration>
+                            <overwriteExistingFiles>true</overwriteExistingFiles>
+                            <module>
+                                <moduleInfoFile>
+                                    src/moditect/module-info.java
+                                </moduleInfoFile>
+                            </module>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
 
 </project>

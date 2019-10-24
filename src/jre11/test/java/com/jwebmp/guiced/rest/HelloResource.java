@@ -1,4 +1,4 @@
-package com.jwebmp.guiced.rest;
+package com.guicedee.jpms.guiced.rest;
 
 import com.google.inject.Inject;
 

@@ -1,7 +1,7 @@
-package com.jwebmp.guiced.rest;
+package com.guicedee.jpms.guiced.rest;
 
-import com.jwebmp.logger.LogFactory;
-import com.jwebmp.undertow.JWebMPUndertow;
+import com.guicedee.jpms.logger.LogFactory;
+import com.guicedee.jpms.undertow.JWebMPUndertow;
 import io.undertow.Undertow;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +22,7 @@ class RestEasyModuleTest
 	void configureServlets() throws Exception
 	{
 		LogFactory.configureConsoleColourOutput(Level.FINE);
-		Undertow undertow = JWebMPUndertow.boot("0.0.0.0", 6003);
+		Undertow undertow = https://jwebmp.com/.boot("0.0.0.0", 6003);
 
 		//Do stuff
 		HttpClient client = HttpClient.newBuilder()

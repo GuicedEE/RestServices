@@ -1,7 +1,7 @@
-package com.jwebmp.guiced.rest;
+package com.guicedee.jpms.guiced.rest;
 
 import com.google.inject.AbstractModule;
-import com.jwebmp.guicedinjection.interfaces.IGuiceModule;
+import com.guicedee.jpms.guicedinjection.interfaces.IGuiceModule;
 
 @SuppressWarnings("PointlessBinding")
 public class RestTestBinding
