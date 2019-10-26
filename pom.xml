@@ -3,13 +3,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                       https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <groupId>com.guicedee.servlets</groupId>
-        <artifactId>servlets-parent</artifactId>
+        <groupId>com.guicedee</groupId>
+        <artifactId>guicedee-projects</artifactId>
         <version>0.0.0_0-SNAPSHOT</version>
     </parent>
 
+    <groupId>com.guicedee.servlets</groupId>
     <artifactId>guiced-rest-services</artifactId>
     <packaging>jar</packaging>
 
@@ -29,7 +29,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.guicedee.servlets</groupId>
+            <groupId>com.guicedee</groupId>
             <artifactId>guiced-undertow</artifactId>
         </dependency>
 
@@ -42,26 +42,6 @@
        <dependency>
             <groupId>jakarta.ws.rs</groupId>
             <artifactId>jakarta.ws.rs-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-all</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
         </dependency>
 
         <dependency>

@@ -1,7 +1,7 @@
-package com.guicedee.jpms.guiced.rest;
+package com.guicedee.guiced.rest;
 
-import com.guicedee.jpms.logger.LogFactory;
-import com.guicedee.jpms.undertow.JWebMPUndertow;
+import com.guicedee.logger.LogFactory;
+import com.guicedee.undertow.JWebMPUndertow;
 import io.undertow.Undertow;
 import org.junit.jupiter.api.Test;
 

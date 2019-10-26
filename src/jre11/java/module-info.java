@@ -1,14 +1,3 @@
-import com.guicedee.guicedinjection.interfaces.IGuiceConfigurator;
-import com.guicedee.guicedinjection.interfaces.IGuicePostStartup;
-import com.guicedee.guicedinjection.interfaces.IGuicePreStartup;
-import com.guicedee.guicedservlets.rest.RestModule;
-import com.guicedee.guicedservlets.rest.implementations.JaxRSUndertowDeploymentConfigurator;
-import com.guicedee.guicedservlets.rest.implementations.RestServiceScannerConfig;
-import com.guicedee.guicedservlets.rest.services.JaxRsPostStartup;
-import com.guicedee.guicedservlets.rest.services.JaxRsPreStartup;
-import com.guicedee.guicedservlets.services.IGuiceSiteBinder;
-import com.guicedee.guicedservlets.undertow.services.UndertowDeploymentConfigurator;
-
 module com.guicedee.guicedservlets.rest {
 
 	exports com.guicedee.guicedservlets.rest;
@@ -42,10 +31,10 @@ module com.guicedee.guicedservlets.rest {
 	requires aopalliance;
 	requires javax.inject;
 
-	provides IGuicePostStartup with JaxRsPostStartup;
-	provides UndertowDeploymentConfigurator with JaxRSUndertowDeploymentConfigurator;
+	provides com.guicedee.guicedinjection.interfaces.IGuicePostStartup with com.guicedee.guicedservlets.rest.services.JaxRsPostStartup;
+	provides com.guicedee.guicedservlets.undertow.services.UndertowDeploymentConfigurator with com.guicedee.guicedservlets.rest.implementations.JaxRSUndertowDeploymentConfigurator;
 
-	provides IGuiceSiteBinder with RestModule;
-	provides IGuicePreStartup with JaxRsPreStartup;
-	provides IGuiceConfigurator with RestServiceScannerConfig;
+	provides com.guicedee.guicedservlets.services.IGuiceSiteBinder with com.guicedee.guicedservlets.rest.RestModule;
+	provides com.guicedee.guicedinjection.interfaces.IGuicePreStartup with com.guicedee.guicedservlets.rest.services.JaxRsPreStartup;
+	provides com.guicedee.guicedinjection.interfaces.IGuiceConfigurator with com.guicedee.guicedservlets.rest.implementations.RestServiceScannerConfig;
 }

@@ -1,4 +1,4 @@
-package com.guicedee.jpms.guiced.rest;
+package com.guicedee.guiced.rest;
 
 public interface Greeter
 {
