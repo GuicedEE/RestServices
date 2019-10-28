@@ -36,6 +36,4 @@ public class RestModule
 		module.serve$(cleanPath(RESTContext.baseWSUrl) + "*")
 			  .with(GuicedCXFNonSpringJaxrsServlet.class);
 	}
-
-
 }

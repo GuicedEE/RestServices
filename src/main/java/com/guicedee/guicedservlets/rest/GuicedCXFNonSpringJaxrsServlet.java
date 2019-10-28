@@ -97,12 +97,12 @@ public class GuicedCXFNonSpringJaxrsServlet
 		}
 		return theName;
 	}
-/*
+
 	protected Class<?> loadClass(String cName, String classType) throws ServletException {
 		if(cName == null)
 			return null;
 		return GuiceContext.instance()
 						   .getScanResult()
 						   .loadClass(cName, true);
-	}*/
+	}
 }
