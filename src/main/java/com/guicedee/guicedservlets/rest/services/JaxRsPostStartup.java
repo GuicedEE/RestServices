@@ -28,6 +28,7 @@ public class JaxRsPostStartup implements IGuicePostStartup<JaxRsPostStartup> {
 
 	@Override
 	public void postLoad() {
+		createBus();
 	}
 
 
