@@ -44,6 +44,7 @@ public class GuicedCXFNonSpringJaxrsServlet
 	}
 
 
+	@SuppressWarnings("unchecked")
 	protected Map<Class<?>, ResourceProvider> getResourceProviders(ServletConfig servletConfig, Map<Class<?>, Map<String, List<String>>> resourceClasses) throws ServletException
 	{
 		String scope = servletConfig.getServletContext()
@@ -56,16 +57,14 @@ public class GuicedCXFNonSpringJaxrsServlet
 		{
 			boolean isPrototype = "prototype".equals(scope);
 			Map<Class<?>, ResourceProvider> map = new HashMap();
-			Iterator i$ = resourceClasses.entrySet()
-			                             .iterator();
 
-			while (i$.hasNext())
+			for (Map.Entry<Class<?>, Map<String, List<String>>> classMapEntry : resourceClasses.entrySet())
 			{
-				Map.Entry<Class<?>, Map<String, List<String>>> entry = (Map.Entry) i$.next();
+				Map.Entry<Class<?>, Map<String, List<String>>> entry = classMapEntry;
 				Class<?> c = entry.getKey();
 				map.put(c, isPrototype
 				           ? new PerRequestResourceProvider(c)
-				           : new SingletonResourceProvider(this.createSingletonInstance(c, (Map) entry.getValue(), servletConfig), true));
+				           : new SingletonResourceProvider(this.createSingletonInstance(c, entry.getValue(), servletConfig), true));
 			}
 			return map;
 		}

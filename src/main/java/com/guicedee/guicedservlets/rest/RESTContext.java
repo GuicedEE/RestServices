@@ -12,7 +12,6 @@ public class RESTContext
 	private static final Set<String> properties = new HashSet<>();
 	private static final Set<String> applications = new HashSet<>();
 
-	public static boolean runSeparately = false;
 	/**
 	 * Provides the url that the module will use to provide Web Services.
 	 * Does not default to module name, default to WebServices

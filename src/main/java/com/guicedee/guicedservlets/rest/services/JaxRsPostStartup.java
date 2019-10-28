@@ -19,46 +19,16 @@ import static com.guicedee.guicedservlets.rest.RESTContext.*;
 public class JaxRsPostStartup implements IGuicePostStartup<JaxRsPostStartup> {
 
 	private static final Logger log = LogFactory.getLog(JaxRsPostStartup.class);
-	private static Undertow server;
 
 	public void createBus()  {
+		log.fine("Creating Jax-RS Bus");
 		Bus bus = BusFactory.newInstance().createBus();
 		BusFactory.setDefaultBus(bus);
 	}
 
 	@Override
 	public void postLoad() {
-		if(runSeparately) {
-			createBus();
-
-			JaxRsPreStartup.deploymentManager.deploy();
-
-			PathHandler pathToListenOn = null;
-			try {
-				pathToListenOn = Handlers
-						.path(Handlers.redirect("/"))
-						.addPrefixPath("/", JaxRsPreStartup.deploymentManager.start());
-			} catch (ServletException e) {
-				log.log(Level.SEVERE, "Unable to set paths to listen on", e);
-			}
-
-			if (server == null) {
-				server = Undertow.builder()
-								 .addHttpListener(RESTContext.port, RESTContext.listeningAddress)
-								 .setHandler(pathToListenOn)
-								 .build();
-			}
-			server.start();
-			log.info("Rest Server Started from RESTContext.deploymentManager");
-		}
 	}
 
-	public static Undertow getServer() {
-		return server;
-	}
-
-	public static void setServer(Undertow server) {
-		JaxRsPostStartup.server = server;
-	}
 
 }
