@@ -8,6 +8,7 @@ import io.github.classgraph.ClassInfo;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.Path;
+import javax.ws.rs.ext.Provider;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -21,10 +22,11 @@ public class JaxRsPreStartup implements IGuicePreStartup<JaxRsPreStartup> {
 	public static final String providersString = "jaxrs.providers";
 	public static final String inInterceptorsString = "jaxrs.inInterceptors";
 	public static final String outInterceptorsString = "jaxrs.outInterceptors";
+	public static final String outFaultInterceptorsString = "jaxrs.outFaultInterceptors";
 	public static final String propertiesString = "jaxrs.properties";
 	public static final String applicationsString = "javax.ws.rs.Application";
 
-	private Set<Class<?>> mappedClasses = new HashSet<>();
+	public static final Set<Class<?>> mappedClasses = new HashSet<>();
 
 	@Override
 	public void onStartup() {
@@ -45,6 +47,7 @@ public class JaxRsPreStartup implements IGuicePreStartup<JaxRsPreStartup> {
 
 			getApplications().add(classInfo.loadClass()
 										   .getCanonicalName());
+			mappedClasses.add(classInfo.loadClass());
 		}
 
 		for (ClassInfo classInfo : GuiceContext.instance()
@@ -66,7 +69,27 @@ public class JaxRsPreStartup implements IGuicePreStartup<JaxRsPreStartup> {
 
 			mappedClasses.add(classInfo.loadClass());
 		}
+		if (autoRegisterProviders)
+		{
+			for (ClassInfo classInfo : GuiceContext.instance()
+			                                       .getScanResult()
+			                                       .getClassesWithAnnotation(Provider.class.getCanonicalName()))
+			{
+				if (classInfo.isAbstract() || classInfo.isInterface() || !RestModule.validClass(classInfo.loadClass()))
+				{
+					continue;
+				}
+				continue;
+				log.fine("Mapping Provider - " + classInfo.loadClass()
+				                                          .getCanonicalName());
+				JaxRsPackageRegistrations.getPackageNames()
+				                         .add(classInfo.getPackageName());
 
+				getProviders().add(classInfo.loadClass()
+				                            .getCanonicalName());
+				mappedClasses.add(classInfo.loadClass());
+			}
+		}
 	}
 
 }

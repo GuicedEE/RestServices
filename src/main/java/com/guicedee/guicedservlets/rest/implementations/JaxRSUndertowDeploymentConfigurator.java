@@ -1,5 +1,6 @@
 package com.guicedee.guicedservlets.rest.implementations;
 
+import com.guicedee.guicedservlets.rest.RESTContext;
 import com.guicedee.guicedservlets.undertow.services.UndertowDeploymentConfigurator;
 import io.undertow.servlet.api.DeploymentInfo;
 
@@ -15,37 +16,22 @@ public class JaxRSUndertowDeploymentConfigurator
 	@Override
 	public DeploymentInfo configure(DeploymentInfo deploymentInfo)
 	{
-		deploymentInfo.addServletContextAttribute(serviceClassesString, buildInitParamFromSet(getPathServices()));
-		deploymentInfo.addServletContextAttribute(providersString, buildInitParamFromSet(getProviders()));
-		deploymentInfo.addServletContextAttribute(inInterceptorsString, buildInitParamFromSet(getInInterceptors()));
-		deploymentInfo.addServletContextAttribute(outInterceptorsString, buildInitParamFromSet(getOutInterceptors()));
-		deploymentInfo.addServletContextAttribute(propertiesString, buildInitParamFromSet(getProperties()));
-		deploymentInfo.addServletContextAttribute(applicationsString, buildInitParamFromSet(getApplications()));
+		deploymentInfo.addServletContextAttribute(serviceClassesString, renderServices(getPathServices()));
+		deploymentInfo.addServletContextAttribute(providersString, renderServices(getProviders()));
+		deploymentInfo.addServletContextAttribute(inInterceptorsString, renderServices(getInInterceptors()));
+		deploymentInfo.addServletContextAttribute(outInterceptorsString, renderServices(getOutInterceptors()));
+		deploymentInfo.addServletContextAttribute(outFaultInterceptorsString, renderServices(getOutFaultInterceptors()));
+		deploymentInfo.addServletContextAttribute(propertiesString, renderServices(getProperties()));
+		deploymentInfo.addServletContextAttribute(applicationsString, renderServices(getApplications()));
 
-		deploymentInfo.addInitParameter(serviceClassesString, buildInitParamFromSet(getPathServices()));
-		deploymentInfo.addInitParameter(providersString, buildInitParamFromSet(getProviders()));
-		deploymentInfo.addInitParameter(inInterceptorsString, buildInitParamFromSet(getInInterceptors()));
-		deploymentInfo.addInitParameter(outInterceptorsString, buildInitParamFromSet(getOutInterceptors()));
-		deploymentInfo.addInitParameter(propertiesString, buildInitParamFromSet(getProperties()));
-		deploymentInfo.addInitParameter(applicationsString, buildInitParamFromSet(getApplications()));
+		deploymentInfo.addInitParameter(serviceClassesString, renderServices(getPathServices()));
+		deploymentInfo.addInitParameter(providersString, renderServices(getProviders()));
+		deploymentInfo.addInitParameter(inInterceptorsString, renderServices(getInInterceptors()));
+		deploymentInfo.addInitParameter(outInterceptorsString, renderServices(getOutInterceptors()));
+		deploymentInfo.addInitParameter(outFaultInterceptorsString, renderServices(getOutFaultInterceptors()));
+		deploymentInfo.addInitParameter(propertiesString, renderServices(getProperties()));
+		deploymentInfo.addInitParameter(applicationsString, renderServices(getApplications()));
 
 		return deploymentInfo;
 	}
-
-	private String buildInitParamFromSet(Set<String> values)
-	{
-		StringBuilder sb = new StringBuilder();
-		for (String value : values)
-		{
-			sb.append(value)
-			  .append(",");
-		}
-		if (!values.isEmpty())
-		{
-			sb.deleteCharAt(sb.length() - 1);
-		}
-
-		return sb.toString();
-	}
-
 }

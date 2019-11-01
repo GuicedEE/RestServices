@@ -9,6 +9,7 @@ public class RESTContext
 	private static final Set<String> providers = new HashSet<>();
 	private static final Set<String> inInterceptors = new HashSet<>();
 	private static final Set<String> outInterceptors = new HashSet<>();
+	private static final Set<String> outFaultInterceptors = new HashSet<>();
 	private static final Set<String> properties = new HashSet<>();
 	private static final Set<String> applications = new HashSet<>();
 
@@ -21,13 +22,17 @@ public class RESTContext
 	 * e.g. http://localhost/WebServices/helloworld
 	 */
 	public static String baseWSUrl = "rest";
+	/**
+	 * Whether to register all the providers found on the path.. warning - this has a tendency to enable oauth everywhere
+	 */
+	public static boolean autoRegisterProviders = false;
 
-	public static String renderPathServices() {
+	public static String renderServices(Set<String> values) {
 		StringBuilder sb = new StringBuilder();
-		for (String pathService : pathServices) {
+		for (String pathService : values) {
 			sb.append(pathService + ",");
 		}
-		if(!pathServices.isEmpty())
+		if(!values.isEmpty())
 		{
 			sb = sb.deleteCharAt(sb.length() - 1);
 		}
@@ -58,4 +63,13 @@ public class RESTContext
 		return applications;
 	}
 
+	/**
+	 * Getter for property 'outFaultInterceptors'.
+	 *
+	 * @return Value for property 'outFaultInterceptors'.
+	 */
+	public static Set<String> getOutFaultInterceptors()
+	{
+		return outFaultInterceptors;
+	}
 }

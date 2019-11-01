@@ -2,12 +2,18 @@ package com.guicedee.guicedservlets.rest;
 
 import com.google.inject.*;
 import com.guicedee.guicedinjection.*;
+import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.*;
 import org.apache.cxf.jaxrs.servlet.*;
+import org.apache.cxf.message.Message;
 
 import javax.servlet.*;
 import java.util.*;
 import java.util.logging.*;
+
+import static com.guicedee.guicedservlets.rest.RESTContext.*;
+import static com.guicedee.guicedservlets.rest.services.JaxRsPreStartup.*;
 
 @Singleton
 public class GuicedCXFNonSpringJaxrsServlet
@@ -16,10 +22,66 @@ public class GuicedCXFNonSpringJaxrsServlet
 	private static final Logger log = com.guicedee.logger.LogFactory.getLog("GuicedCXFNonSpringJaxrsServlet");
 
 
+
+	protected List<?> getProviders(ServletConfig servletConfig, String splitChar) throws ServletException {
+		String providersList = servletConfig.getServletContext().getInitParameter(providersString);
+		if (providersList == null) {
+			return Collections.EMPTY_LIST;
+		}
+		String[] classNames = providersList.split(splitChar);
+		List<Object> providers = new ArrayList<>();
+		for (String cName : classNames) {
+			Map<String, List<String>> props = new HashMap<>();
+			String theName = getClassNameAndProperties(cName, props);
+			if (theName.length() != 0) {
+				Class<?> cls = loadClass(theName);
+				providers.add(createSingletonInstance(cls, props, servletConfig));
+			}
+		}
+		return providers;
+	}
+
+	protected void setInterceptors(JAXRSServerFactoryBean bean, ServletConfig servletConfig,
+	                               String paramName,
+	                               String splitChar) throws ServletException {
+		String value  = servletConfig.getServletContext().getInitParameter(paramName);
+		if (value == null) {
+			return;
+		}
+		String[] values = value.split(splitChar);
+		List<Interceptor<? extends Message>> list = new ArrayList<>();
+		for (String interceptorVal : values) {
+			Map<String, List<String>> props = new HashMap<>();
+			String theValue = getClassNameAndProperties(interceptorVal, props);
+			if (theValue.length() != 0) {
+				try {
+					Class<?> intClass = loadClass(theValue, "Interceptor");
+					Object object = GuiceContext.get(intClass);
+					list.add((Interceptor<? extends Message>)object);
+				} catch (ServletException ex) {
+					throw ex;
+				} catch (Exception ex) {
+					log.warning("Interceptor class " + theValue + " can not be created");
+					throw new ServletException(ex);
+				}
+			}
+		}
+		if (list.size() > 0) {
+			if (outInterceptorsString.equals(paramName)) {
+				bean.setOutInterceptors(list);
+			} else if (outFaultInterceptorsString.equals(paramName)) {
+				bean.setOutFaultInterceptors(list);
+			} else {
+				bean.setInInterceptors(list);
+			}
+		}
+	}
+
+
 	protected Map<Class<?>, java.util.Map<String, List<String>>> getServiceClasses(ServletConfig servletConfig, boolean modelAvailable, String splitChar) throws
 			ServletException
 	{
-		String serviceBeans = RESTContext.renderPathServices();
+		String serviceBeans = RESTContext.renderServices(getPathServices());
 		String[] classNames = serviceBeans.split(splitChar);
 		Map<Class<?>, Map<String, List<String>>> map = new HashMap<>();
 		int len$ = classNames.length;
