@@ -2,6 +2,7 @@ package com.guicedee.guicedservlets.rest.services;
 
 import com.guicedee.guicedinjection.GuiceContext;
 import com.guicedee.guicedinjection.interfaces.IGuicePreStartup;
+import com.guicedee.guicedservlets.rest.RestModule;
 import com.guicedee.guicedservlets.rest.internal.JaxRsPackageRegistrations;
 import com.guicedee.logger.LogFactory;
 import io.github.classgraph.ClassInfo;
@@ -79,7 +80,7 @@ public class JaxRsPreStartup implements IGuicePreStartup<JaxRsPreStartup> {
 				{
 					continue;
 				}
-				continue;
+
 				log.fine("Mapping Provider - " + classInfo.loadClass()
 				                                          .getCanonicalName());
 				JaxRsPackageRegistrations.getPackageNames()
