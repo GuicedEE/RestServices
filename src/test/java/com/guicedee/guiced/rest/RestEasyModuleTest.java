@@ -1,6 +1,8 @@
 package com.guicedee.guiced.rest;
 
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.guicedee.guicedinjection.GuiceContext;
+import com.guicedee.guicedservlets.rest.RESTContext;
 import com.guicedee.guicedservlets.undertow.GuicedUndertow;
 import com.guicedee.logger.LogFactory;
 import io.undertow.Undertow;
@@ -22,6 +24,8 @@ class RestEasyModuleTest
 	@Test
 	void configureServlets() throws Exception
 	{
+		RESTContext.getProviders()
+		           .add(JacksonJsonProvider.class.getCanonicalName());
 		GuiceContext.instance()
 		            .getConfig()
 		            .setServiceLoadWithClassPath(true);
@@ -37,6 +41,12 @@ class RestEasyModuleTest
 		                                               .uri(new URI("http://localhost:6003/rest/hello/world"))
 		                                               .build(),
 		                                    HttpResponse.BodyHandlers.discarding());
+		assertEquals(200, response.statusCode());
+		response = client.send(HttpRequest.newBuilder()
+		                                  .GET()
+		                                  .uri(new URI("http://localhost:6003/rest/hello/helloObject/world"))
+		                                  .build(),
+		                       HttpResponse.BodyHandlers.discarding());
 
 		assertEquals(200, response.statusCode());
 		undertow.stop();
