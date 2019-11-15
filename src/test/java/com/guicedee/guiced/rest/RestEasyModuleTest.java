@@ -47,7 +47,6 @@ class RestEasyModuleTest
 		                                  .uri(new URI("http://localhost:6003/rest/hello/helloObject/world"))
 		                                  .build(),
 		                       HttpResponse.BodyHandlers.discarding());
-
 		assertEquals(200, response.statusCode());
 		undertow.stop();
 	}
