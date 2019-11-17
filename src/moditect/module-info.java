@@ -29,6 +29,7 @@ module com.guicedee.guicedservlets.rest {
 	requires org.apache.cxf;
 	requires aopalliance;
 	requires javax.inject;
+	requires com.fasterxml.jackson.jaxrs.json;
 
 	provides com.guicedee.guicedinjection.interfaces.IGuicePostStartup with com.guicedee.guicedservlets.rest.services.JaxRsPostStartup;
 

@@ -30,7 +30,7 @@ module com.guicedee.guicedservlets.rest {
 	requires org.apache.cxf;
 	requires aopalliance;
 	requires javax.inject;
-	requires jackson.jaxrs.json.provider;
+	requires com.fasterxml.jackson.jaxrs.json;
 
 	provides com.guicedee.guicedinjection.interfaces.IGuicePostStartup with com.guicedee.guicedservlets.rest.services.JaxRsPostStartup;
 	provides com.guicedee.guicedservlets.undertow.services.UndertowDeploymentConfigurator with com.guicedee.guicedservlets.rest.implementations.JaxRSUndertowDeploymentConfigurator;
