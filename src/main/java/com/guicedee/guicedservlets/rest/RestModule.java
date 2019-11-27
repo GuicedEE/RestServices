@@ -7,6 +7,7 @@ import com.guicedee.guicedservlets.services.IGuiceSiteBinder;
 import com.guicedee.logger.LogFactory;
 
 import java.lang.reflect.Constructor;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -16,11 +17,16 @@ public class RestModule
 		implements IGuiceSiteBinder<GuiceSiteInjectorModule>
 {
 	private static final Logger log = LogFactory.getLog(RestModule.class);
-	public static final Set<String> illegalProviders = Set.of("org.apache.cxf.jaxrs.provider.aegis.AegisJSONProvider",
-	                                                          "org.apache.cxf.jaxrs.provider.aegis.AegisElementProvider",
-	                                                          "org.apache.cxf.jaxrs.provider.atom.AtomEntryProvider",
-	                                                          "org.apache.cxf.jaxrs.provider.atom.AtomFeedProvider",
-	                                                          "org.apache.cxf.jaxrs.provider.atom.AtomPojoProvider");
+	public static final Set<String> illegalProviders = new HashSet<>();
+
+	static
+	{
+		illegalProviders.add("org.apache.cxf.jaxrs.provider.aegis.AegisJSONProvider");
+		illegalProviders.add("org.apache.cxf.jaxrs.provider.aegis.AegisElementProvider");
+		illegalProviders.add("org.apache.cxf.jaxrs.provider.atom.AtomEntryProvider");
+		illegalProviders.add("org.apache.cxf.jaxrs.provider.atom.AtomFeedProvider");
+		illegalProviders.add("org.apache.cxf.jaxrs.provider.atom.AtomPojoProvider");
+	}
 
 	public RestModule()
 	{
