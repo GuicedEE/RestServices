@@ -63,14 +63,13 @@ public class RestModule
 		module.serve$(cleanPath(RESTContext.baseWSUrl) + "*")
 		      .with(GuicedCXFNonSpringJaxrsServlet.class);
 
-		log.config("Binding all rest classes as singletons...");
+		log.config("Binding all rest classes...");
 
 		for (Class<?> mappedClass : mappedClasses)
 		{
 			if (validClass(mappedClass))
 			{
-				module.bind(mappedClass)
-				      .in(Singleton.class);
+				module.bind(mappedClass);
 			}
 		}
 	}
