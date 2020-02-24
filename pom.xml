@@ -62,7 +62,6 @@
                     <groupId>jakarta.xml.bind</groupId>
                     <artifactId>jakarta.xml.bind-api</artifactId>
                 </exclusion>
-
                 <exclusion>
                     <artifactId>jakarta.activation-api</artifactId>
                     <groupId>jakarta.activation</groupId>
@@ -90,6 +89,10 @@
             <artifactId>commons-io</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.fasterxml.jackson.jaxrs</groupId>
+            <artifactId>jackson-jaxrs-json-provider</artifactId>
+        </dependency>
 
     </dependencies>
 
