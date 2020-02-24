@@ -62,16 +62,6 @@ public class RestModule
 		log.config("Binding rest services to path defined in RestModule - " + RESTContext.baseWSUrl);
 		module.serve$(cleanPath(RESTContext.baseWSUrl) + "*")
 		      .with(GuicedCXFNonSpringJaxrsServlet.class);
-
-		log.config("Binding all rest classes...");
-
-		for (Class<?> mappedClass : mappedClasses)
-		{
-			if (validClass(mappedClass))
-			{
-				module.bind(mappedClass);
-			}
-		}
 	}
 
 	public static boolean validClass(Class<?> clazz)
