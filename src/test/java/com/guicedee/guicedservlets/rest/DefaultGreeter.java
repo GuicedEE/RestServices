@@ -1,4 +1,4 @@
-package com.guicedee.guiced.rest;
+package com.guicedee.guicedservlets.rest;
 
 public class DefaultGreeter implements Greeter
 {
