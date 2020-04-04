@@ -21,8 +21,6 @@ public class GuicedCXFNonSpringJaxrsServlet
 {
 	private static final Logger log = com.guicedee.logger.LogFactory.getLog("GuicedCXFNonSpringJaxrsServlet");
 
-
-
 	protected List<?> getProviders(ServletConfig servletConfig, String splitChar) throws ServletException {
 		String providersList = servletConfig.getServletContext().getInitParameter(providersString);
 		if (providersList == null) {
