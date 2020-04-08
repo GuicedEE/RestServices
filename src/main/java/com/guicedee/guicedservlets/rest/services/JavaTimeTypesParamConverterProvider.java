@@ -1,5 +1,8 @@
 package com.guicedee.guicedservlets.rest.services;
 
+import com.guicedee.guicedinjection.json.LocalDateDeserializer;
+import com.guicedee.guicedinjection.json.LocalDateTimeDeserializer;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.time.LocalDate;
@@ -19,145 +22,209 @@ import javax.ws.rs.ext.Provider;
  * ParamConverterProvider for Java 8 JSR 310 Date Time API
  */
 @Provider
-public class JavaTimeTypesParamConverterProvider implements ParamConverterProvider {
+public class JavaTimeTypesParamConverterProvider
+		implements ParamConverterProvider
+{
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> ParamConverter<T> getConverter(Class<T> rawType, Type genericType, Annotation[] annotations) {
+	public <T> ParamConverter<T> getConverter(Class<T> rawType, Type genericType, Annotation[] annotations)
+	{
 
-		if (rawType.equals(LocalDateTime.class)) {
+		if (rawType.equals(LocalDateTime.class))
+		{
 			return (ParamConverter<T>) new LocalDateTimeConverter();
-		} else if (rawType.equals(LocalDate.class)) {
+		}
+		else if (rawType.equals(LocalDate.class))
+		{
 			return (ParamConverter<T>) new LocalDateConverter();
-		} else if (rawType.equals(LocalTime.class)) {
+		}
+		else if (rawType.equals(LocalTime.class))
+		{
 			return (ParamConverter<T>) new LocalTimeConverter();
-		} else if (rawType.equals(OffsetDateTime.class)) {
+		}
+		else if (rawType.equals(OffsetDateTime.class))
+		{
 			return (ParamConverter<T>) new OffsetDateTimeConverter();
-		} else if (rawType.equals(OffsetTime.class)) {
+		}
+		else if (rawType.equals(OffsetTime.class))
+		{
 			return (ParamConverter<T>) new OffsetTimeConverter();
-		} else if (rawType.equals(ZonedDateTime.class)) {
+		}
+		else if (rawType.equals(ZonedDateTime.class))
+		{
 			return (ParamConverter<T>) new ZonedDateTimeConverter();
-		} else {
+		}
+		else
+		{
 			return null;
 		}
 	}
 
-	public class LocalDateTimeConverter implements ParamConverter<LocalDateTime> {
+	public static class LocalDateTimeConverter
+			implements ParamConverter<LocalDateTime>
+	{
 		@Override
-		public LocalDateTime fromString(String value) {
-			try {
-				return LocalDateTime.parse(value, getFormatter());
-			} catch (DateTimeParseException parseException) {
+		public LocalDateTime fromString(String value)
+		{
+			try
+			{
+				return new LocalDateTimeDeserializer().convert(value);
+			}
+			catch (Exception parseException)
+			{
 				throw new IllegalArgumentException(parseException);
 			}
 		}
 
 		@Override
-		public String toString(LocalDateTime localDateTime) {
+		public String toString(LocalDateTime localDateTime)
+		{
 			return getFormatter().format(localDateTime);
 		}
 
-		protected DateTimeFormatter getFormatter() {
+		protected DateTimeFormatter getFormatter()
+		{
 			return DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 		}
 	}
 
-	public class LocalDateConverter implements ParamConverter<LocalDate> {
+	public static class LocalDateConverter
+			implements ParamConverter<LocalDate>
+	{
 		@Override
-		public LocalDate fromString(String value) {
-			try {
-				return LocalDate.parse(value, getFormatter());
-			} catch (DateTimeParseException parseException) {
+		public LocalDate fromString(String value)
+		{
+			try
+			{
+				return new LocalDateDeserializer().convert(value);
+			}
+			catch (Exception parseException)
+			{
 				throw new IllegalArgumentException(parseException);
 			}
 		}
 
 		@Override
-		public String toString(LocalDate localDate) {
+		public String toString(LocalDate localDate)
+		{
 			return getFormatter().format(localDate);
 		}
 
-		protected DateTimeFormatter getFormatter() {
+		protected DateTimeFormatter getFormatter()
+		{
 			return DateTimeFormatter.ISO_LOCAL_DATE;
 		}
 	}
 
-	public class LocalTimeConverter implements ParamConverter<LocalTime> {
+	public static class LocalTimeConverter
+			implements ParamConverter<LocalTime>
+	{
 		@Override
-		public LocalTime fromString(String value) {
-			try {
+		public LocalTime fromString(String value)
+		{
+			try
+			{
 				return LocalTime.parse(value, getFormatter());
-			} catch (DateTimeParseException parseException) {
+			}
+			catch (DateTimeParseException parseException)
+			{
 				throw new IllegalArgumentException(parseException);
 			}
 		}
 
 		@Override
-		public String toString(LocalTime localTime) {
+		public String toString(LocalTime localTime)
+		{
 			return getFormatter().format(localTime);
 		}
 
-		protected DateTimeFormatter getFormatter() {
+		protected DateTimeFormatter getFormatter()
+		{
 			return DateTimeFormatter.ISO_LOCAL_TIME;
 		}
 	}
 
-	public class OffsetDateTimeConverter implements ParamConverter<OffsetDateTime> {
+	public static class OffsetDateTimeConverter
+			implements ParamConverter<OffsetDateTime>
+	{
 		@Override
-		public OffsetDateTime fromString(String value) {
-			try {
+		public OffsetDateTime fromString(String value)
+		{
+			try
+			{
 				return OffsetDateTime.parse(value, getFormatter());
-			} catch (DateTimeParseException parseException) {
+			}
+			catch (DateTimeParseException parseException)
+			{
 				throw new IllegalArgumentException(parseException);
 			}
 		}
 
 		@Override
-		public String toString(OffsetDateTime offsetDateTime) {
+		public String toString(OffsetDateTime offsetDateTime)
+		{
 			return getFormatter().format(offsetDateTime);
 		}
 
-		protected DateTimeFormatter getFormatter() {
+		protected DateTimeFormatter getFormatter()
+		{
 			return DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 		}
 	}
 
-	public class OffsetTimeConverter implements ParamConverter<OffsetTime> {
+	public static class OffsetTimeConverter
+			implements ParamConverter<OffsetTime>
+	{
 		@Override
-		public OffsetTime fromString(String value) {
-			try {
+		public OffsetTime fromString(String value)
+		{
+			try
+			{
 				return OffsetTime.parse(value, getFormatter());
-			} catch (DateTimeParseException parseException) {
+			}
+			catch (DateTimeParseException parseException)
+			{
 				throw new IllegalArgumentException(parseException);
 			}
 		}
 
 		@Override
-		public String toString(OffsetTime offsetTime) {
+		public String toString(OffsetTime offsetTime)
+		{
 			return getFormatter().format(offsetTime);
 		}
 
-		protected DateTimeFormatter getFormatter() {
+		protected DateTimeFormatter getFormatter()
+		{
 			return DateTimeFormatter.ISO_OFFSET_TIME;
 		}
 	}
 
-	public class ZonedDateTimeConverter implements ParamConverter<ZonedDateTime> {
+	public static class ZonedDateTimeConverter
+			implements ParamConverter<ZonedDateTime>
+	{
 		@Override
-		public ZonedDateTime fromString(String value) {
-			try {
+		public ZonedDateTime fromString(String value)
+		{
+			try
+			{
 				return ZonedDateTime.parse(value, getFormatter());
-			} catch (DateTimeParseException parseException) {
+			}
+			catch (DateTimeParseException parseException)
+			{
 				throw new IllegalArgumentException(parseException);
 			}
 		}
 
 		@Override
-		public String toString(ZonedDateTime zonedDateTime) {
+		public String toString(ZonedDateTime zonedDateTime)
+		{
 			return getFormatter().format(zonedDateTime);
 		}
 
-		protected DateTimeFormatter getFormatter() {
+		protected DateTimeFormatter getFormatter()
+		{
 			return DateTimeFormatter.ISO_ZONED_DATE_TIME;
 		}
 	}

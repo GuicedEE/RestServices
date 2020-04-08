@@ -9,7 +9,7 @@ module com.guicedee.guicedservlets.rest {
 
 	//JDK 11 Tests
 	requires static java.net.http;
-	requires org.apache.cxf;
+	requires transitive org.apache.cxf;
 
 	requires transitive com.fasterxml.jackson.jaxrs.json;
 	requires transitive com.fasterxml.jackson.module.paramnames;
