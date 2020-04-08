@@ -4,7 +4,8 @@ module com.guicedee.guicedservlets.rest {
 	exports com.guicedee.guicedservlets.rest.services;
 	exports com.guicedee.guicedservlets.rest.internal;
 
-	requires transitive com.guicedee.guicedservlets.undertow;
+	requires static com.guicedee.guicedservlets.undertow;
+	requires transitive com.guicedee.guicedservlets;
 	requires transitive java.ws.rs;
 
 	//JDK 11 Tests
