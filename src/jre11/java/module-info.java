@@ -1,37 +1,18 @@
 module com.guicedee.guicedservlets.rest {
 
 	exports com.guicedee.guicedservlets.rest;
-
+	exports com.guicedee.guicedservlets.rest.services;
 	exports com.guicedee.guicedservlets.rest.internal;
 
-	requires com.guicedee.guicedinjection;
-	requires com.google.guice.extensions.servlet;
-	requires com.google.guice;
+	requires transitive com.guicedee.guicedservlets.undertow;
+	requires transitive java.ws.rs;
 
-	requires com.guicedee.guicedservlets.undertow;
-
-	requires com.fasterxml.jackson.databind;
-
-	requires javax.servlet.api;
-
-	requires com.google.common;
-
-	//Undertow Registrations
-	requires undertow.servlet;
-	requires undertow.core;
 	//JDK 11 Tests
 	requires static java.net.http;
-
-	requires com.guicedee.guicedservlets;
-
-	requires java.ws.rs;
-
-	requires io.github.classgraph;
 	requires org.apache.cxf;
-	requires aopalliance;
-	requires javax.inject;
 
-	requires com.fasterxml.jackson.jaxrs.json;
+	requires transitive com.fasterxml.jackson.jaxrs.json;
+	requires transitive com.fasterxml.jackson.module.paramnames;
 
 	provides com.guicedee.guicedinjection.interfaces.IGuicePostStartup with com.guicedee.guicedservlets.rest.services.JaxRsPostStartup;
 	provides com.guicedee.guicedservlets.undertow.services.UndertowDeploymentConfigurator with com.guicedee.guicedservlets.rest.implementations.JaxRSUndertowDeploymentConfigurator;
