@@ -5,11 +5,13 @@ module com.guicedee.guicedservlets.rest {
 	exports com.guicedee.guicedservlets.rest.internal;
 
 	requires static com.guicedee.guicedservlets.undertow;
+
 	requires transitive com.guicedee.guicedservlets;
 	requires transitive java.ws.rs;
 
 	//JDK 11 Tests
 	requires static java.net.http;
+
 	requires transitive org.apache.cxf;
 
 	requires transitive com.fasterxml.jackson.jaxrs.json;
