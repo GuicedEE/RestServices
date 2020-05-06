@@ -1,17 +1,30 @@
 package com.guicedee.guicedservlets.rest;
 
+import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.guicedee.guicedservlets.rest.implementations.JAXBMarshaller;
+
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class RESTContext
 {
 	private static final Set<String> pathServices = new HashSet<>();
-	private static final Set<String> providers = new HashSet<>();
-	private static final Set<String> inInterceptors = new HashSet<>();
+	private static final Set<String> providers = new HashSet<>(List.of(JacksonJsonProvider.class.getCanonicalName(),
+	                                                                   JacksonJaxbJsonProvider.class.getCanonicalName(),
+	                                                                   JAXBMarshaller.class.getCanonicalName(),
+	                                                                   "org.apache.cxf.jaxrs.provider.JAXBElementProvider",
+	                                                                   "org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInvoker",
+	                                                                   "com.guicedee.guicedservlets.rest.services.JavaTimeTypesParamConverterProvider",
+	                                                                   "org.apache.cxf.jaxrs.validation.JAXRSParameterNameProvider"));
+	private static final Set<String> inInterceptors = new HashSet<>(List.of("org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor"
+	                                                                       ));
 	private static final Set<String> outInterceptors = new HashSet<>();
 	private static final Set<String> outFaultInterceptors = new HashSet<>();
 	private static final Set<String> properties = new HashSet<>();
 	private static final Set<String> applications = new HashSet<>();
+
 
 	/**
 	 * Provides the url that the module will use to provide Web Services.
@@ -27,39 +40,47 @@ public class RESTContext
 	 */
 	public static boolean autoRegisterProviders = false;
 
-	public static String renderServices(Set<String> values) {
+	public static String renderServices(Set<String> values)
+	{
 		StringBuilder sb = new StringBuilder();
-		for (String pathService : values) {
+		for (String pathService : values)
+		{
 			sb.append(pathService + ",");
 		}
-		if(!values.isEmpty())
+		if (!values.isEmpty())
 		{
 			sb = sb.deleteCharAt(sb.length() - 1);
 		}
 		return sb.toString();
 	}
 
-	public static Set<String> getPathServices() {
+	public static Set<String> getPathServices()
+	{
 		return pathServices;
 	}
 
-	public static Set<String> getProviders() {
+	public static Set<String> getProviders()
+	{
 		return providers;
 	}
 
-	public static Set<String> getInInterceptors() {
+	public static Set<String> getInInterceptors()
+	{
 		return inInterceptors;
 	}
 
-	public static Set<String> getOutInterceptors() {
+	public static Set<String> getOutInterceptors()
+	{
 		return outInterceptors;
 	}
 
-	public static Set<String> getProperties() {
+	public static Set<String> getProperties()
+	{
 		return properties;
 	}
 
-	public static Set<String> getApplications() {
+	public static Set<String> getApplications()
+	{
 		return applications;
 	}
 
