@@ -101,28 +101,6 @@
         <url>http://jwebmp.com/teamcity</url>
     </ciManagement>
 
-    <build>
-        <plugins>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>${maven.jar.version}</version>
-                <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <Multi-Release>true</Multi-Release>
-                        </manifestEntries>
-                        <manifest>
-                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
     <profiles>
         <profile>
             <id>jdk8</id>
