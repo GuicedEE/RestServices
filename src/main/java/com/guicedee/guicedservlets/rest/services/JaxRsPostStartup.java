@@ -1,7 +1,7 @@
 package com.guicedee.guicedservlets.rest.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+//import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.guicedee.guicedinjection.GuiceContext;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
@@ -23,19 +23,17 @@ public class JaxRsPostStartup implements IGuicePostStartup<JaxRsPostStartup> {
 
 	private static final Logger log = LogFactory.getLog(JaxRsPostStartup.class);
 
-	public void createBus()  {
-		log.fine("Creating Jax-RS Bus");
-		Bus bus = BusFactory.newInstance().createBus();
-		BusFactory.setDefaultBus(bus);
-
-		GuiceContext.get(ObjectMapper.class)
-		            .registerModule(new ParameterNamesModule());
-	}
-
-	@Override
-	public void postLoad() {
+	@Override public void postLoad() {
 		createBus();
 	}
 
+	public void createBus() {
+		log.fine("Creating Jax-RS Bus");
+		Bus bus = BusFactory.newInstance().createBus();
+		BusFactory.setDefaultBus(bus);
+/*
+		GuiceContext.get(ObjectMapper.class)
+		            .registerModule(new ParameterNamesModule());*/
+	}
 
 }
