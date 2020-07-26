@@ -13,8 +13,7 @@ module com.guicedee.guicedservlets.rest {
 	requires transitive org.apache.cxf;
 	requires transitive java.ws.rs;
 	requires transitive org.apache.commons.io;
-	//TODO is this the enum breaker?
-	//requires transitive com.fasterxml.jackson.module.paramnames;
+	requires transitive com.fasterxml.jackson.module.paramnames;
 
 	provides com.guicedee.guicedinjection.interfaces.IGuicePostStartup with com.guicedee.guicedservlets.rest.services.JaxRsPostStartup;
 	provides com.guicedee.guicedservlets.undertow.services.UndertowDeploymentConfigurator with com.guicedee.guicedservlets.rest.implementations.JaxRSUndertowDeploymentConfigurator;
