@@ -41,7 +41,6 @@
         <dependency>
             <groupId>com.guicedee.services</groupId>
             <artifactId>undertow-servlet</artifactId>
-            <type>jar</type>
         </dependency>
 
        <dependency>
@@ -52,7 +51,6 @@
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-parameter-names</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
 
         <dependency>
