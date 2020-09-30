@@ -28,7 +28,7 @@ public class RESTContext
 
 	/**
 	 * Provides the url that the module will use to provide Web Services.
-	 * Does not default to module name, default to WebServices
+	 * Does not default to module name, default to "rest"
 	 * <p>
 	 *
 	 * <p>
