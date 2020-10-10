@@ -140,6 +140,19 @@ public class GuicedCXFNonSpringJaxrsServlet
 		catch (Throwable T)
 		{
 			log.log(Level.SEVERE, "Unable to construct instance for cxf", T);
+			Object o = null;
+			try {
+				o = cls.getDeclaredConstructor().newInstance();
+				GuiceContext.inject().injectMembers(o);
+				return o;
+			}catch(Throwable T1)
+			{
+				if(o != null)
+				{
+					return o;
+				}
+				log.log(Level.FINE,"Unable to create instance for rest :",T1);
+			}
 			return null;
 		}
 	}
@@ -161,7 +174,8 @@ public class GuicedCXFNonSpringJaxrsServlet
 		if(cName == null)
 			return null;
 		return GuiceContext.instance()
-						   .getScanResult()
-						   .loadClass(cName, true);
+				.getScanResult()
+				.loadClass(cName, true);
+
 	}
 }
