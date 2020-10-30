@@ -56,6 +56,12 @@
         <dependency>
             <groupId>jakarta.xml.ws</groupId>
             <artifactId>jakarta.xml.ws-api</artifactId>
+            <exclusions>
+                <exclusion>
+                        <groupId>jakarta.xml.ws</groupId>
+                        <artifactId>jakarta.xml.ws-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>

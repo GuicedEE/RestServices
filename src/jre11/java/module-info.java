@@ -1,8 +1,10 @@
 import com.guicedee.guicedservlets.rest.implementations.JAXBMarshaller;
 
 module com.guicedee.guicedservlets.rest {
+    uses com.guicedee.guicedservlets.rest.RestProvidersFilter;
+    provides com.guicedee.guicedservlets.rest.RestProvidersFilter with com.guicedee.guicedservlets.rest.implementations.DefaultClassResourceFilter;
 
-	exports com.guicedee.guicedservlets.rest;
+    exports com.guicedee.guicedservlets.rest;
 	exports com.guicedee.guicedservlets.rest.services;
 	exports com.guicedee.guicedservlets.rest.internal;
 
@@ -23,6 +25,7 @@ module com.guicedee.guicedservlets.rest {
 	provides com.guicedee.guicedinjection.interfaces.IGuiceConfigurator with com.guicedee.guicedservlets.rest.implementations.RestServiceScannerConfig;
 
 	opens com.guicedee.guicedservlets.rest.implementations to com.google.guice, org.apache.cxf;
+	opens com.guicedee.guicedservlets.rest to com.google.guice, org.apache.cxf;
 
 	provides javax.ws.rs.ext.MessageBodyReader with JAXBMarshaller;
 	provides javax.ws.rs.ext.MessageBodyWriter with JAXBMarshaller;

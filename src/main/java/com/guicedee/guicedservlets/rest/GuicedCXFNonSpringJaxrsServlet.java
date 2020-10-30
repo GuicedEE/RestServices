@@ -2,6 +2,7 @@ package com.guicedee.guicedservlets.rest;
 
 import com.google.inject.*;
 import com.guicedee.guicedinjection.*;
+import com.guicedee.guicedinjection.interfaces.IDefaultService;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.*;
@@ -11,6 +12,7 @@ import org.apache.cxf.message.Message;
 import javax.servlet.*;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.*;
 
 import static com.guicedee.guicedservlets.rest.RESTContext.*;
@@ -99,12 +101,6 @@ public class GuicedCXFNonSpringJaxrsServlet
 
 	}
 
-	private static final Set<String> bannedResources =new HashSet<>();
-	static {
-	    bannedResources.add("org.apache.cxf.rs.security.saml.sso.AbstractSSOSpHandler");
-	    bannedResources.add("org.apache.cxf.rs.security.saml.sso.RequestAssertionConsumerService");
-	    bannedResources.add("org.apache.cxf.rs.security.saml.sso.MetadataService");
-    }
 
 	@SuppressWarnings("unchecked")
 
@@ -117,11 +113,15 @@ public class GuicedCXFNonSpringJaxrsServlet
 			boolean isPrototype = "prototype".equals(scope);
 			Map<Class<?>, ResourceProvider> map = new HashMap();
 
-			for (Map.Entry<Class<?>, Map<String, List<String>>> classMapEntry : resourceClasses.entrySet()) {
+			Set<RestProvidersFilter> filters = IDefaultService.loaderToSet(ServiceLoader.load(RestProvidersFilter.class));
+			Map<Class<?>, Map<String, List<String>>> activeResources = new ConcurrentHashMap<>();
+			activeResources.putAll(resourceClasses);
+			for (RestProvidersFilter<?> filter : filters) {
+				activeResources = filter.processResourceList(activeResources);
+			}
+
+			for (Map.Entry<Class<?>, Map<String, List<String>>> classMapEntry : activeResources.entrySet()) {
 				Map.Entry<Class<?>, Map<String, List<String>>> entry = classMapEntry;
-                if (bannedResources.contains(entry.getKey().getCanonicalName())) {
-                    continue;
-                }
 				Class<?> c = entry.getKey();
 				map.put(c, isPrototype
 						? new PerRequestResourceProvider(c)
