@@ -10,6 +10,7 @@ import org.apache.cxf.jaxrs.servlet.*;
 import org.apache.cxf.message.Message;
 
 import javax.servlet.*;
+import javax.validation.constraints.NotNull;
 import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,9 +34,19 @@ public class GuicedCXFNonSpringJaxrsServlet
 		for (String cName : classNames) {
 			Map<String, List<String>> props = new HashMap<>();
 			String theName = getClassNameAndProperties(cName, props);
+			boolean allowedClass = true;
 			if (theName.length() != 0) {
 				Class<?> cls = loadClass(theName);
-				providers.add(createSingletonInstance(cls, props, servletConfig));
+				Set<RestProvidersFilter> providersFilters = IDefaultService.loaderToSet(ServiceLoader.load(RestProvidersFilter.class));
+				for (RestProvidersFilter<?> providersFilter : providersFilters) {
+					if(providersFilter.disallowProvider(cls))
+					{
+						allowedClass = false;
+						break;
+					}
+				}
+				if(allowedClass)
+					providers.add(createSingletonInstance(cls, props, servletConfig));
 			}
 		}
 		return providers;
@@ -93,12 +104,19 @@ public class GuicedCXFNonSpringJaxrsServlet
 				map.put(cls, props);
 			}
 		}
+
+		Set<RestServicesFilter> filters = IDefaultService.loaderToSet(ServiceLoader.load(RestServicesFilter.class));
+		Map<Class<?>, Map<String, List<String>>> activeResources = new ConcurrentHashMap<>();
+		activeResources.putAll(map);
+		for (RestServicesFilter<?> filter : filters) {
+			activeResources = filter.processServicesList(activeResources);
+		}
+
 		if (map.isEmpty()) {
 			log.warning("No JaxRS Resource Class was found");
 
 		}
-		return map;
-
+		return activeResources;
 	}
 
 
@@ -113,10 +131,10 @@ public class GuicedCXFNonSpringJaxrsServlet
 			boolean isPrototype = "prototype".equals(scope);
 			Map<Class<?>, ResourceProvider> map = new HashMap();
 
-			Set<RestProvidersFilter> filters = IDefaultService.loaderToSet(ServiceLoader.load(RestProvidersFilter.class));
+			Set<RestResourceProvidersFilter> filters = IDefaultService.loaderToSet(ServiceLoader.load(RestResourceProvidersFilter.class));
 			Map<Class<?>, Map<String, List<String>>> activeResources = new ConcurrentHashMap<>();
 			activeResources.putAll(resourceClasses);
-			for (RestProvidersFilter<?> filter : filters) {
+			for (RestResourceProvidersFilter<?> filter : filters) {
 				activeResources = filter.processResourceList(activeResources);
 			}
 

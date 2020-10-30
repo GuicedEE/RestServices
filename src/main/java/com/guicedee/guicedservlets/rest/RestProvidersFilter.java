@@ -7,5 +7,5 @@ import java.util.Map;
 
 @FunctionalInterface
 public interface RestProvidersFilter<J extends RestProvidersFilter<J>> extends IDefaultService<J> {
-    Map<Class<?>, Map<String, List<String>>> processResourceList(Map<Class<?>, Map<String, List<String>>> list);
+    boolean disallowProvider(Class<?> clazz);
 }

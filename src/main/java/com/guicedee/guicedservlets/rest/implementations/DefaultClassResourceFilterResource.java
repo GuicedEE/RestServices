@@ -1,10 +1,10 @@
 package com.guicedee.guicedservlets.rest.implementations;
 
-import com.guicedee.guicedservlets.rest.RestProvidersFilter;
+import com.guicedee.guicedservlets.rest.RestResourceProvidersFilter;
 
 import java.util.*;
 
-public class DefaultClassResourceFilter implements RestProvidersFilter<DefaultClassResourceFilter> {
+public class DefaultClassResourceFilterResource implements RestResourceProvidersFilter<DefaultClassResourceFilterResource> {
     private static final Set<String> bannedResources =new HashSet<>();
 
     static {

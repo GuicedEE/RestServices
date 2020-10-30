@@ -1,8 +1,14 @@
+import com.guicedee.guicedservlets.rest.RestProvidersFilter;
+import com.guicedee.guicedservlets.rest.RestResourceProvidersFilter;
+import com.guicedee.guicedservlets.rest.RestServicesFilter;
+import com.guicedee.guicedservlets.rest.implementations.DefaultClassResourceFilterResource;
 import com.guicedee.guicedservlets.rest.implementations.JAXBMarshaller;
 
 module com.guicedee.guicedservlets.rest {
-    uses com.guicedee.guicedservlets.rest.RestProvidersFilter;
-    provides com.guicedee.guicedservlets.rest.RestProvidersFilter with com.guicedee.guicedservlets.rest.implementations.DefaultClassResourceFilter;
+    uses RestResourceProvidersFilter;
+    uses RestServicesFilter;
+    uses RestProvidersFilter;
+    provides RestResourceProvidersFilter with DefaultClassResourceFilterResource;
 
     exports com.guicedee.guicedservlets.rest;
 	exports com.guicedee.guicedservlets.rest.services;
