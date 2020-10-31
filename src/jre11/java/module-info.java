@@ -14,6 +14,8 @@ module com.guicedee.guicedservlets.rest {
 	exports com.guicedee.guicedservlets.rest.services;
 	exports com.guicedee.guicedservlets.rest.internal;
 
+	requires java.xml.bind;
+
 	requires transitive com.guicedee.guicedservlets.undertow;
 	//JDK 11 Tests
 	requires static java.net.http;

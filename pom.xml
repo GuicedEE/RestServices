@@ -44,8 +44,13 @@
         </dependency>
 
        <dependency>
-            <groupId>jakarta.ws.rs</groupId>
+           <groupId>com.guicedee.services</groupId>
             <artifactId>jakarta.ws.rs-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.guicedee.services</groupId>
+            <artifactId>java.ws.rs</artifactId>
         </dependency>
 
         <dependency>
