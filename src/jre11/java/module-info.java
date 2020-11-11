@@ -16,6 +16,9 @@ module com.guicedee.guicedservlets.rest {
 
 	requires java.xml.bind;
 
+	requires java.xml;
+	requires transitive com.fasterxml.jackson.jaxrs.json;
+
 	requires transitive com.guicedee.guicedservlets.undertow;
 	//JDK 11 Tests
 	requires static java.net.http;
@@ -35,6 +38,6 @@ module com.guicedee.guicedservlets.rest {
 	opens com.guicedee.guicedservlets.rest.implementations to com.google.guice, org.apache.cxf;
 	opens com.guicedee.guicedservlets.rest to com.google.guice, org.apache.cxf;
 
-	provides javax.ws.rs.ext.MessageBodyReader with JAXBMarshaller;
-	provides javax.ws.rs.ext.MessageBodyWriter with JAXBMarshaller;
+	provides jakarta.ws.rs.ext.MessageBodyReader with JAXBMarshaller;
+	provides jakarta.ws.rs.ext.MessageBodyWriter with JAXBMarshaller;
 }

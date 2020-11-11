@@ -5,14 +5,14 @@ import com.guicedee.guicedinjection.pairing.Pair;
 import com.guicedee.logger.LogFactory;
 import org.apache.commons.io.IOUtils;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.ext.MessageBodyReader;
-import javax.ws.rs.ext.MessageBodyWriter;
-import javax.ws.rs.ext.Provider;
-import javax.xml.bind.*;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.ext.MessageBodyReader;
+import jakarta.ws.rs.ext.MessageBodyWriter;
+import jakarta.ws.rs.ext.Provider;
+import jakarta.xml.bind.*;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -35,14 +35,14 @@ public class JAXBMarshaller
 	public static boolean fragment = true;
 
 	@Override
-	public boolean isWriteable(Class type, Type genericType, Annotation[] annotations, javax.ws.rs.core.MediaType mediaType)
+	public boolean isWriteable(Class type, Type genericType, Annotation[] annotations, jakarta.ws.rs.core.MediaType mediaType)
 	{
 		return true;
 	}
 
 	@Override
 	public void writeTo(Object o, Class type, Type genericType, Annotation[] annotations,
-	                    javax.ws.rs.core.MediaType mediaType,
+	                    jakarta.ws.rs.core.MediaType mediaType,
 	                    MultivaluedMap httpHeaders,
 	                    OutputStream entityStream) throws IOException, WebApplicationException
 	{
@@ -117,13 +117,13 @@ public class JAXBMarshaller
 	}
 
 	@Override
-	public boolean isReadable(Class type, Type genericType, Annotation[] annotations, javax.ws.rs.core.MediaType mediaType)
+	public boolean isReadable(Class type, Type genericType, Annotation[] annotations, jakarta.ws.rs.core.MediaType mediaType)
 	{
 		return true;
 	}
 
 	@Override
-	public Object readFrom(Class type, Type genericType, Annotation[] annotations, javax.ws.rs.core.MediaType mediaType, MultivaluedMap httpHeaders, InputStream entityStream) throws IOException, WebApplicationException
+	public Object readFrom(Class type, Type genericType, Annotation[] annotations, jakarta.ws.rs.core.MediaType mediaType, MultivaluedMap httpHeaders, InputStream entityStream) throws IOException, WebApplicationException
 	{
 		String xml = IOUtils.toString(entityStream, UTF_8);
 		return fromXml(xml, type);

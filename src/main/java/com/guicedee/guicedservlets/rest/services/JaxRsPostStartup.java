@@ -12,7 +12,7 @@ import com.guicedee.guicedinjection.interfaces.IGuicePostStartup;
 import com.guicedee.guicedservlets.rest.RESTContext;
 import com.guicedee.logger.LogFactory;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

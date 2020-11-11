@@ -9,8 +9,8 @@ import org.apache.cxf.jaxrs.lifecycle.*;
 import org.apache.cxf.jaxrs.servlet.*;
 import org.apache.cxf.message.Message;
 
-import javax.servlet.*;
-import javax.validation.constraints.NotNull;
+import jakarta.servlet.*;
+import jakarta.validation.constraints.NotNull;
 import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

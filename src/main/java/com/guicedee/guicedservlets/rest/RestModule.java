@@ -78,7 +78,7 @@ public class RestModule
 			{
 				if (declaredConstructor.getParameterCount() == 0
 				    || declaredConstructor.isAnnotationPresent(Inject.class)
-				    || declaredConstructor.isAnnotationPresent(javax.inject.Inject.class)
+				    || declaredConstructor.isAnnotationPresent(jakarta.inject.Inject.class)
 				)
 				{
 					return true;

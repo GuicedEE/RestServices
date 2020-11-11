@@ -7,9 +7,9 @@ import com.guicedee.guicedservlets.rest.internal.JaxRsPackageRegistrations;
 import com.guicedee.logger.LogFactory;
 import io.github.classgraph.ClassInfo;
 
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.Path;
-import javax.ws.rs.ext.Provider;
+import jakarta.ws.rs.ApplicationPath;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.ext.Provider;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -25,7 +25,7 @@ public class JaxRsPreStartup implements IGuicePreStartup<JaxRsPreStartup> {
 	public static final String outInterceptorsString = "jaxrs.outInterceptors";
 	public static final String outFaultInterceptorsString = "jaxrs.outFaultInterceptors";
 	public static final String propertiesString = "jaxrs.properties";
-	public static final String applicationsString = "javax.ws.rs.Application";
+	public static final String applicationsString = "jakarta.ws.rs.Application";
 
 	public static final Set<Class<?>> mappedClasses = new HashSet<>();
 
