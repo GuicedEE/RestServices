@@ -43,7 +43,7 @@ public class JaxRsPreStartup implements IGuicePreStartup<JaxRsPreStartup> {
 								   .value();
 			JaxRsPackageRegistrations.getPackageNames()
 									 .add(classInfo.getPackageName());
-			log.fine("Mapping Jax-RS Application - " + classInfo.loadClass()
+			log.config("Mapping Jax-RS Application - " + classInfo.loadClass()
 																.getCanonicalName() + " to " + path);
 
 			getApplications().add(classInfo.loadClass()
@@ -60,7 +60,7 @@ public class JaxRsPreStartup implements IGuicePreStartup<JaxRsPreStartup> {
 								   .getAnnotation(Path.class)
 								   .value();
 
-			log.fine("Mapping Jax-RS Path - " + classInfo.loadClass()
+			log.config("Mapping Jax-RS Path - " + classInfo.loadClass()
 														 .getCanonicalName() + " to " + path);
 			JaxRsPackageRegistrations.getPackageNames()
 									 .add(classInfo.getPackageName());
@@ -81,7 +81,7 @@ public class JaxRsPreStartup implements IGuicePreStartup<JaxRsPreStartup> {
 					continue;
 				}
 
-				log.fine("Mapping Provider - " + classInfo.loadClass()
+				log.config("Mapping Provider - " + classInfo.loadClass()
 				                                          .getCanonicalName());
 				JaxRsPackageRegistrations.getPackageNames()
 				                         .add(classInfo.getPackageName());

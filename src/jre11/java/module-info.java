@@ -14,7 +14,7 @@ module com.guicedee.guicedservlets.rest {
 	exports com.guicedee.guicedservlets.rest.services;
 	exports com.guicedee.guicedservlets.rest.internal;
 
-	requires java.xml.bind;
+	requires jakarta.xml.bind;
 
 	requires java.xml;
 	requires transitive com.fasterxml.jackson.jaxrs.json;
