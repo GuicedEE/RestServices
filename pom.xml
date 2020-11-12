@@ -79,8 +79,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.fasterxml.jackson.jaxrs</groupId>
+            <groupId>com.guicedee.services</groupId>
             <artifactId>jackson-jaxrs-json-provider</artifactId>
+            <classifier>jakarta</classifier>
         </dependency>
 
     </dependencies>

@@ -24,7 +24,6 @@ module com.guicedee.guicedservlets.rest {
 	requires static java.net.http;
 
 	requires transitive org.apache.cxf;
-	requires transitive java.ws.rs;
 	requires transitive org.apache.commons.io;
 	requires transitive com.fasterxml.jackson.module.paramnames;
 
