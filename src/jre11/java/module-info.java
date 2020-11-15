@@ -8,7 +8,9 @@ module com.guicedee.guicedservlets.rest {
     uses RestResourceProvidersFilter;
     uses RestServicesFilter;
     uses RestProvidersFilter;
+    
     provides RestResourceProvidersFilter with DefaultClassResourceFilterResource;
+    provides RestServicesFilter with DefaultClassResourceFilterResource;
 
     exports com.guicedee.guicedservlets.rest;
 	exports com.guicedee.guicedservlets.rest.services;

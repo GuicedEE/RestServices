@@ -106,13 +106,13 @@ public class GuicedCXFNonSpringJaxrsServlet
 		}
 
 		Set<RestServicesFilter> filters = IDefaultService.loaderToSet(ServiceLoader.load(RestServicesFilter.class));
-		Map<Class<?>, Map<String, List<String>>> activeResources = new ConcurrentHashMap<>();
+		Map<Class<?>, Map<String, List<String>>> activeResources = new java.util.LinkedHashMap<>();
 		activeResources.putAll(map);
 		for (RestServicesFilter<?> filter : filters) {
 			activeResources = filter.processServicesList(activeResources);
 		}
 
-		if (map.isEmpty()) {
+		if (activeResources.isEmpty()) {
 			log.warning("No JaxRS Resource Class was found");
 
 		}

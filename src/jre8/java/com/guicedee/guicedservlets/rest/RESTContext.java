@@ -17,6 +17,11 @@ public class RESTContext
 	private static final Set<String> outFaultInterceptors = new HashSet<>();
 	private static final Set<String> properties = new HashSet<>();
 	private static final Set<String> applications = new HashSet<>();
+	private static boolean useSaml = false;
+	private static boolean useAtom = false;
+	private static boolean useAegis = false;
+
+
 	/**
 	 * Provides the url that the module will use to provide Web Services.
 	 * Does not default to module name, default to WebServices
@@ -89,6 +94,36 @@ public class RESTContext
 	public static Set<String> getApplications()
 	{
 		return applications;
+	}
+
+
+	public static boolean isUseSaml() {
+		return useSaml;
+	}
+
+	public static void setUseSaml(boolean useSaml) {
+		RESTContext.useSaml = useSaml;
+	}
+
+
+	public static void setUseSaml(boolean useSaml) {
+		RESTContext.useSaml = useSaml;
+	}
+
+	public static boolean isUseAtom() {
+		return useAtom;
+	}
+
+	public static void setUseAtom(boolean useAtom) {
+		RESTContext.useAtom = useAtom;
+	}
+
+	public static boolean isUseAegis() {
+		return useAegis;
+	}
+
+	public static void setUseAegis(boolean useAegis) {
+		RESTContext.useAegis = useAegis;
 	}
 
 	/**

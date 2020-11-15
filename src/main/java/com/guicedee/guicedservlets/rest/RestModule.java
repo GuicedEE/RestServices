@@ -17,16 +17,6 @@ public class RestModule
 		implements IGuiceSiteBinder<GuiceSiteInjectorModule>
 {
 	private static final Logger log = LogFactory.getLog(RestModule.class);
-	public static final Set<String> illegalProviders = new HashSet<>();
-
-	static
-	{
-		illegalProviders.add("org.apache.cxf.jaxrs.provider.aegis.AegisJSONProvider");
-		illegalProviders.add("org.apache.cxf.jaxrs.provider.aegis.AegisElementProvider");
-		illegalProviders.add("org.apache.cxf.jaxrs.provider.atom.AtomEntryProvider");
-		illegalProviders.add("org.apache.cxf.jaxrs.provider.atom.AtomFeedProvider");
-		illegalProviders.add("org.apache.cxf.jaxrs.provider.atom.AtomPojoProvider");
-	}
 
 	public RestModule()
 	{
@@ -67,11 +57,6 @@ public class RestModule
 	public static boolean validClass(Class<?> clazz)
 	{
 		boolean valid = false;
-		if (illegalProviders.contains(clazz.getCanonicalName()))
-		{
-			return false;
-		}
-
 		try
 		{
 			for (Constructor<?> declaredConstructor : clazz.getDeclaredConstructors())
