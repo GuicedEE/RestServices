@@ -96,6 +96,11 @@ public class RESTContext
 		return applications;
 	}
 
+
+	public static boolean isUseSaml() {
+		return useSaml;
+	}
+
 	public static void setUseSaml(boolean useSaml) {
 		RESTContext.useSaml = useSaml;
 	}
