@@ -23,6 +23,7 @@ public class JaxRSUndertowDeploymentConfigurator
 		deploymentInfo.addServletContextAttribute(outFaultInterceptorsString, renderServices(getOutFaultInterceptors()));
 		deploymentInfo.addServletContextAttribute(propertiesString, renderServices(getProperties()));
 		deploymentInfo.addServletContextAttribute(applicationsString, renderServices(getApplications()));
+		deploymentInfo.addServletContextAttribute(featuresString, renderServices(getFeatures()));
 
 		deploymentInfo.addInitParameter(serviceClassesString, renderServices(getPathServices()));
 		deploymentInfo.addInitParameter(providersString, renderServices(getProviders()));
@@ -31,6 +32,7 @@ public class JaxRSUndertowDeploymentConfigurator
 		deploymentInfo.addInitParameter(outFaultInterceptorsString, renderServices(getOutFaultInterceptors()));
 		deploymentInfo.addInitParameter(propertiesString, renderServices(getProperties()));
 		deploymentInfo.addInitParameter(applicationsString, renderServices(getApplications()));
+		deploymentInfo.addInitParameter(featuresString, renderServices(getFeatures()));
 
 		return deploymentInfo;
 	}

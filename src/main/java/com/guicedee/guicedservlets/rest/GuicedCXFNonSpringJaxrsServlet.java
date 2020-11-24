@@ -3,6 +3,7 @@ package com.guicedee.guicedservlets.rest;
 import com.google.inject.*;
 import com.guicedee.guicedinjection.*;
 import com.guicedee.guicedinjection.interfaces.IDefaultService;
+import org.apache.cxf.feature.Feature;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.*;
@@ -204,5 +205,26 @@ public class GuicedCXFNonSpringJaxrsServlet
 			}
 		}
 		return null;
+	}
+
+	protected List<? extends Feature> getFeatures(ServletConfig servletConfig, String splitChar)
+			throws ServletException {
+		String featuresList = renderServices(RESTContext.getFeatures());// servletConfig.getInitParameter(FEATURES_PARAM);
+		if (featuresList == null) {
+			return Collections.< Feature >emptyList();
+		}
+		String[] classNames = featuresList.split(splitChar);
+		List< Feature > features = new ArrayList<>();
+		for (String cName : classNames) {
+			Map<String, List<String>> props = new HashMap<>();
+			String theName = getClassNameAndProperties(cName, props);
+			if (!theName.isEmpty()) {
+				Class<?> cls = loadClass(theName);
+				if (Feature.class.isAssignableFrom(cls)) {
+					features.add((Feature)createSingletonInstance(cls, props, servletConfig));
+				}
+			}
+		}
+		return features;
 	}
 }

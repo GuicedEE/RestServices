@@ -23,6 +23,7 @@ public class RESTContext
 	private static final Set<String> outInterceptors = new HashSet<>();
 	private static final Set<String> outFaultInterceptors = new HashSet<>();
 	private static final Set<String> properties = new HashSet<>();
+	private static final Set<String> features = new HashSet<>();
 	private static final Set<String> applications = new HashSet<>();
 
 	private static boolean useSaml = false;
@@ -61,6 +62,11 @@ public class RESTContext
 	public static Set<String> getPathServices()
 	{
 		return pathServices;
+	}
+
+	public static Set<String> getFeatures()
+	{
+		return features;
 	}
 
 	public static Set<String> getProviders()

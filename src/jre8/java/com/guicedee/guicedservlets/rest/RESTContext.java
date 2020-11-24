@@ -17,6 +17,8 @@ public class RESTContext
 	private static final Set<String> outFaultInterceptors = new HashSet<>();
 	private static final Set<String> properties = new HashSet<>();
 	private static final Set<String> applications = new HashSet<>();
+	private static final Set<String> features = new HashSet<>();
+
 	private static boolean useSaml = false;
 	private static boolean useAtom = false;
 	private static boolean useAegis = false;
@@ -96,6 +98,10 @@ public class RESTContext
 		return applications;
 	}
 
+	public static Set<String> getFeatures()
+	{
+		return features;
+	}
 
 	public static boolean isUseSaml() {
 		return useSaml;

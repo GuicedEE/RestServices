@@ -25,6 +25,7 @@ public class JaxRsPreStartup implements IGuicePreStartup<JaxRsPreStartup> {
 	public static final String outInterceptorsString = "jaxrs.outInterceptors";
 	public static final String outFaultInterceptorsString = "jaxrs.outFaultInterceptors";
 	public static final String propertiesString = "jaxrs.properties";
+	public static final String featuresString = "jaxrs.features";
 	public static final String applicationsString = "jakarta.ws.rs.Application";
 
 	public static final Set<Class<?>> mappedClasses = new HashSet<>();
