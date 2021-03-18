@@ -17,18 +17,19 @@ module com.guicedee.guicedservlets.rest {
 	exports com.guicedee.guicedservlets.rest.internal;
 
 	requires jakarta.xml.bind;
-	requires jakarta.ws.rs;
-
 	requires java.xml;
-	requires transitive com.fasterxml.jackson.jaxrs.json;
 
+	requires transitive jakarta.ws.rs;
+	requires transitive com.fasterxml.jackson.jaxrs.json;
 	requires transitive com.guicedee.guicedservlets.undertow;
+	requires transitive com.fasterxml.jackson.module.paramnames;
+
 	//JDK 11 Tests
 	requires static java.net.http;
 
-	requires transitive org.apache.cxf;
-	requires transitive org.apache.commons.io;
-	requires transitive com.fasterxml.jackson.module.paramnames;
+	requires org.apache.cxf;
+	requires org.apache.commons.io;
+
 
 	provides com.guicedee.guicedinjection.interfaces.IGuicePostStartup with com.guicedee.guicedservlets.rest.services.JaxRsPostStartup;
 	provides com.guicedee.guicedservlets.undertow.services.UndertowDeploymentConfigurator with com.guicedee.guicedservlets.rest.implementations.JaxRSUndertowDeploymentConfigurator;
