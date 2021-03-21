@@ -37,6 +37,11 @@
 
         <dependency>
             <groupId>com.guicedee.services</groupId>
+            <artifactId>swagger</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.guicedee.services</groupId>
             <artifactId>org.apache.cxf</artifactId>
         </dependency>
 
