@@ -1,5 +1,6 @@
 package com.guicedee.guicedservlets.rest;
 
+import com.google.common.base.Strings;
 import com.google.inject.*;
 import com.guicedee.guicedinjection.*;
 import com.guicedee.guicedinjection.interfaces.IDefaultService;
@@ -98,11 +99,14 @@ public class GuicedCXFNonSpringJaxrsServlet
 		int len$ = classNames.length;
 		for (int i$ = 0; i$ < len$; ++i$) {
 			String cName = classNames[i$];
-			Map<String, List<String>> props = new HashMap<>();
-			String theName = this.getClassNameAndProperties(cName, props);
-			if (theName.length() != 0) {
-				Class<?> cls = this.loadClass(theName);
-				map.put(cls, props);
+			if(!Strings.isNullOrEmpty(cName))
+			{
+				Map<String, List<String>> props = new HashMap<>();
+				String theName = this.getClassNameAndProperties(cName, props);
+				if (theName.length() != 0) {
+					Class<?> cls = this.loadClass(theName);
+					map.put(cls, props);
+				}
 			}
 		}
 
@@ -134,6 +138,7 @@ public class GuicedCXFNonSpringJaxrsServlet
 
 			Set<RestResourceProvidersFilter> filters = IDefaultService.loaderToSet(ServiceLoader.load(RestResourceProvidersFilter.class));
 			Map<Class<?>, Map<String, List<String>>> activeResources = new ConcurrentHashMap<>();
+			resourceClasses.remove(null);
 			activeResources.putAll(resourceClasses);
 			for (RestResourceProvidersFilter<?> filter : filters) {
 				activeResources = filter.processResourceList(activeResources);

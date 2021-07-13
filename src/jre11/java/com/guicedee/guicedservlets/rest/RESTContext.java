@@ -1,7 +1,7 @@
 package com.guicedee.guicedservlets.rest;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
 import com.guicedee.guicedservlets.rest.implementations.JAXBMarshaller;
 
 import java.util.HashSet;
@@ -12,7 +12,7 @@ public class RESTContext
 {
 	private static final Set<String> pathServices = new HashSet<>();
 	private static final Set<String> providers = new HashSet<>(List.of(JacksonJsonProvider.class.getCanonicalName(),
-	                                                                   JacksonJaxbJsonProvider.class.getCanonicalName(),
+	                                                                   JacksonXmlBindJsonProvider.class.getCanonicalName(),
 	                                                                   JAXBMarshaller.class.getCanonicalName(),
 	                                                                   "org.apache.cxf.jaxrs.provider.JAXBElementProvider",
 	                                                                   "org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInvoker",

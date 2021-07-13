@@ -1,6 +1,6 @@
 package com.guicedee.guicedservlets.rest;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import com.guicedee.guicedinjection.GuiceContext;
 import com.guicedee.guicedservlets.undertow.GuicedUndertow;
 import com.guicedee.logger.LogFactory;
@@ -29,7 +29,7 @@ public class RestEasyModuleTest
 		            .loadIGuiceModules()
 		            .add(new RestTestBinding());
 
-		LogFactory.configureConsoleColourOutput(Level.INFO);
+		//LogFactory.configureConsoleColourOutput(Level.FINE);
 		Undertow undertow = GuicedUndertow.boot("0.0.0.0", 6003);
 
 		//Do stuff

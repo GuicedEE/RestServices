@@ -31,6 +31,7 @@ public class JaxRsPostStartup implements IGuicePostStartup<JaxRsPostStartup> {
 		log.fine("Creating Jax-RS Bus");
 		Bus bus = BusFactory.newInstance().createBus();
 		BusFactory.setDefaultBus(bus);
+		log.fine("Created Jax-RS Bus");
 /*
 		GuiceContext.get(ObjectMapper.class)
 		            .registerModule(new ParameterNamesModule());*/

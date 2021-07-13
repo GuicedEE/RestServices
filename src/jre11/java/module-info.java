@@ -15,14 +15,16 @@ module com.guicedee.guicedservlets.rest {
     exports com.guicedee.guicedservlets.rest;
 	exports com.guicedee.guicedservlets.rest.services;
 	exports com.guicedee.guicedservlets.rest.internal;
+	
+	requires com.guicedee.services.openapi;
 
 	requires jakarta.xml.bind;
 	requires java.xml;
-
 	requires transitive jakarta.ws.rs;
-	requires transitive com.fasterxml.jackson.jaxrs.json;
+	
+	requires transitive com.fasterxml.jackson.jakarta.rs.json;
 	requires transitive com.guicedee.guicedservlets.undertow;
-	requires transitive com.fasterxml.jackson.module.paramnames;
+
 
 	//JDK 11 Tests
 	requires static java.net.http;

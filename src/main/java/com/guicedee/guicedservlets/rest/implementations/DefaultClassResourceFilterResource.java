@@ -1,5 +1,6 @@
 package com.guicedee.guicedservlets.rest.implementations;
 
+import com.google.common.base.Strings;
 import com.guicedee.guicedservlets.rest.*;
 
 import java.util.*;
@@ -47,6 +48,10 @@ public class DefaultClassResourceFilterResource implements RestResourceProviders
 
     private boolean checkInValid(String className)
     {
+        if (Strings.isNullOrEmpty(className))
+        {
+            return false;
+        }
         return bannedResources.contains(className) ||
                 (!RESTContext.isUseSaml() && samlResources.contains(className) ) ||
                 (!RESTContext.isUseAegis() &&  aegisResources.contains(className) ) ||

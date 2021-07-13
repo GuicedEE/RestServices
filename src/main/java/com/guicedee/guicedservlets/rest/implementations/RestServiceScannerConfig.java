@@ -1,6 +1,7 @@
 package com.guicedee.guicedservlets.rest.implementations;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+
+import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import com.guicedee.guicedinjection.GuiceConfig;
 import com.guicedee.guicedinjection.interfaces.IGuiceConfigurator;
 import com.guicedee.guicedservlets.rest.RESTContext;
