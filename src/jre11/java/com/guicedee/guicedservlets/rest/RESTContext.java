@@ -4,27 +4,25 @@ import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import com.fasterxml.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
 import com.guicedee.guicedservlets.rest.implementations.JAXBMarshaller;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class RESTContext
 {
-	private static final Set<String> pathServices = new HashSet<>();
-	private static final Set<String> providers = new HashSet<>(List.of(JacksonJsonProvider.class.getCanonicalName(),
+	private static final List<String> pathServices = new ArrayList<>();
+	private static final List<String> providers = new ArrayList<>(List.of(JacksonJsonProvider.class.getCanonicalName(),
 	                                                                   JacksonXmlBindJsonProvider.class.getCanonicalName(),
 	                                                                   JAXBMarshaller.class.getCanonicalName(),
 	                                                                   "org.apache.cxf.jaxrs.provider.JAXBElementProvider",
 	                                                                   "org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInvoker",
 	                                                                   "com.guicedee.guicedservlets.rest.services.JavaTimeTypesParamConverterProvider",
 	                                                                   "org.apache.cxf.jaxrs.validation.JAXRSParameterNameProvider"));
-	private static final Set<String> inInterceptors = new HashSet<>(List.of("org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor"
+	private static final List<String> inInterceptors = new ArrayList<>(List.of("org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor"
 	                                                                       ));
-	private static final Set<String> outInterceptors = new HashSet<>();
-	private static final Set<String> outFaultInterceptors = new HashSet<>();
-	private static final Set<String> properties = new HashSet<>();
-	private static final Set<String> features = new HashSet<>();
-	private static final Set<String> applications = new HashSet<>();
+	private static final List<String> outInterceptors = new ArrayList<>();
+	private static final List<String> outFaultInterceptors = new ArrayList<>();
+	private static final List<String> properties = new ArrayList<>();
+	private static final List<String> features = new ArrayList<>();
+	private static final List<String> applications = new ArrayList<>();
 
 	private static boolean useSaml = false;
 	private static boolean useAtom = false;
@@ -45,7 +43,7 @@ public class RESTContext
 	 */
 	public static boolean autoRegisterProviders = false;
 
-	public static String renderServices(Set<String> values)
+	public static String renderServices(Collection<String> values)
 	{
 		StringBuilder sb = new StringBuilder();
 		for (String pathService : values)
@@ -59,37 +57,37 @@ public class RESTContext
 		return sb.toString();
 	}
 
-	public static Set<String> getPathServices()
+	public static List<String> getPathServices()
 	{
 		return pathServices;
 	}
 
-	public static Set<String> getFeatures()
+	public static List<String> getFeatures()
 	{
 		return features;
 	}
 
-	public static Set<String> getProviders()
+	public static List<String> getProviders()
 	{
 		return providers;
 	}
 
-	public static Set<String> getInInterceptors()
+	public static List<String> getInInterceptors()
 	{
 		return inInterceptors;
 	}
 
-	public static Set<String> getOutInterceptors()
+	public static List<String> getOutInterceptors()
 	{
 		return outInterceptors;
 	}
 
-	public static Set<String> getProperties()
+	public static List<String> getProperties()
 	{
 		return properties;
 	}
 
-	public static Set<String> getApplications()
+	public static List<String> getApplications()
 	{
 		return applications;
 	}
@@ -123,7 +121,7 @@ public class RESTContext
 	 *
 	 * @return Value for property 'outFaultInterceptors'.
 	 */
-	public static Set<String> getOutFaultInterceptors()
+	public static List<String> getOutFaultInterceptors()
 	{
 		return outFaultInterceptors;
 	}
