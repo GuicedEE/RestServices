@@ -39,7 +39,8 @@ module com.guicedee.guicedservlets.rest {
 	provides com.guicedee.guicedservlets.services.IGuiceSiteBinder with com.guicedee.guicedservlets.rest.RestModule;
 	provides com.guicedee.guicedinjection.interfaces.IGuicePreStartup with com.guicedee.guicedservlets.rest.services.JaxRsPreStartup;
 	provides com.guicedee.guicedinjection.interfaces.IGuiceConfigurator with com.guicedee.guicedservlets.rest.implementations.RestServiceScannerConfig;
-
+	
+	exports com.guicedee.guicedservlets.rest.implementations;
 	opens com.guicedee.guicedservlets.rest.implementations to com.google.guice, org.apache.cxf;
 	opens com.guicedee.guicedservlets.rest to com.google.guice, org.apache.cxf;
 
