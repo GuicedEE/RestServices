@@ -12,7 +12,7 @@
     <groupId>com.guicedee.servlets</groupId>
     <artifactId>guiced-rest-services</artifactId>
     <packaging>jar</packaging>
-
+    <version>0.0.0_0-SNAPSHOT</version>
     <name>Guiced Rest Services</name>
     <description>An integration library for RestEasy into the Guiced framework
     </description>
