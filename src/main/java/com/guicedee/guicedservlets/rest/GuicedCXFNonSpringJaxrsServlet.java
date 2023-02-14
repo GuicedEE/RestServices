@@ -160,17 +160,17 @@ public class GuicedCXFNonSpringJaxrsServlet
 		try {
 			return GuiceContext.get(cls);
 		} catch (Throwable T) {
-			log.log(Level.SEVERE, "Unable to construct instance for cxf", T);
+			log.log(Level.FINE, "Unable to construct instance for cxf", T);
 			Object o = null;
 			try {
 				o = cls.getDeclaredConstructor().newInstance();
 				GuiceContext.inject().injectMembers(o);
 				return o;
 			} catch (Throwable T1) {
+				log.log(Level.SEVERE, "Unable to create instance for rest :", T1);
 				if (o != null) {
 					return o;
 				}
-				log.log(Level.FINE, "Unable to create instance for rest :", T1);
 			}
 			return null;
 		}
