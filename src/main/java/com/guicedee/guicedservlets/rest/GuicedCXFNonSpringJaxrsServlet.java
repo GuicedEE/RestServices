@@ -1,235 +1,267 @@
 package com.guicedee.guicedservlets.rest;
 
-import com.google.common.base.Strings;
-import com.google.inject.*;
-import com.guicedee.guicedinjection.*;
-import com.guicedee.guicedinjection.interfaces.IDefaultService;
-import org.apache.cxf.feature.Feature;
+import com.google.inject.Singleton;
+import com.guicedee.guicedinjection.GuiceContext;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.ws.rs.core.Application;
+import lombok.extern.java.Log;
+import org.apache.cxf.common.util.PrimitiveUtils;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
-import org.apache.cxf.jaxrs.lifecycle.*;
-import org.apache.cxf.jaxrs.servlet.*;
+import org.apache.cxf.jaxrs.model.ApplicationInfo;
+import org.apache.cxf.jaxrs.model.ProviderInfo;
+import org.apache.cxf.jaxrs.servlet.CXFNonSpringJaxrsServlet;
+import org.apache.cxf.jaxrs.utils.InjectionUtils;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.service.invoker.Invoker;
 
-import jakarta.servlet.*;
-import jakarta.validation.constraints.NotNull;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.Method;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.*;
+import java.util.logging.Logger;
 
-import static com.guicedee.guicedservlets.rest.RESTContext.*;
-import static com.guicedee.guicedservlets.rest.services.JaxRsPreStartup.*;
-
+@Log
 @Singleton
 public class GuicedCXFNonSpringJaxrsServlet
-		extends CXFNonSpringJaxrsServlet {
-	private static final Logger log = com.guicedee.logger.LogFactory.getLog("GuicedCXFNonSpringJaxrsServlet");
-
-	protected List<?> getProviders(ServletConfig servletConfig, String splitChar) throws ServletException {
-		String providersList = servletConfig.getServletContext().getInitParameter(providersString);
-		if (providersList == null) {
-			return Collections.EMPTY_LIST;
+				extends CXFNonSpringJaxrsServlet
+{
+	
+	@Override
+	public void init(ServletConfig config) throws ServletException {
+		super.init(config);
+		System.out.println("init");
+		Enumeration<String> initParameterNames = config.getInitParameterNames();
+		//this.key1 = config.getInitParameter("key1");
+		//this.key2 = config.getInitParameter("key2");
+	}
+	
+	
+	private static final Logger LOG = Logger.getLogger("GuicedCXFJaxRS");
+	
+	private static final String USER_MODEL_PARAM = "user.model";
+	private static final String SERVICE_ADDRESS_PARAM = "jaxrs.address";
+	private static final String IGNORE_APP_PATH_PARAM = "jaxrs.application.address.ignore";
+	private static final String SERVICE_CLASSES_PARAM = "jaxrs.serviceClasses";
+	private static final String PROVIDERS_PARAM = "jaxrs.providers";
+	private static final String FEATURES_PARAM = "jaxrs.features";
+	private static final String OUT_INTERCEPTORS_PARAM = "jaxrs.outInterceptors";
+	private static final String OUT_FAULT_INTERCEPTORS_PARAM = "jaxrs.outFaultInterceptors";
+	private static final String IN_INTERCEPTORS_PARAM = "jaxrs.inInterceptors";
+	private static final String INVOKER_PARAM = "jaxrs.invoker";
+	private static final String SERVICE_SCOPE_PARAM = "jaxrs.scope";
+	private static final String EXTENSIONS_PARAM = "jaxrs.extensions";
+	private static final String LANGUAGES_PARAM = "jaxrs.languages";
+	private static final String PROPERTIES_PARAM = "jaxrs.properties";
+	private static final String SCHEMAS_PARAM = "jaxrs.schemaLocations";
+	private static final String DOC_LOCATION_PARAM = "jaxrs.documentLocation";
+	private static final String STATIC_SUB_RESOLUTION_PARAM = "jaxrs.static.subresources";
+	private static final String SERVICE_SCOPE_SINGLETON = "singleton";
+	private static final String SERVICE_SCOPE_REQUEST = "prototype";
+	
+	private static final String PARAMETER_SPLIT_CHAR = "class.parameter.split.char";
+	private static final String DEFAULT_PARAMETER_SPLIT_CHAR = ",";
+	private static final String SPACE_PARAMETER_SPLIT_CHAR = "space";
+	
+	private static final String JAXRS_APPLICATION_PARAM = "jakarta.ws.rs.Application";
+	
+	private ClassLoader classLoader;
+	private Application application;
+	
+	public GuicedCXFNonSpringJaxrsServlet()
+	{
+	
+	}
+	
+	public GuicedCXFNonSpringJaxrsServlet(Application app)
+	{
+		this.application = app;
+	}
+	
+	public GuicedCXFNonSpringJaxrsServlet(Object singletonService)
+	{
+		super(Collections.singleton(singletonService));
+	}
+	
+	private String getClassNameAndProperties(String cName, Map<String, List<String>> props) {
+		String theName = cName.trim();
+		int ind = theName.indexOf('(');
+		if (ind != -1 && theName.endsWith(")")) {
+			props.putAll(parseMapListSequence(theName.substring(ind + 1, theName.length() - 1)));
+			theName = theName.substring(0, ind).trim();
 		}
-		String[] classNames = providersList.split(splitChar);
-		List<Object> providers = new ArrayList<>();
-		for (String cName : classNames) {
-			Map<String, List<String>> props = new HashMap<>();
-			String theName = getClassNameAndProperties(cName, props);
-			boolean allowedClass = true;
-			if (theName.length() != 0) {
-				Class<?> cls = loadClass(theName);
-				Set<RestProvidersFilter> providersFilters = IDefaultService.loaderToSet(ServiceLoader.load(RestProvidersFilter.class));
-				for (RestProvidersFilter<?> providersFilter : providersFilters) {
-					if(providersFilter.disallowProvider(cls))
-					{
-						allowedClass = false;
-						break;
-					}
+		return theName;
+	}
+	
+	private void injectProperties(Object instance, Map<String, List<String>> props) {
+		if (props == null || props.isEmpty()) {
+			return;
+		}
+		Method[] methods = instance.getClass().getMethods();
+		Map<String, Method> methodsMap = new HashMap<>();
+		for (Method m : methods) {
+			methodsMap.put(m.getName(), m);
+		}
+		for (Map.Entry<String, List<String>> entry : props.entrySet()) {
+			Method m = methodsMap.get("set" + StringUtils.capitalize(entry.getKey()));
+			if (m != null) {
+				Class<?> type = m.getParameterTypes()[0];
+				Object value;
+				if (InjectionUtils.isPrimitive(type)) {
+					value = PrimitiveUtils.read(entry.getValue().get(0), type);
+				} else {
+					value = entry.getValue();
 				}
-				if(allowedClass)
-					providers.add(createSingletonInstance(cls, props, servletConfig));
+				InjectionUtils.injectThroughMethod(instance, m, value);
 			}
 		}
-		return providers;
 	}
-
+	
+	@SuppressWarnings("unchecked")
 	protected void setInterceptors(JAXRSServerFactoryBean bean, ServletConfig servletConfig,
-								   String paramName,
-								   String splitChar) throws ServletException {
-		String value = servletConfig.getServletContext().getInitParameter(paramName);
-		if (value == null) {
+	                               String paramName,
+	                               String splitChar) throws ServletException
+	{
+		String value = servletConfig.getInitParameter(paramName);
+		if (value == null)
+		{
 			return;
 		}
 		String[] values = value.split(splitChar);
 		List<Interceptor<? extends Message>> list = new ArrayList<>();
-		for (String interceptorVal : values) {
+		for (String interceptorVal : values)
+		{
 			Map<String, List<String>> props = new HashMap<>();
 			String theValue = getClassNameAndProperties(interceptorVal, props);
-			if (theValue.length() != 0) {
-				try {
+			if (!theValue.isEmpty())
+			{
+				try
+				{
 					Class<?> intClass = loadClass(theValue, "Interceptor");
-					Object object = GuiceContext.get(intClass);
+					Object object = GuiceContext.get(intClass);// intClass.getDeclaredConstructor().newInstance();
+					injectProperties(object, props);
 					list.add((Interceptor<? extends Message>) object);
-				} catch (ServletException ex) {
+				} catch (ServletException ex)
+				{
 					throw ex;
-				} catch (Exception ex) {
-					log.warning("Interceptor class " + theValue + " can not be created");
+				} catch (Exception ex)
+				{
+					LOG.warning("Interceptor class " + theValue + " can not be created");
 					throw new ServletException(ex);
 				}
 			}
 		}
-		if (list.size() > 0) {
-			if (outInterceptorsString.equals(paramName)) {
+		if (!list.isEmpty())
+		{
+			if (OUT_INTERCEPTORS_PARAM.equals(paramName))
+			{
 				bean.setOutInterceptors(list);
-			} else if (outFaultInterceptorsString.equals(paramName)) {
+			} else if (OUT_FAULT_INTERCEPTORS_PARAM.equals(paramName))
+			{
 				bean.setOutFaultInterceptors(list);
-			} else {
+			} else
+			{
 				bean.setInInterceptors(list);
 			}
 		}
 	}
-
-
-	protected Map<Class<?>, java.util.Map<String, List<String>>> getServiceClasses(ServletConfig servletConfig, boolean modelAvailable, String splitChar) throws
-			ServletException {
-		String serviceBeans = RESTContext.renderServices(getPathServices());
-		String[] classNames = serviceBeans.split(splitChar);
-		Map<Class<?>, Map<String, List<String>>> map = new HashMap<>();
-		int len$ = classNames.length;
-		for (int i$ = 0; i$ < len$; ++i$) {
-			String cName = classNames[i$];
-			if(!Strings.isNullOrEmpty(cName))
+	
+	protected void setInvoker(JAXRSServerFactoryBean bean, ServletConfig servletConfig)
+					throws ServletException
+	{
+		String value = servletConfig.getInitParameter(INVOKER_PARAM);
+		if (value == null)
+		{
+			return;
+		}
+		Map<String, List<String>> props = new HashMap<>();
+		String theValue = getClassNameAndProperties(value, props);
+		if (!theValue.isEmpty())
+		{
+			try
 			{
-				Map<String, List<String>> props = new HashMap<>();
-				String theName = this.getClassNameAndProperties(cName, props);
-				if (theName.length() != 0) {
-					Class<?> cls = this.loadClass(theName);
-					map.put(cls, props);
-				}
+				Class<?> intClass = loadClass(theValue, "Invoker");
+				Object object = GuiceContext.get(intClass);// intClass.getDeclaredConstructor().newInstance();
+				injectProperties(object, props);
+				bean.setInvoker((Invoker) object);
+			} catch (ServletException ex)
+			{
+				throw ex;
+			} catch (Exception ex)
+			{
+				LOG.warning("Invoker class " + theValue + " can not be created");
+				throw new ServletException(ex);
 			}
-		}
-
-		Set<RestServicesFilter> filters = IDefaultService.loaderToSet(ServiceLoader.load(RestServicesFilter.class));
-		Map<Class<?>, Map<String, List<String>>> activeResources = new java.util.LinkedHashMap<>();
-		activeResources.putAll(map);
-		for (RestServicesFilter<?> filter : filters) {
-			activeResources = filter.processServicesList(activeResources);
-		}
-
-		if (activeResources.isEmpty()) {
-			log.warning("No JaxRS Resource Class was found");
-
-		}
-		return activeResources;
-	}
-
-
-	@SuppressWarnings("unchecked")
-
-	protected Map<Class<?>, ResourceProvider> getResourceProviders(ServletConfig servletConfig, Map<Class<?>, Map<String, List<String>>> resourceClasses) throws ServletException {
-		String scope = servletConfig.getServletContext()
-				.getInitParameter("jaxrs.scope");
-		if (scope != null && !"singleton".equals(scope) && !"prototype".equals(scope)) {
-			throw new ServletException("Only singleton and prototype scopes are supported");
-		} else {
-			boolean isPrototype = "prototype".equals(scope);
-			Map<Class<?>, ResourceProvider> map = new HashMap();
-
-			Set<RestResourceProvidersFilter> filters = IDefaultService.loaderToSet(ServiceLoader.load(RestResourceProvidersFilter.class));
-			Map<Class<?>, Map<String, List<String>>> activeResources = new ConcurrentHashMap<>();
-			resourceClasses.remove(null);
-			activeResources.putAll(resourceClasses);
-			for (RestResourceProvidersFilter<?> filter : filters) {
-				activeResources = filter.processResourceList(activeResources);
-			}
-
-			for (Map.Entry<Class<?>, Map<String, List<String>>> classMapEntry : activeResources.entrySet()) {
-				Map.Entry<Class<?>, Map<String, List<String>>> entry = classMapEntry;
-				Class<?> c = entry.getKey();
-				map.put(c, isPrototype
-						? new PerRequestResourceProvider(c)
-						: new SingletonResourceProvider(this.createSingletonInstance(c, entry.getValue(), servletConfig), true));
-			}
-			return map;
 		}
 	}
-
-
-	protected Object createSingletonInstance(Class<?> cls, Map<String, List<String>> props, ServletConfig sc) throws ServletException {
-		try {
-			return GuiceContext.get(cls);
-		} catch (Throwable T) {
-			log.log(Level.FINE, "Unable to construct instance for cxf", T);
-			Object o = null;
-			try {
-				o = cls.getDeclaredConstructor().newInstance();
-				GuiceContext.inject().injectMembers(o);
-				return o;
-			} catch (Throwable T1) {
-				log.log(Level.SEVERE, "Unable to create instance for rest :", T1);
-				if (o != null) {
-					return o;
-				}
+	
+	protected Object createSingletonInstance(Class<?> cls, Map<String, List<String>> props, ServletConfig sc)
+					throws ServletException
+	{
+	/*	Constructor<?> c = ResourceUtils.findResourceConstructor(cls, false);
+		if (c == null)
+		{
+			throw new ServletException("No valid constructor found for " + cls.getName());
+		}*/
+		boolean isApplication = Application.class.isAssignableFrom(cls);
+		try
+		{
+			Object injectedInstance = GuiceContext.get(cls);
+			final ProviderInfo<? extends Object> provider;
+			if (isApplication)
+			{
+				provider = new ApplicationInfo((Application) injectedInstance, getBus());
+			} else
+			{
+				provider = new ProviderInfo<>(injectedInstance, getBus(), false, true);
 			}
-			return null;
+			
+			Object instance = provider.getProvider();
+			injectProperties(instance, props);
+			configureSingleton(instance);
+			return isApplication ? provider : instance;
+		} /* catch (IllegalAccessException ex) {
+			ex.printStackTrace();
+			throw new ServletException("Resource class " + cls.getName()
+							+ " can not be instantiated due to IllegalAccessException");
+		}*//* catch (InvocationTargetException ex) {
+			ex.printStackTrace();
+			throw new ServletException("Resource class " + cls.getName()
+							+ " can not be instantiated due to InvocationTargetException");
+		}*/ catch (RuntimeException ex)
+		{
+			throw new ServletException("Resource class " + cls.getName()
+							+ " can not be instantiated",ex);
 		}
 	}
-
-	private String getClassNameAndProperties(String cName, Map<String, List<String>> props) {
-		String theName = cName.trim();
-		int ind = theName.indexOf("(");
-		if (ind != -1 && theName.endsWith(")")) {
-			props.putAll(parseMapListSequence(theName.substring(ind + 1, theName.length() - 1)));
-			theName = theName.substring(0, ind)
-					.trim();
-		}
-		return theName;
+	
+	
+	protected Class<?> loadApplicationClass(String appClassName) throws ServletException
+	{
+		return loadClass(appClassName, "Application");
 	}
-
-	protected Class<?> loadClass(String cName, String classType) throws ServletException {
-		if (cName == null)
-			return null;
-		try {
-			Class<?> clazz = GuiceContext.instance()
-					.getScanResult()
-					.loadClass(cName, true);
-			if (clazz == null || Modifier.isAbstract(clazz.getModifiers())) {
-				return null;
-			}
-			return clazz;
-		} catch (Throwable e) {
-			try {
-				Class<?> clazz = Class.forName(cName);
-				if (Modifier.isAbstract(clazz.getModifiers())) {
-					return null;
-				}
-				return clazz;
-			} catch (Throwable e1) {
-				log("Unable to load class - " + cName);
-			}
-		}
-		return null;
+	
+	protected Class<?> loadClass(String cName) throws ServletException
+	{
+		return loadClass(cName, "Resource");
 	}
-
-	protected List<? extends Feature> getFeatures(ServletConfig servletConfig, String splitChar)
-			throws ServletException {
-		String featuresList = renderServices(RESTContext.getFeatures());// servletConfig.getInitParameter(FEATURES_PARAM);
-		if (featuresList == null) {
-			return Collections.< Feature >emptyList();
-		}
-		String[] classNames = featuresList.split(splitChar);
-		List< Feature > features = new ArrayList<>();
-		for (String cName : classNames) {
-			Map<String, List<String>> props = new HashMap<>();
-			String theName = getClassNameAndProperties(cName, props);
-			if (!theName.isEmpty()) {
-				Class<?> cls = loadClass(theName);
-				if (Feature.class.isAssignableFrom(cls)) {
-					features.add((Feature)createSingletonInstance(cls, props, servletConfig));
-				}
+	
+	protected Class<?> loadClass(String cName, String classType) throws ServletException
+	{
+		try
+		{
+			final Class<?> cls;
+			if (classLoader == null)
+			{
+				cls = GuiceContext.instance().getScanResult().loadClass(cName,false);// ClassLoaderUtils.loadClass(cName, CXFNonSpringJaxrsServlet.class);
+			} else
+			{
+				cls = classLoader.loadClass(cName);
 			}
+			return cls;
+		} catch (ClassNotFoundException ex)
+		{
+			throw new ServletException("No " + classType + " class " + cName.trim() + " can be found", ex);
 		}
-		return features;
 	}
 }

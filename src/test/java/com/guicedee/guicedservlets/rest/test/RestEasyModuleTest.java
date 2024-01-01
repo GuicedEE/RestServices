@@ -1,9 +1,7 @@
-package com.guicedee.guicedservlets.rest;
+package com.guicedee.guicedservlets.rest.test;
 
-import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import com.guicedee.guicedinjection.GuiceContext;
 import com.guicedee.guicedservlets.undertow.GuicedUndertow;
-import com.guicedee.logger.LogFactory;
 import io.undertow.Undertow;
 import org.junit.jupiter.api.Test;
 
@@ -13,7 +11,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.logging.Level;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,8 +20,11 @@ public class RestEasyModuleTest
 	@Test
 	void configureServlets() throws Exception
 	{
+		/*
 		RESTContext.getProviders()
 		           .add(JacksonJsonProvider.class.getCanonicalName());
+		*/
+		
 		GuiceContext.instance()
 		            .loadIGuiceModules()
 		            .add(new RestTestBinding());

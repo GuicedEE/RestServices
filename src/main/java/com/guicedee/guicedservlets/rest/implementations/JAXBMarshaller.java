@@ -2,7 +2,7 @@ package com.guicedee.guicedservlets.rest.implementations;
 
 import com.google.common.net.MediaType;
 import com.guicedee.guicedinjection.pairing.Pair;
-import com.guicedee.logger.LogFactory;
+import lombok.extern.java.Log;
 import org.apache.commons.io.IOUtils;
 
 import jakarta.ws.rs.Consumes;
@@ -28,6 +28,7 @@ import static java.nio.charset.StandardCharsets.*;
 @Provider
 @Produces("application/xml")
 @Consumes("application/xml")
+@Log
 public class JAXBMarshaller
 		implements MessageBodyWriter, MessageBodyReader
 {
@@ -92,8 +93,7 @@ public class JAXBMarshaller
 		}
 		catch (Exception e)
 		{
-			LogFactory.getLog("IXmlRepresentation")
-			          .log(Level.SEVERE, "Unable to marshal string writer from log intercepter", e);
+			log.log(Level.SEVERE, "Unable to marshal string writer from log intercepter", e);
 			return "";
 		}
 		finally
@@ -104,8 +104,7 @@ public class JAXBMarshaller
 			}
 			catch (IOException e)
 			{
-				LogFactory.getLog("IXmlRepresentation")
-				          .log(Level.SEVERE, "Unable to close marshalling string writer from log intercepter", e);
+				log.log(Level.SEVERE, "Unable to close marshalling string writer from log intercepter", e);
 			}
 		}
 	}
@@ -170,43 +169,35 @@ public class JAXBMarshaller
 		}
 		catch (IllegalAccessException T)
 		{
-			LogFactory.getLog("IXmlRepresentation")
-			          .log(Level.SEVERE, "Unable to IllegalAccessException ", T);
+			log.log(Level.SEVERE, "Unable to IllegalAccessException ", T);
 		}
 		catch (IllegalArgumentException T)
 		{
-			LogFactory.getLog("IXmlRepresentation")
-			          .log(Level.SEVERE, "Unable to IllegalArgumentException ", T);
+			log.log(Level.SEVERE, "Unable to IllegalArgumentException ", T);
 		}
 		catch (InstantiationException T)
 		{
-			LogFactory.getLog("IXmlRepresentation")
-			          .log(Level.SEVERE, "Unable to InstantiationException ", T);
+			log.log(Level.SEVERE, "Unable to InstantiationException ", T);
 		}
 		catch (NoSuchMethodException T)
 		{
-			LogFactory.getLog("IXmlRepresentation")
-			          .log(Level.SEVERE, "Unable to NoSuchMethodException ", T);
+			log.log(Level.SEVERE, "Unable to NoSuchMethodException ", T);
 		}
 		catch (SecurityException T)
 		{
-			LogFactory.getLog("IXmlRepresentation")
-			          .log(Level.SEVERE, "Unable to SecurityException ", T);
+			log.log(Level.SEVERE, "Unable to SecurityException ", T);
 		}
 		catch (InvocationTargetException T)
 		{
-			LogFactory.getLog("IXmlRepresentation")
-			          .log(Level.SEVERE, "Unable to InvocationTargetException ", T);
+			log.log(Level.SEVERE, "Unable to InvocationTargetException ", T);
 		}
 		catch (JAXBException T)
 		{
-			LogFactory.getLog("IXmlRepresentation")
-			          .log(Level.SEVERE, "Unable to JAXBException ", T);
+			log.log(Level.SEVERE, "Unable to JAXBException ", T);
 		}
 		catch (XMLStreamException T)
 		{
-			LogFactory.getLog("IXmlRepresentation")
-			          .log(Level.SEVERE, "Unable to XMLStreamException ", T);
+			log.log(Level.SEVERE, "Unable to XMLStreamException ", T);
 		}
 		return null;
 	}

@@ -4,21 +4,17 @@ import com.guicedee.guicedinjection.GuiceContext;
 import com.guicedee.guicedinjection.interfaces.IGuicePreStartup;
 import com.guicedee.guicedservlets.rest.RestModule;
 import com.guicedee.guicedservlets.rest.internal.JaxRsPackageRegistrations;
-import com.guicedee.logger.LogFactory;
 import io.github.classgraph.ClassInfo;
-
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.ext.Provider;
+import lombok.extern.java.Log;
+
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Logger;
 
-import static com.guicedee.guicedservlets.rest.RESTContext.*;
-
+@Log
 public class JaxRsPreStartup implements IGuicePreStartup<JaxRsPreStartup> {
-	private static final Logger log = LogFactory.getLog(JaxRsPreStartup.class);
-
 	public static final String serviceClassesString = "jaxrs.serviceClasses";
 	public static final String providersString = "jaxrs.providers";
 	public static final String inInterceptorsString = "jaxrs.inInterceptors";
@@ -46,9 +42,9 @@ public class JaxRsPreStartup implements IGuicePreStartup<JaxRsPreStartup> {
 									 .add(classInfo.getPackageName());
 			log.config("Mapping Jax-RS Application - " + classInfo.loadClass()
 																.getCanonicalName() + " to " + path);
-
-			getApplications().add(classInfo.loadClass()
+		/*	getApplications().add(classInfo.loadClass()
 										   .getCanonicalName());
+			*/
 			mappedClasses.add(classInfo.loadClass());
 		}
 
@@ -66,32 +62,12 @@ public class JaxRsPreStartup implements IGuicePreStartup<JaxRsPreStartup> {
 			JaxRsPackageRegistrations.getPackageNames()
 									 .add(classInfo.getPackageName());
 
-			getPathServices().add(classInfo.loadClass()
-										   .getCanonicalName());
+	/*		getPathServices().add(classInfo.loadClass()
+										   .getCanonicalName());*/
 
 			mappedClasses.add(classInfo.loadClass());
 		}
-		if (autoRegisterProviders)
-		{
-			for (ClassInfo classInfo : GuiceContext.instance()
-			                                       .getScanResult()
-			                                       .getClassesWithAnnotation(Provider.class.getCanonicalName()))
-			{
-				if (classInfo.isAbstract() || classInfo.isInterface() || !RestModule.validClass(classInfo.loadClass()))
-				{
-					continue;
-				}
 
-				log.config("Mapping Provider - " + classInfo.loadClass()
-				                                          .getCanonicalName());
-				JaxRsPackageRegistrations.getPackageNames()
-				                         .add(classInfo.getPackageName());
-
-				getProviders().add(classInfo.loadClass()
-				                            .getCanonicalName());
-				mappedClasses.add(classInfo.loadClass());
-			}
-		}
 	}
 
 }

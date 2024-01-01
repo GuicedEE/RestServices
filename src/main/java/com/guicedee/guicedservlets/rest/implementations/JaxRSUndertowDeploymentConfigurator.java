@@ -16,6 +16,10 @@ public class JaxRSUndertowDeploymentConfigurator
 	@Override
 	public DeploymentInfo configure(DeploymentInfo deploymentInfo)
 	{
+		
+		
+		
+		/*
 		deploymentInfo.addServletContextAttribute(serviceClassesString, renderServices(getPathServices()));
 		deploymentInfo.addServletContextAttribute(providersString, renderServices(getProviders()));
 		deploymentInfo.addServletContextAttribute(inInterceptorsString, renderServices(getInInterceptors()));
@@ -33,6 +37,8 @@ public class JaxRSUndertowDeploymentConfigurator
 		deploymentInfo.addInitParameter(propertiesString, renderServices(getProperties()));
 		deploymentInfo.addInitParameter(applicationsString, renderServices(getApplications()));
 		deploymentInfo.addInitParameter(featuresString, renderServices(getFeatures()));
+		*/
+		
 
 		return deploymentInfo;
 	}
