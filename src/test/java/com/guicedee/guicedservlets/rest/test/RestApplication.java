@@ -1,6 +1,5 @@
 package com.guicedee.guicedservlets.rest.test;
 
-import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import com.guicedee.guicedinjection.GuiceContext;
 import jakarta.ws.rs.core.Application;
 

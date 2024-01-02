@@ -1,4 +1,4 @@
-package com.guicedee.guicedservlets.rest;
+package com.guicedee.guicedservlets.rest.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.TYPE,ElementType.PACKAGE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface RestProvider
+public @interface RestExtension
 {
 	String value();
 }

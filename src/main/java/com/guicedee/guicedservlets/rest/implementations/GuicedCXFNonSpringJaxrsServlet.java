@@ -1,4 +1,4 @@
-package com.guicedee.guicedservlets.rest;
+package com.guicedee.guicedservlets.rest.implementations;
 
 import com.google.inject.Singleton;
 import com.guicedee.guicedinjection.GuiceContext;
@@ -6,6 +6,7 @@ import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.ws.rs.core.Application;
 import lombok.extern.java.Log;
+import org.apache.commons.lang3.ClassLoaderUtils;
 import org.apache.cxf.common.util.PrimitiveUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.interceptor.Interceptor;
@@ -19,6 +20,7 @@ import org.apache.cxf.service.invoker.Invoker;
 
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Log
@@ -28,9 +30,10 @@ public class GuicedCXFNonSpringJaxrsServlet
 {
 	
 	@Override
-	public void init(ServletConfig config) throws ServletException {
+	public void init(ServletConfig config) throws ServletException
+	{
 		super.init(config);
-		System.out.println("init");
+		//System.out.println("init");
 		Enumeration<String> initParameterNames = config.getInitParameterNames();
 		//this.key1 = config.getInitParameter("key1");
 		//this.key2 = config.getInitParameter("key2");
@@ -83,33 +86,42 @@ public class GuicedCXFNonSpringJaxrsServlet
 		super(Collections.singleton(singletonService));
 	}
 	
-	private String getClassNameAndProperties(String cName, Map<String, List<String>> props) {
+	private String getClassNameAndProperties(String cName, Map<String, List<String>> props)
+	{
 		String theName = cName.trim();
 		int ind = theName.indexOf('(');
-		if (ind != -1 && theName.endsWith(")")) {
+		if (ind != -1 && theName.endsWith(")"))
+		{
 			props.putAll(parseMapListSequence(theName.substring(ind + 1, theName.length() - 1)));
 			theName = theName.substring(0, ind).trim();
 		}
 		return theName;
 	}
 	
-	private void injectProperties(Object instance, Map<String, List<String>> props) {
-		if (props == null || props.isEmpty()) {
+	private void injectProperties(Object instance, Map<String, List<String>> props)
+	{
+		if (props == null || props.isEmpty())
+		{
 			return;
 		}
 		Method[] methods = instance.getClass().getMethods();
 		Map<String, Method> methodsMap = new HashMap<>();
-		for (Method m : methods) {
+		for (Method m : methods)
+		{
 			methodsMap.put(m.getName(), m);
 		}
-		for (Map.Entry<String, List<String>> entry : props.entrySet()) {
+		for (Map.Entry<String, List<String>> entry : props.entrySet())
+		{
 			Method m = methodsMap.get("set" + StringUtils.capitalize(entry.getKey()));
-			if (m != null) {
+			if (m != null)
+			{
 				Class<?> type = m.getParameterTypes()[0];
 				Object value;
-				if (InjectionUtils.isPrimitive(type)) {
+				if (InjectionUtils.isPrimitive(type))
+				{
 					value = PrimitiveUtils.read(entry.getValue().get(0), type);
-				} else {
+				} else
+				{
 					value = entry.getValue();
 				}
 				InjectionUtils.injectThroughMethod(instance, m, value);
@@ -198,11 +210,6 @@ public class GuicedCXFNonSpringJaxrsServlet
 	protected Object createSingletonInstance(Class<?> cls, Map<String, List<String>> props, ServletConfig sc)
 					throws ServletException
 	{
-	/*	Constructor<?> c = ResourceUtils.findResourceConstructor(cls, false);
-		if (c == null)
-		{
-			throw new ServletException("No valid constructor found for " + cls.getName());
-		}*/
 		boolean isApplication = Application.class.isAssignableFrom(cls);
 		try
 		{
@@ -215,23 +222,20 @@ public class GuicedCXFNonSpringJaxrsServlet
 			{
 				provider = new ProviderInfo<>(injectedInstance, getBus(), false, true);
 			}
-			
 			Object instance = provider.getProvider();
 			injectProperties(instance, props);
 			configureSingleton(instance);
 			return isApplication ? provider : instance;
-		} /* catch (IllegalAccessException ex) {
-			ex.printStackTrace();
-			throw new ServletException("Resource class " + cls.getName()
-							+ " can not be instantiated due to IllegalAccessException");
-		}*//* catch (InvocationTargetException ex) {
-			ex.printStackTrace();
-			throw new ServletException("Resource class " + cls.getName()
-							+ " can not be instantiated due to InvocationTargetException");
-		}*/ catch (RuntimeException ex)
+		} catch (RuntimeException ex)
 		{
-			throw new ServletException("Resource class " + cls.getName()
-							+ " can not be instantiated",ex);
+			try
+			{
+				return super.createSingletonInstance(cls, props, sc);
+			}catch (ServletException se)
+			{
+				log.log(Level.WARNING,"Unable to create instance of singleton - ",se);
+				return null;
+			}
 		}
 	}
 	
@@ -253,7 +257,13 @@ public class GuicedCXFNonSpringJaxrsServlet
 			final Class<?> cls;
 			if (classLoader == null)
 			{
-				cls = GuiceContext.instance().getScanResult().loadClass(cName,false);// ClassLoaderUtils.loadClass(cName, CXFNonSpringJaxrsServlet.class);
+				try
+				{
+					cls = GuiceContext.instance().getScanResult().loadClass(cName, false);// ClassLoaderUtils.loadClass(cName, CXFNonSpringJaxrsServlet.class);
+				} catch (IllegalArgumentException aer)
+				{
+					return super.loadClass(cName, classType);
+				}
 			} else
 			{
 				cls = classLoader.loadClass(cName);

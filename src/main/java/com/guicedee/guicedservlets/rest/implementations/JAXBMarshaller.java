@@ -2,6 +2,7 @@ package com.guicedee.guicedservlets.rest.implementations;
 
 import com.google.common.net.MediaType;
 import com.guicedee.guicedinjection.pairing.Pair;
+import com.guicedee.services.xmlrepresentation.IXmlRepresentation;
 import lombok.extern.java.Log;
 import org.apache.commons.io.IOUtils;
 
@@ -80,7 +81,7 @@ public class JAXBMarshaller
 				JAXBElement jaxbElement = new JAXBElement(new QName(requestObject.getClass()
 				                                                                 .getSimpleName()),
 				                                          requestObject.getClass(), requestObject);
-				marshaller.setProperty("com.sun.xml.bind.xmlDeclaration", Boolean.FALSE);
+//				marshaller.setProperty("com.sun.xml.bind.xmlDeclaration", Boolean.FALSE);
 				marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 				marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
 				marshaller.marshal(jaxbElement, stringWriter);

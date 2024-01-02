@@ -85,6 +85,13 @@
             <artifactId>json-representation</artifactId>
         </dependency>
 
+
+        <dependency>
+            <groupId>com.guicedee.services</groupId>
+            <artifactId>xml-representation</artifactId>
+        </dependency>
+
+
         <dependency>
             <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
             <artifactId>jackson-jakarta-rs-json-provider</artifactId>
