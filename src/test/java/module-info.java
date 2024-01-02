@@ -7,6 +7,7 @@ module guiced.rest.services.test {
 	requires org.slf4j;
 	requires org.slf4j.simple;
 	requires static lombok;
+	
 	requires jakarta.ws.rs;
 	requires com.google.guice;
 	requires com.guicedee.guicedinjection;
