@@ -13,4 +13,5 @@ module guiced.rest.services.test {
 	requires com.guicedee.guicedinjection;
 	requires com.guicedee.guicedservlets.undertow;
 	
+	opens com.guicedee.guicedservlets.rest.test to org.junit.platform.commons,com.google.guice,org.apache.cxf,com.fasterxml.jackson.databind;
 }

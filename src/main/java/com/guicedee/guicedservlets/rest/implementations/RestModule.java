@@ -7,7 +7,8 @@ import com.google.inject.servlet.ServletModule;
 import com.guicedee.guicedinjection.GuiceContext;
 import com.guicedee.guicedservlets.rest.RESTContext;
 import com.guicedee.guicedservlets.rest.annotations.*;
-import com.guicedee.guicedservlets.services.IGuiceSiteBinder;
+
+import com.guicedee.guicedservlets.servlets.services.IGuiceSiteBinder;
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.ClassInfoList;
 import io.github.classgraph.ScanResult;
