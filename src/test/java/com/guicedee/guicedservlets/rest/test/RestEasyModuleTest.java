@@ -32,6 +32,7 @@ public class RestEasyModuleTest
 		//LogFactory.configureConsoleColourOutput(Level.FINE);
 		Undertow undertow = GuicedUndertow.boot("0.0.0.0", 6003);
 
+		
 		//Do stuff
 		HttpClient client = HttpClient.newBuilder()
 		                              .connectTimeout(Duration.of(5, ChronoUnit.SECONDS))
