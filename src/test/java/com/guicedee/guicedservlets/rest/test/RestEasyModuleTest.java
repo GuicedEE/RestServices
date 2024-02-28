@@ -1,6 +1,5 @@
 package com.guicedee.guicedservlets.rest.test;
 
-import com.guicedee.guicedinjection.GuiceContext;
 import com.guicedee.guicedservlets.undertow.GuicedUndertow;
 import io.undertow.Undertow;
 import org.junit.jupiter.api.Test;
@@ -23,11 +22,7 @@ public class RestEasyModuleTest
 		/*
 		RESTContext.getProviders()
 		           .add(JacksonJsonProvider.class.getCanonicalName());
-		*/
-		
-		GuiceContext.instance()
-		            .loadIGuiceModules()
-		            .add(new RestTestBinding());
+		*/;
 
 		//LogFactory.configureConsoleColourOutput(Level.FINE);
 		Undertow undertow = GuicedUndertow.boot("0.0.0.0", 6003);

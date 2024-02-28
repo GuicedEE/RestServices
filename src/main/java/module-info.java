@@ -1,8 +1,7 @@
-import com.guicedee.guicedinjection.interfaces.IGuiceScanModuleInclusions;
+import com.guicedee.guicedinjection.interfaces.*;
 import com.guicedee.guicedservlets.rest.implementations.IncludeModuleInScans;
 import com.guicedee.guicedservlets.rest.implementations.JAXBMarshaller;
 import com.guicedee.guicedservlets.rest.implementations.RestModule;
-import com.guicedee.guicedservlets.servlets.services.IGuiceSiteBinder;
 
 
 module com.guicedee.guicedservlets.rest {
@@ -29,7 +28,8 @@ module com.guicedee.guicedservlets.rest {
 	
 	provides com.guicedee.guicedinjection.interfaces.IGuicePostStartup with com.guicedee.guicedservlets.rest.services.JaxRsPostStartup;
 	
-	provides IGuiceSiteBinder with RestModule;
+	provides IGuiceModule with RestModule;
+	
 	provides IGuiceScanModuleInclusions with IncludeModuleInScans;
 	
 	provides com.guicedee.guicedinjection.interfaces.IGuiceConfigurator with com.guicedee.guicedservlets.rest.implementations.RestServiceScannerConfig;

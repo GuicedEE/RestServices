@@ -10,7 +10,7 @@ module guiced.rest.services.test {
 	
 	requires jakarta.ws.rs;
 	requires com.google.guice;
-	requires com.guicedee.guicedinjection;
+	requires com.guicedee.client;
 	requires com.guicedee.guicedservlets.undertow;
 	
 	opens com.guicedee.guicedservlets.rest.test to org.junit.platform.commons,com.google.guice,org.apache.cxf,com.fasterxml.jackson.databind;

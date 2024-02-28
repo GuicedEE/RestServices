@@ -1,31 +1,25 @@
 package com.guicedee.guicedservlets.rest.implementations;
 
-import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
-import com.fasterxml.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
-import com.google.inject.Inject;
-import com.google.inject.servlet.ServletModule;
-import com.guicedee.guicedinjection.GuiceContext;
-import com.guicedee.guicedservlets.rest.RESTContext;
+import com.fasterxml.jackson.jakarta.rs.json.*;
+import com.google.inject.*;
+import com.google.inject.servlet.*;
+
+import com.guicedee.client.*;
+import com.guicedee.guicedinjection.interfaces.*;
+import com.guicedee.guicedservlets.rest.*;
 import com.guicedee.guicedservlets.rest.annotations.*;
+import io.github.classgraph.*;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.*;
+import lombok.extern.java.*;
+import org.apache.cxf.jaxrs.provider.*;
 
-import com.guicedee.guicedservlets.servlets.services.IGuiceSiteBinder;
-import io.github.classgraph.ClassInfo;
-import io.github.classgraph.ClassInfoList;
-import io.github.classgraph.ScanResult;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.core.Application;
-import lombok.extern.java.Log;
-import org.apache.cxf.jaxrs.provider.MultipartProvider;
-
-import java.lang.reflect.Constructor;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Predicate;
+import java.lang.reflect.*;
+import java.util.*;
+import java.util.function.*;
 
 @Log
-public class RestModule
-				extends ServletModule
-				implements IGuiceSiteBinder<RestModule>
+public class RestModule extends ServletModule implements IGuiceModule<RestModule>
 {
 	
 	public RestModule()
@@ -46,12 +40,14 @@ public class RestModule
 		return path;
 	}
 	
-	private final Predicate<ClassInfo> filter = (applicationClass)
-					->applicationClass.isAbstract() || applicationClass.isInterface() || applicationClass.isInnerClass() || applicationClass.isStatic() ||
-							applicationClass.getPackageName().startsWith("org.apache.cxf.jaxrs.openapi") || 
-							applicationClass.getPackageName().startsWith("io.swagger.v3.jaxrs2.integration.resources") ||
-							applicationClass.getPackageName().startsWith("org.apache.cxf.jaxrs.swagger.ui")
-					;
+	private final Predicate<ClassInfo> filter = (applicationClass) ->
+			                                            applicationClass.isAbstract() || applicationClass.isInterface() || applicationClass.isInnerClass() || applicationClass.isStatic() || applicationClass
+			                                                                                                                                                                                                       .getPackageName()
+			                                                                                                                                                                                                       .startsWith("org.apache.cxf.jaxrs.openapi") || applicationClass
+					                                                                                                                                                                                                                                                      .getPackageName()
+					                                                                                                                                                                                                                                                      .startsWith("io.swagger.v3.jaxrs2.integration.resources") || applicationClass
+							                                                                                                                                                                                                                                                                                                                   .getPackageName()
+							                                                                                                                                                                                                                                                                                                                   .startsWith("org.apache.cxf.jaxrs.swagger.ui");
 	
 	@Override
 	protected void configureServlets()
@@ -61,14 +57,20 @@ public class RestModule
 		Map<String, String> initParams = new HashMap<>();
 		
 		//jaxrs services
-		ScanResult scanResult = GuiceContext.instance().getScanResult();
+		ScanResult scanResult = IGuiceContext
+				                        .instance()
+				                        .getScanResult();
 		
 		ClassInfoList applicationClasses = scanResult.getSubclasses(Application.class);
 		applicationClasses.removeIf(filter);
 		StringBuilder applications = new StringBuilder();
 		for (ClassInfo applicationClass : applicationClasses)
 		{
-			applications.append(applicationClass.loadClass().getCanonicalName()).append(",");
+			applications
+					.append(applicationClass
+							        .loadClass()
+							        .getCanonicalName())
+					.append(",");
 		}
 		if (!applicationClasses.isEmpty())
 		{
@@ -82,7 +84,11 @@ public class RestModule
 		StringBuilder paths = new StringBuilder();
 		for (ClassInfo applicationClass : pathClasses)
 		{
-			paths.append(applicationClass.loadClass().getCanonicalName()).append(",");
+			paths
+					.append(applicationClass
+							        .loadClass()
+							        .getCanonicalName())
+					.append(",");
 		}
 		if (!applicationClasses.isEmpty())
 		{
@@ -95,14 +101,24 @@ public class RestModule
 		ClassInfoList restProviders = scanResult.getClassesWithAnnotation(RestProvider.class);
 		restProviders.removeIf(filter);
 		StringBuilder providers = new StringBuilder();
-		providers.append(JacksonJsonProvider.class.getCanonicalName()).append(",");
-		providers.append(MultipartProvider.class.getCanonicalName()).append(",");
-		providers.append(JacksonXmlBindJsonProvider.class.getCanonicalName()).append(",");
-		providers.append(JAXBMarshaller.class.getCanonicalName()).append(",");
+		providers
+				.append(JacksonJsonProvider.class.getCanonicalName())
+				.append(",");
+		providers
+				.append(MultipartProvider.class.getCanonicalName())
+				.append(",");
+		providers
+				.append(JacksonXmlBindJsonProvider.class.getCanonicalName())
+				.append(",");
+		providers
+				.append(JAXBMarshaller.class.getCanonicalName())
+				.append(",");
 		
 		for (ClassInfo applicationClass : restProviders)
 		{
-			RestProvider annotation = applicationClass.loadClass().getAnnotation(RestProvider.class);
+			RestProvider annotation = applicationClass
+					                          .loadClass()
+					                          .getAnnotation(RestProvider.class);
 			providers.append(annotation.value());
 		}
 		if (!restProviders.isEmpty())
@@ -118,7 +134,11 @@ public class RestModule
 		StringBuilder features = new StringBuilder();
 		for (ClassInfo applicationClass : featureClasses)
 		{
-			features.append(applicationClass.loadClass().getCanonicalName()).append(",");
+			features
+					.append(applicationClass
+							        .loadClass()
+							        .getCanonicalName())
+					.append(",");
 		}
 		if (!featureClasses.isEmpty())
 		{
@@ -133,7 +153,11 @@ public class RestModule
 		StringBuilder extensions = new StringBuilder();
 		for (ClassInfo applicationClass : extensionClasses)
 		{
-			extensions.append(applicationClass.loadClass().getCanonicalName()).append(",");
+			extensions
+					.append(applicationClass
+							        .loadClass()
+							        .getCanonicalName())
+					.append(",");
 		}
 		if (!extensionClasses.isEmpty())
 		{
@@ -148,7 +172,11 @@ public class RestModule
 		StringBuilder inInterceptors = new StringBuilder();
 		for (ClassInfo applicationClass : inInterceptorClasses)
 		{
-			inInterceptors.append(applicationClass.loadClass().getCanonicalName()).append(",");
+			inInterceptors
+					.append(applicationClass
+							        .loadClass()
+							        .getCanonicalName())
+					.append(",");
 		}
 		if (!inInterceptorClasses.isEmpty())
 		{
@@ -162,7 +190,11 @@ public class RestModule
 		StringBuilder outInterceptors = new StringBuilder();
 		for (ClassInfo applicationClass : outInterceptorClasses)
 		{
-			outInterceptors.append(applicationClass.loadClass().getCanonicalName()).append(",");
+			outInterceptors
+					.append(applicationClass
+							        .loadClass()
+							        .getCanonicalName())
+					.append(",");
 		}
 		if (!outInterceptorClasses.isEmpty())
 		{
@@ -176,7 +208,11 @@ public class RestModule
 		StringBuilder outFaultInterceptors = new StringBuilder();
 		for (ClassInfo applicationClass : outFaultInterceptorClasses)
 		{
-			outFaultInterceptors.append(applicationClass.loadClass().getCanonicalName()).append(",");
+			outFaultInterceptors
+					.append(applicationClass
+							        .loadClass()
+							        .getCanonicalName())
+					.append(",");
 		}
 		if (!outFaultInterceptorClasses.isEmpty())
 		{
@@ -186,8 +222,7 @@ public class RestModule
 		initParams.put("jaxrs.outFaultInterceptors", outFaultInterceptors.toString());
 		
 		
-		serve(cleanPath(RESTContext.baseWSUrl) + "*")
-						.with(GuicedCXFNonSpringJaxrsServlet.class, initParams);
+		serve(cleanPath(RESTContext.baseWSUrl) + "*").with(GuicedCXFNonSpringJaxrsServlet.class, initParams);
 	}
 	
 	public static boolean validClass(Class<?> clazz)
@@ -197,15 +232,13 @@ public class RestModule
 		{
 			for (Constructor<?> declaredConstructor : clazz.getDeclaredConstructors())
 			{
-				if (declaredConstructor.getParameterCount() == 0
-								|| declaredConstructor.isAnnotationPresent(Inject.class)
-								|| declaredConstructor.isAnnotationPresent(jakarta.inject.Inject.class)
-				)
+				if (declaredConstructor.getParameterCount() == 0 || declaredConstructor.isAnnotationPresent(Inject.class) || declaredConstructor.isAnnotationPresent(jakarta.inject.Inject.class))
 				{
 					return true;
 				}
 			}
-		} catch (NoClassDefFoundError | IllegalAccessError e)
+		}
+		catch (NoClassDefFoundError | IllegalAccessError e)
 		{
 			return false;
 		}

@@ -1,27 +1,22 @@
 package com.guicedee.guicedservlets.rest.implementations;
 
-import com.google.inject.Singleton;
-import com.guicedee.guicedinjection.GuiceContext;
-import jakarta.servlet.ServletConfig;
-import jakarta.servlet.ServletException;
-import jakarta.ws.rs.core.Application;
-import lombok.extern.java.Log;
-import org.apache.commons.lang3.ClassLoaderUtils;
-import org.apache.cxf.common.util.PrimitiveUtils;
-import org.apache.cxf.common.util.StringUtils;
-import org.apache.cxf.interceptor.Interceptor;
-import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
-import org.apache.cxf.jaxrs.model.ApplicationInfo;
-import org.apache.cxf.jaxrs.model.ProviderInfo;
-import org.apache.cxf.jaxrs.servlet.CXFNonSpringJaxrsServlet;
-import org.apache.cxf.jaxrs.utils.InjectionUtils;
-import org.apache.cxf.message.Message;
-import org.apache.cxf.service.invoker.Invoker;
+import com.google.inject.*;
+import com.guicedee.client.*;
+import jakarta.servlet.*;
+import jakarta.ws.rs.core.*;
+import lombok.extern.java.*;
+import org.apache.cxf.common.util.*;
+import org.apache.cxf.interceptor.*;
+import org.apache.cxf.jaxrs.*;
+import org.apache.cxf.jaxrs.model.*;
+import org.apache.cxf.jaxrs.servlet.*;
+import org.apache.cxf.jaxrs.utils.*;
+import org.apache.cxf.message.*;
+import org.apache.cxf.service.invoker.*;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
 @Log
 @Singleton
@@ -150,7 +145,7 @@ public class GuicedCXFNonSpringJaxrsServlet
 				try
 				{
 					Class<?> intClass = loadClass(theValue, "Interceptor");
-					Object object = GuiceContext.get(intClass);// intClass.getDeclaredConstructor().newInstance();
+					Object object = IGuiceContext.get(intClass);// intClass.getDeclaredConstructor().newInstance();
 					injectProperties(object, props);
 					list.add((Interceptor<? extends Message>) object);
 				} catch (ServletException ex)
@@ -193,7 +188,7 @@ public class GuicedCXFNonSpringJaxrsServlet
 			try
 			{
 				Class<?> intClass = loadClass(theValue, "Invoker");
-				Object object = GuiceContext.get(intClass);// intClass.getDeclaredConstructor().newInstance();
+				Object object = IGuiceContext.get(intClass);// intClass.getDeclaredConstructor().newInstance();
 				injectProperties(object, props);
 				bean.setInvoker((Invoker) object);
 			} catch (ServletException ex)
@@ -213,7 +208,7 @@ public class GuicedCXFNonSpringJaxrsServlet
 		boolean isApplication = Application.class.isAssignableFrom(cls);
 		try
 		{
-			Object injectedInstance = GuiceContext.get(cls);
+			Object injectedInstance = IGuiceContext.get(cls);
 			final ProviderInfo<? extends Object> provider;
 			if (isApplication)
 			{
@@ -259,7 +254,7 @@ public class GuicedCXFNonSpringJaxrsServlet
 			{
 				try
 				{
-					cls = GuiceContext.instance().getScanResult().loadClass(cName, false);// ClassLoaderUtils.loadClass(cName, CXFNonSpringJaxrsServlet.class);
+					cls = IGuiceContext.instance().getScanResult().loadClass(cName, false);// ClassLoaderUtils.loadClass(cName, CXFNonSpringJaxrsServlet.class);
 				} catch (IllegalArgumentException aer)
 				{
 					return super.loadClass(cName, classType);

@@ -1,10 +1,9 @@
 package com.guicedee.guicedservlets.rest.test;
 
-import com.guicedee.guicedinjection.GuiceContext;
-import jakarta.ws.rs.core.Application;
+import com.guicedee.client.*;
+import jakarta.ws.rs.core.*;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 
 public class RestApplication extends Application
@@ -21,7 +20,7 @@ public class RestApplication extends Application
 	@Override
 	public Set<Object> getSingletons()
 	{
-		singletons.add(GuiceContext.get(HelloResource.class));
+		singletons.add(IGuiceContext.get(HelloResource.class));
 		return singletons;
 	}
 }
