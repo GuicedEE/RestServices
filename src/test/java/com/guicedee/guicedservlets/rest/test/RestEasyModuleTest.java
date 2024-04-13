@@ -1,7 +1,6 @@
 package com.guicedee.guicedservlets.rest.test;
 
-import com.guicedee.guicedservlets.undertow.GuicedUndertow;
-import io.undertow.Undertow;
+import com.guicedee.client.IGuiceContext;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
@@ -11,7 +10,7 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RestEasyModuleTest
 {
@@ -19,31 +18,27 @@ public class RestEasyModuleTest
 	@Test
 	void configureServlets() throws Exception
 	{
-		/*
-		RESTContext.getProviders()
-		           .add(JacksonJsonProvider.class.getCanonicalName());
-		*/;
+		System.out.println("Starting...");
+		IGuiceContext.instance()
+					 .inject();
 
-		//LogFactory.configureConsoleColourOutput(Level.FINE);
-		Undertow undertow = GuicedUndertow.boot("0.0.0.0", 6003);
-
-		
 		//Do stuff
 		HttpClient client = HttpClient.newBuilder()
-		                              .connectTimeout(Duration.of(5, ChronoUnit.SECONDS))
-		                              .build();
+									  .connectTimeout(Duration.of(5, ChronoUnit.SECONDS))
+									  .build();
 		HttpResponse response = client.send(HttpRequest.newBuilder()
-		                                               .GET()
-		                                               .uri(new URI("http://localhost:6003/rest/hello/world"))
-		                                               .build(),
-		                                    HttpResponse.BodyHandlers.discarding());
+													   .GET()
+													   .uri(new URI("http://localhost:8080/hello/world"))
+													   .build(),
+											HttpResponse.BodyHandlers.discarding());
 		assertEquals(200, response.statusCode());
 		response = client.send(HttpRequest.newBuilder()
-		                                  .GET()
-		                                  .uri(new URI("http://localhost:6003/rest/hello/helloObject/world"))
-		                                  .build(),
-		                       HttpResponse.BodyHandlers.discarding());
+										  .GET()
+										  .uri(new URI("http://localhost:8080/hello/helloObject/world"))
+										  .build(),
+							   HttpResponse.BodyHandlers.discarding());
 		assertEquals(200, response.statusCode());
-		undertow.stop();
+
+		System.out.println("Done");
 	}
 }

@@ -1,3 +1,6 @@
+import com.guicedee.guicedinjection.interfaces.IGuiceModule;
+import com.guicedee.guicedservlets.rest.test.RestTestBinding;
+
 module guiced.rest.services.test {
 	requires com.guicedee.guicedservlets.rest;
 	
@@ -11,7 +14,10 @@ module guiced.rest.services.test {
 	requires jakarta.ws.rs;
 	requires com.google.guice;
 	requires com.guicedee.client;
-	requires com.guicedee.guicedservlets.undertow;
-	
+
+	provides IGuiceModule with RestTestBinding;
+
+	exports com.guicedee.guicedservlets.rest.test to io.vertx.rest;
+
 	opens com.guicedee.guicedservlets.rest.test to org.junit.platform.commons,com.google.guice,org.apache.cxf,com.fasterxml.jackson.databind;
 }
