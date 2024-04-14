@@ -6,7 +6,9 @@ import com.zandero.rest.RestRouter;
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.ClassInfoList;
 import io.github.classgraph.ScanResult;
+import io.vertx.core.Handler;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
 import jakarta.ws.rs.Path;
 import lombok.extern.java.Log;
 
@@ -34,4 +36,5 @@ public class VertXRestRouter implements VertxRouterConfigurator
         }
         return builder;
     }
+
 }
