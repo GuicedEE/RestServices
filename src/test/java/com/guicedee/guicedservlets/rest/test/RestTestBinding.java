@@ -1,4 +1,4 @@
-package com.guicedee.guicedservlets.rest;
+package com.guicedee.guicedservlets.rest.test;
 
 import com.google.inject.AbstractModule;
 import com.guicedee.guicedinjection.interfaces.IGuiceModule;

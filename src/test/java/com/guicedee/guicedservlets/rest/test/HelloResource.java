@@ -1,4 +1,4 @@
-package com.guicedee.guicedservlets.rest;
+package com.guicedee.guicedservlets.rest.test;
 
 import com.google.inject.Inject;
 
@@ -22,12 +22,14 @@ public class HelloResource
 	@GET
 	@Path("{name}")
 	public String hello(@PathParam("name") final String name) {
+		System.out.println("Reached Hello");
 		return greeter.greet(name);
 	}
 
 	@GET
 	@Path("helloObject/{name}")
 	public ReturnableObject helloObject(@PathParam("name") final String name) {
+		System.out.println("Reached Hello Object");
 		return new ReturnableObject().setName(name);
 	}
 }

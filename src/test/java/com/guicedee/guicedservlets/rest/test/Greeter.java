@@ -1,4 +1,4 @@
-package com.guicedee.guicedservlets.rest;
+package com.guicedee.guicedservlets.rest.test;
 
 public interface Greeter
 {
