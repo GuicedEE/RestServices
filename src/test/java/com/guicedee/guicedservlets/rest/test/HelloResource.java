@@ -1,12 +1,9 @@
 package com.guicedee.guicedservlets.rest.test;
 
 import com.google.inject.Inject;
+import jakarta.ws.rs.*;
 
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-
+@ApplicationPath("rest")
 @Path("hello")
 @Produces("application/json")
 public class HelloResource

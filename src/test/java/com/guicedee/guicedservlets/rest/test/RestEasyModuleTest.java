@@ -28,13 +28,13 @@ public class RestEasyModuleTest
 									  .build();
 		HttpResponse response = client.send(HttpRequest.newBuilder()
 													   .GET()
-													   .uri(new URI("http://localhost:8080/hello/world"))
+													   .uri(new URI("http://localhost:8080/rest/hello/world"))
 													   .build(),
 											HttpResponse.BodyHandlers.discarding());
 		assertEquals(200, response.statusCode());
 		response = client.send(HttpRequest.newBuilder()
 										  .GET()
-										  .uri(new URI("http://localhost:8080/hello/helloObject/world"))
+										  .uri(new URI("http://localhost:8080/rest/hello/helloObject/world"))
 										  .build(),
 							   HttpResponse.BodyHandlers.discarding());
 		assertEquals(200, response.statusCode());

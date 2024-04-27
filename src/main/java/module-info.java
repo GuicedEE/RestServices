@@ -1,4 +1,7 @@
-import com.guicedee.guicedinjection.interfaces.*;
+import com.guicedee.guicedinjection.interfaces.IGuiceModule;
+import com.guicedee.guicedinjection.interfaces.IGuicePreStartup;
+import com.guicedee.guicedinjection.interfaces.IPackageRejectListScanner;
+import com.guicedee.guicedservlets.rest.implementations.PackageRejectListScanner;
 import com.guicedee.guicedservlets.rest.implementations.RestModule;
 import com.guicedee.guicedservlets.rest.implementations.VertXRestRouter;
 import com.guicedee.guicedservlets.rest.services.GuicedRestPreStartup;
@@ -22,6 +25,8 @@ module com.guicedee.guicedservlets.rest {
 	provides IGuicePreStartup with GuicedRestPreStartup;
 	provides VertxRouterConfigurator with VertXRestRouter;
 	provides IGuiceModule with RestModule;
+	provides IPackageRejectListScanner with PackageRejectListScanner;
+
 
 	opens com.guicedee.guicedservlets.rest.services to com.google.guice;
 	opens com.guicedee.guicedservlets.rest.implementations to com.google.guice;

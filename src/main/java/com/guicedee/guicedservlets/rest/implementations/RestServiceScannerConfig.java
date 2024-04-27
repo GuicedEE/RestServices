@@ -13,7 +13,10 @@ public class RestServiceScannerConfig implements IGuiceConfigurator
 		config.setMethodInfo(true);
 		config.setClasspathScanning(true);
 		config.setFieldInfo(true);
-		
+		config.setExcludePackages(true);
+		config.setIgnoreMethodVisibility(true);
+		config.setIgnoreFieldVisibility(true);
+		config.setIgnoreClassVisibility(true);
 		return config;
 	}
 	
