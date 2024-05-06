@@ -27,6 +27,7 @@ public class VertXRestRouter implements VertxRouterConfigurator
     @Override
     public Router builder(Router builder)
     {
+        RestRouter.injectWith(IGuiceContext::get);
         ScanResult scanResult = IGuiceContext
                 .instance()
                 .getScanResult();
@@ -36,7 +37,7 @@ public class VertXRestRouter implements VertxRouterConfigurator
         {
             if (!filter.test(resource))
             {
-                RestRouter.register(builder, IGuiceContext.get(resource.loadClass(false)));
+                RestRouter.register(builder, resource.loadClass(false));
             }
         }
         return builder;

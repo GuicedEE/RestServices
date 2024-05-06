@@ -1,6 +1,5 @@
 package com.guicedee.guicedservlets.rest.test;
 
-import com.google.inject.Inject;
 import jakarta.ws.rs.*;
 
 @ApplicationPath("rest")
@@ -8,13 +7,9 @@ import jakarta.ws.rs.*;
 @Produces("application/json")
 public class HelloResource
 {
-	private final Greeter greeter;
-
-	@Inject
-	public HelloResource(final Greeter greeter)
-	{
-		this.greeter = greeter;
-	}
+	//or in constructor
+	@jakarta.inject.Inject
+	private Greeter greeter;
 
 	@GET
 	@Path("{name}")
