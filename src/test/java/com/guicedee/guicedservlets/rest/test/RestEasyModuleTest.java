@@ -1,6 +1,7 @@
 package com.guicedee.guicedservlets.rest.test;
 
 import com.guicedee.client.IGuiceContext;
+import io.vertx.core.Vertx;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
@@ -40,5 +41,6 @@ public class RestEasyModuleTest
 		assertEquals(200, response.statusCode());
 
 		System.out.println("Done");
+		IGuiceContext.get(Vertx.class).close();
 	}
 }
