@@ -5,7 +5,7 @@ import com.guicedee.guicedservlets.rest.services.*;
 import com.guicedee.vertx.spi.*;
 import com.guicedee.guicedinjection.interfaces.*;
 
-module com.guicedee.guicedservlets.rest {
+module com.guicedee.rest {
 
 	exports com.guicedee.guicedservlets.rest.services;
 
@@ -14,7 +14,7 @@ module com.guicedee.guicedservlets.rest {
 	requires com.guicedee.jsonrepresentation;
 	requires com.guicedee.xmlrepresentation;
 
-	requires transitive guiced.vertx;
+	requires transitive com.guicedee.vertx;
     requires com.zandero.rest.vertx;
 
 	requires transitive com.guicedee.client;

@@ -2,7 +2,7 @@ import com.guicedee.guicedinjection.interfaces.IGuiceModule;
 import com.guicedee.guicedservlets.rest.test.RestTestBinding;
 
 module guiced.rest.services.test {
-	requires com.guicedee.guicedservlets.rest;
+	requires com.guicedee.rest;
 	
 	requires java.net.http;
 	
