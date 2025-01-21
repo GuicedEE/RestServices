@@ -42,5 +42,6 @@ public class RestEasyModuleTest
 
 		System.out.println("Done");
 		IGuiceContext.get(Vertx.class).close();
+		System.exit(0);
 	}
 }
