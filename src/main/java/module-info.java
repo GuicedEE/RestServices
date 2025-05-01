@@ -15,6 +15,8 @@ module com.guicedee.rest {
     requires transitive com.guicedee.vertx.web;
     requires com.zandero.rest.vertx;
 
+    requires transitive jakarta.ws.rs;
+
     exports com.guicedee.guicedservlets.rest.services;
 
 	requires static lombok;

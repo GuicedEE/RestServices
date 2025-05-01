@@ -25,5 +25,4 @@ public class HelloResource
 		return new ReturnableObject().setName(name);
 	}
 
-
 }
