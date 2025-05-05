@@ -1,20 +1,20 @@
 package com.guicedee.guicedservlets.rest.services;
 
 import com.guicedee.guicedinjection.interfaces.IGuicePreStartup;
-import com.guicedee.vertx.spi.VertXPreStartup;
-import com.zandero.rest.RestRouter;
 import io.vertx.core.Future;
 
+import java.util.Collections;
 import java.util.List;
 
+/**
+ * Performs pre-startup tasks for the Jakarta WS implementation.
+ */
 public class GuicedRestPreStartup implements IGuicePreStartup<GuicedRestPreStartup>
 {
     @Override
     public List<Future<Boolean>> onStartup()
     {
-        return List.of(VertXPreStartup.getVertx().executeBlocking(() -> {
-            RestRouter.injectWith(new GuiceRestInjectionProvider());
-            return true;
-        }));
+        // No pre-startup tasks needed for our Jakarta WS implementation
+        return Collections.emptyList();
     }
 }

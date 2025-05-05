@@ -25,10 +25,10 @@
 
     <dependencies>
 
-        <dependency>
+      <!--  <dependency>
             <groupId>com.guicedee.services</groupId>
             <artifactId>vertx-rest</artifactId>
-        </dependency>
+        </dependency>-->
 
         <dependency>
             <groupId>com.guicedee</groupId>
