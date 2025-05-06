@@ -1,5 +1,6 @@
 package com.guicedee.guicedservlets.rest.pathing;
 
+import com.guicedee.services.jsonrepresentation.IJsonRepresentation;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.Future;
 import io.vertx.core.buffer.Buffer;
@@ -8,6 +9,7 @@ import io.vertx.ext.web.RoutingContext;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.ext.MessageBodyWriter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -22,6 +24,7 @@ import java.util.ServiceLoader;
 /**
  * Handles processing of responses from resource methods.
  */
+@Slf4j
 public class ResponseHandler {
 
     /**
@@ -40,7 +43,7 @@ public class ResponseHandler {
 
         // Handle Future
         if (result instanceof Future) {
-            Future<Object> future = (Future<Object>) result;
+            Future<?> future = (Future<?>) result;
             future.onComplete(ar -> {
                 if (ar.succeeded()) {
                     processResponse(context, ar.result(), method);
@@ -115,16 +118,23 @@ public class ResponseHandler {
     private static byte[] convertToResponseBody(Object result, String contentType, Class<?> resultClass, Type genericType, Annotation[] annotations) throws IOException {
         // Try to find a MessageBodyWriter for the result type
         for (MessageBodyWriter writer : ServiceLoader.load(MessageBodyWriter.class)) {
-            if (writer.isWriteable(resultClass, genericType, annotations, MediaType.valueOf(contentType))) {
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                writer.writeTo(result, resultClass, genericType, annotations, MediaType.valueOf(contentType), null, outputStream);
-                return outputStream.toByteArray();
+            try
+            {
+                if (writer.isWriteable(resultClass, genericType, annotations, MediaType.valueOf(contentType)))
+                {
+                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                    writer.writeTo(result, resultClass, genericType, annotations, MediaType.valueOf(contentType), null, outputStream);
+                    return outputStream.toByteArray();
+                }
+            }catch (Exception classNotFoundException)
+            {
+                log.warn("Could not load class for MessageBodyWriter: " + classNotFoundException.getMessage() + "for writer " + writer.getClass().getName() + ", skipping");
             }
         }
 
         // If no MessageBodyWriter is found, use default conversion
         if (contentType.equals(MediaType.APPLICATION_JSON)) {
-            return Json.encode(result).getBytes(StandardCharsets.UTF_8);
+            return IJsonRepresentation.getObjectMapper().writeValueAsBytes(result);
         } else if (contentType.equals(MediaType.TEXT_PLAIN)) {
             return result.toString().getBytes(StandardCharsets.UTF_8);
         } else {
