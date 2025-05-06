@@ -26,11 +26,17 @@ public class JakartaWsScanner {
         List<Class<?>> resourceClasses = new ArrayList<>();
 
         // Get classes with @ApplicationPath or @Path annotations
-        ClassInfoList classInfoList = scanResult.getClassesWithAnnotation(ApplicationPath.class);
-        classInfoList.addAll(scanResult.getClassesWithAnnotation(Path.class));
+        // ClassInfoList is immutable, so we need to create a new list and add all elements
+        ClassInfoList applicationPathClasses = scanResult.getClassesWithAnnotation(ApplicationPath.class);
+        ClassInfoList pathClasses = scanResult.getClassesWithAnnotation(Path.class);
+
+        // Create a combined list of ClassInfo objects
+        List<ClassInfo> combinedList = new ArrayList<>();
+        applicationPathClasses.forEach(combinedList::add);
+        pathClasses.forEach(combinedList::add);
 
         // Filter out abstract classes, interfaces, inner classes, and static classes
-        for (ClassInfo classInfo : classInfoList) {
+        for (ClassInfo classInfo : combinedList) {
             if (!classInfo.isAbstract() && !classInfo.isInterface() && !classInfo.isInnerClass() && !classInfo.isStatic()) {
                 try {
                     Class<?> resourceClass = classInfo.loadClass(false);

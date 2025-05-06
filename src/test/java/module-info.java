@@ -23,5 +23,5 @@ module guiced.rest.services.test {
 
 	exports com.guicedee.guicedservlets.rest.test;
 
-	opens com.guicedee.guicedservlets.rest.test to org.junit.platform.commons,com.google.guice,org.apache.cxf,com.fasterxml.jackson.databind,com.zandero.rest.vertx;
+	opens com.guicedee.guicedservlets.rest.test to org.junit.platform.commons,com.google.guice,com.fasterxml.jackson.databind;
 }

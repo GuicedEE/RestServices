@@ -2,6 +2,7 @@ package com.guicedee.guicedservlets.rest.implementations;
 
 import com.guicedee.client.Environment;
 import com.guicedee.client.IGuiceContext;
+import com.guicedee.guicedservlets.rest.services.Cors;
 import com.guicedee.vertx.spi.VerticleStartup;
 import com.guicedee.vertx.web.spi.VertxHttpServerConfigurator;
 import com.guicedee.vertx.web.spi.VertxHttpServerOptionsConfigurator;
@@ -99,6 +100,11 @@ public class GuicedRestHttpServerConfigurator implements VerticleStartup<GuicedR
                     .setUploadsDirectory("uploads")
                     .setDeleteUploadedFilesOnEnd(true));
 
+            // Configure CORS from annotation or environment variables
+            // Look for Cors annotation on the verticle class
+            Cors corsAnnotation = verticle.getClass().getAnnotation(Cors.class);
+            CorsHandlerConfigurator.configureCors(router, corsAnnotation);
+
             // Add a request logger to log all incoming requests
             router.route().handler(ctx -> {
                 log.debug("Request received: " + ctx.request().method() + " " + ctx.request().path());
@@ -115,6 +121,20 @@ public class GuicedRestHttpServerConfigurator implements VerticleStartup<GuicedR
                     .forEach(entry -> IGuiceContext.get(entry.getClass()).builder(router));
 
             // Add debug routes for specific paths
+            router.get("/debug").handler(ctx -> {
+                log.info("Debug endpoint accessed: " + ctx.request().method() + " " + ctx.request().path());
+                ctx.response()
+                        .putHeader("content-type", "text/plain")
+                        .end("Debug endpoint");
+            });
+
+            router.get("/rest/hello/world").handler(ctx -> {
+                log.info("Debug hello route accessed: " + ctx.request().method() + " " + ctx.request().path());
+                ctx.response()
+                        .putHeader("content-type", "application/json")
+                        .end("\"Hello world\"");
+            });
+
             router.get("/rest/hello/helloObject/world").handler(ctx -> {
                 log.info("Debug helloObject route accessed: " + ctx.request().method() + " " + ctx.request().path());
                 ctx.response()
