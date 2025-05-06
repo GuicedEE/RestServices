@@ -1,15 +1,19 @@
 package com.guicedee.guicedservlets.rest.implementations;
 
 import com.guicedee.client.Environment;
+import com.guicedee.client.IGuiceContext;
+import com.guicedee.guicedservlets.rest.pathing.JakartaWsScanner;
 import com.guicedee.guicedservlets.rest.services.Cors;
+import io.github.classgraph.ScanResult;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.CorsHandler;
+import jakarta.ws.rs.ApplicationPath;
+import jakarta.ws.rs.Path;
 import lombok.extern.log4j.Log4j2;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.lang.reflect.Method;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -19,19 +23,56 @@ import java.util.stream.Collectors;
 public class CorsHandlerConfigurator {
 
     /**
-     * Configures CORS handling for the given router based on the Cors annotation or environment variables.
+     * Configures CORS handling for the given router based on the Cors annotations found at different levels.
      *
      * @param router The router to configure
-     * @param corsAnnotation The Cors annotation, if present
+     * @param verticleAnnotation The Cors annotation on the verticle class, if present
      */
-    public static void configureCors(Router router, Cors corsAnnotation) {
-        // Check if CORS is enabled
-        boolean corsEnabled = isCorsEnabled(corsAnnotation);
-        if (!corsEnabled) {
-            log.debug("CORS is disabled");
+    public static void configureCors(Router router, Cors verticleAnnotation) {
+        // Scan for resource classes with CORS annotations
+        List<Class<?>> resourceClasses = scanForResourceClasses();
+
+        // Collect all CORS annotations from different levels
+        Map<String, Cors> corsAnnotations = collectCorsAnnotations(verticleAnnotation, resourceClasses);
+
+        // If no CORS annotations were found, check if CORS is enabled via environment variables
+        if (corsAnnotations.isEmpty()) {
+            boolean corsEnabled = Boolean.parseBoolean(Environment.getSystemPropertyOrEnvironment("REST_CORS_ENABLED", "false"));
+            if (!corsEnabled) {
+                log.debug("CORS is disabled (no annotations found and not enabled via environment)");
+                return;
+            }
+
+            // Create a default CORS handler from environment variables
+            configureCorsHandler(router, null);
             return;
         }
 
+        // Configure CORS handlers for each path
+        for (Map.Entry<String, Cors> entry : corsAnnotations.entrySet()) {
+            String path = entry.getKey();
+            Cors annotation = entry.getValue();
+
+            // Check if CORS is enabled for this annotation
+            boolean corsEnabled = isCorsEnabled(annotation);
+            if (!corsEnabled) {
+                log.debug("CORS is disabled for path: " + path);
+                continue;
+            }
+
+            // Configure CORS handler for this path
+            configureCorsHandler(router, annotation, path);
+        }
+    }
+
+    /**
+     * Configures a CORS handler for the given router and annotation.
+     *
+     * @param router The router to configure
+     * @param corsAnnotation The Cors annotation, if present
+     * @param path The path to apply the CORS handler to, or null for all paths
+     */
+    private static void configureCorsHandler(Router router, Cors corsAnnotation, String... path) {
         // Get allowed origins
         Set<String> allowedOrigins = getAllowedOrigins(corsAnnotation);
 
@@ -61,8 +102,103 @@ public class CorsHandlerConfigurator {
         }
 
         // Add the handler to the router
-        router.route().handler(corsHandler);
-        log.debug("Added CORS handler to router");
+        if (path == null || path.length == 0 || path[0] == null) {
+            router.route().handler(corsHandler);
+            log.debug("Added CORS handler to all routes");
+        } else {
+            for (String p : path) {
+                if (p != null && !p.isEmpty()) {
+                    router.route(p + "/*").handler(corsHandler);
+                    log.debug("Added CORS handler to path: " + p);
+                }
+            }
+        }
+    }
+
+    /**
+     * Scans for resource classes with JAX-RS annotations.
+     *
+     * @return A list of resource classes
+     */
+    private static List<Class<?>> scanForResourceClasses() {
+        ScanResult scanResult = IGuiceContext.instance().getScanResult();
+        return JakartaWsScanner.scanForResourceClasses(scanResult);
+    }
+
+    /**
+     * Collects CORS annotations from different levels (verticle, application, class, method).
+     *
+     * @param verticleAnnotation The Cors annotation on the verticle class, if present
+     * @param resourceClasses The resource classes to check for CORS annotations
+     * @return A map of paths to CORS annotations
+     */
+    private static Map<String, Cors> collectCorsAnnotations(Cors verticleAnnotation, List<Class<?>> resourceClasses) {
+        Map<String, Cors> corsAnnotations = new HashMap<>();
+
+        // Add verticle annotation (applies to all paths)
+        if (verticleAnnotation != null) {
+            corsAnnotations.put("", verticleAnnotation);
+        }
+
+        // Add annotations from resource classes
+        for (Class<?> resourceClass : resourceClasses) {
+            // Check for CORS annotation on the class
+            if (resourceClass.isAnnotationPresent(Cors.class)) {
+                Cors classAnnotation = resourceClass.getAnnotation(Cors.class);
+
+                // Get the base path for this class
+                String basePath = "";
+                if (resourceClass.isAnnotationPresent(ApplicationPath.class)) {
+                    ApplicationPath applicationPath = resourceClass.getAnnotation(ApplicationPath.class);
+                    basePath = applicationPath.value();
+                    if (!basePath.startsWith("/")) {
+                        basePath = "/" + basePath;
+                    }
+                }
+
+                if (resourceClass.isAnnotationPresent(Path.class)) {
+                    Path pathAnnotation = resourceClass.getAnnotation(Path.class);
+                    String classPath = pathAnnotation.value();
+                    if (!classPath.startsWith("/")) {
+                        classPath = "/" + classPath;
+                    }
+
+                    if (!basePath.isEmpty() && !basePath.endsWith("/")) {
+                        basePath += "/";
+                    }
+
+                    basePath += classPath;
+                }
+
+                // Add the annotation for this path
+                corsAnnotations.put(basePath, classAnnotation);
+
+                // Check for CORS annotations on methods
+                for (Method method : resourceClass.getMethods()) {
+                    if (method.isAnnotationPresent(Cors.class) && method.isAnnotationPresent(Path.class)) {
+                        Cors methodAnnotation = method.getAnnotation(Cors.class);
+                        Path methodPath = method.getAnnotation(Path.class);
+
+                        String fullPath = basePath;
+                        if (!fullPath.isEmpty() && !fullPath.endsWith("/")) {
+                            fullPath += "/";
+                        }
+
+                        String methodPathValue = methodPath.value();
+                        if (methodPathValue.startsWith("/")) {
+                            methodPathValue = methodPathValue.substring(1);
+                        }
+
+                        fullPath += methodPathValue;
+
+                        // Add the annotation for this path
+                        corsAnnotations.put(fullPath, methodAnnotation);
+                    }
+                }
+            }
+        }
+
+        return corsAnnotations;
     }
 
     /**

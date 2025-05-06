@@ -5,6 +5,7 @@ import com.guicedee.guicedservlets.rest.implementations.PackageRejectListScanner
 import com.guicedee.guicedservlets.rest.implementations.RestModule;
 import com.guicedee.guicedservlets.rest.pathing.OperationRegistry;
 import com.guicedee.guicedservlets.rest.services.GuicedRestPreStartup;
+import com.guicedee.guicedservlets.rest.services.RestInterceptor;
 import com.guicedee.vertx.spi.VerticleStartup;
 
 module com.guicedee.rest {
@@ -26,6 +27,7 @@ module com.guicedee.rest {
     exports com.guicedee.guicedservlets.rest.implementations;
 
 	requires static lombok;
+    requires org.slf4j;
 
     provides com.guicedee.guicedinjection.interfaces.IGuiceConfigurator with com.guicedee.guicedservlets.rest.implementations.RestServiceScannerConfig;
 	provides IGuicePreStartup with GuicedRestPreStartup;
@@ -43,4 +45,6 @@ module com.guicedee.rest {
 
     uses jakarta.ws.rs.ext.MessageBodyWriter;
     uses jakarta.ws.rs.ext.MessageBodyReader;
+
+    uses RestInterceptor;
 }
