@@ -11,7 +11,7 @@ public class RestModule extends AbstractModule implements IGuiceModule<RestModul
     @Override
     protected void configure()
     {
-        RestCallScopeInterceptor interceptor = new RestCallScopeInterceptor();
+     /*   RestCallScopeInterceptor interceptor = new RestCallScopeInterceptor();
         requestInjection(interceptor);
         // Intercept methods annotated with HTTP method annotations
         bindInterceptor(Matchers.any(), Matchers.annotatedWith(GET.class), interceptor);
@@ -21,7 +21,7 @@ public class RestModule extends AbstractModule implements IGuiceModule<RestModul
         bindInterceptor(Matchers.any(), Matchers.annotatedWith(HEAD.class), interceptor);
         bindInterceptor(Matchers.any(), Matchers.annotatedWith(OPTIONS.class), interceptor);
         bindInterceptor(Matchers.any(), Matchers.annotatedWith(PATCH.class), interceptor);
-
+*/
         //bindInterceptor(Matchers.any(), Matchers.annotatedWith(Path.class), interceptor);
     }
 

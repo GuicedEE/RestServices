@@ -100,27 +100,7 @@ public class GuicedRestHttpServerConfigurator implements VerticleStartup<GuicedR
                     .setUploadsDirectory("uploads")
                     .setDeleteUploadedFilesOnEnd(true));
 
-            // Configure CORS from annotation or environment variables
-            // Look for Cors annotation on the verticle class
-            Cors corsAnnotation = verticle.getClass().getAnnotation(Cors.class);
-            CorsHandlerConfigurator.configureCors(router, corsAnnotation);
-
-            // Add a request logger to log all incoming requests
-            router.route().handler(ctx -> {
-                log.debug("Request received: " + ctx.request().method() + " " + ctx.request().path());
-                ctx.next();
-            });
-
-            // Configure router through service loader
-            ServiceLoader.load(VertxRouterConfigurator.class)
-                    .stream()
-                    .map(ServiceLoader.Provider::get)
-                    .filter(a -> a.getClass().getPackage().getName().startsWith(assignedPackage) ||
-                            a.getClass().getPackage().getName().startsWith("com.guicedee.guicedservlets.rest")
-                    )
-                    .forEach(entry -> IGuiceContext.get(entry.getClass()).builder(router));
-
-            // Add debug routes for specific paths
+            // Add debug routes for specific paths - register these before CORS to ensure they're accessible
             router.get("/debug").handler(ctx -> {
                 log.info("Debug endpoint accessed: " + ctx.request().method() + " " + ctx.request().path());
                 ctx.response()
@@ -142,33 +122,46 @@ public class GuicedRestHttpServerConfigurator implements VerticleStartup<GuicedR
                         .end("{\"name\":\"world\"}");
             });
 
+            // Configure CORS from annotation or environment variables
+            // Look for Cors annotation on the verticle class
+       //     Cors corsAnnotation = verticle.getClass().getAnnotation(Cors.class);
+        //    CorsHandlerConfigurator.configureCors(router, corsAnnotation);
+
+            // Add a request logger to log all incoming requests
+            router.route().handler(ctx -> {
+                log.debug("Request received: " + ctx.request().method() + " " + ctx.request().path());
+                ctx.next();
+            });
+
+            // Configure router through service loader
+            ServiceLoader.load(VertxRouterConfigurator.class)
+                    .stream()
+                    .map(ServiceLoader.Provider::get)
+                    .filter(a -> a.getClass().getPackage().getName().startsWith(assignedPackage) ||
+                            a.getClass().getPackage().getName().startsWith("com.guicedee.guicedservlets.rest")
+                    )
+                    .forEach(entry -> IGuiceContext.get(entry.getClass()).builder(router));
+
+
             // Set router for all servers
             httpServers.forEach(server -> server.requestHandler(router));
 
             // Start all servers
             if (httpServers.isEmpty()) {
-                startPromise.complete();
+                //startPromise.complete();
                 return;
             }
-
-            AtomicInteger remainingServers = new AtomicInteger(httpServers.size());
-            AtomicInteger failedServers = new AtomicInteger(0);
 
             for (HttpServer server : httpServers) {
                 server.listen()
                         .onSuccess(s -> {
-                            log.info("Started listener on port " + s.actualPort());
-                            // Only complete if all servers started and none failed
-                            if (remainingServers.decrementAndGet() == 0 && failedServers.get() == 0) {
-                                if (!startPromise.future().isComplete()) {
-                                    startPromise.complete();
-                                }
+                            log.info("Rest Started listener on port " + s.actualPort());
+                            if (!startPromise.future().isComplete()) {
+                                startPromise.complete();
                             }
                         })
                         .onFailure(err -> {
                             log.error("Failed to start server", err);
-                            // Only fail once
-                            failedServers.incrementAndGet();
                             if (!startPromise.future().isComplete()) {
                                 startPromise.fail(err);
                             }
@@ -177,7 +170,7 @@ public class GuicedRestHttpServerConfigurator implements VerticleStartup<GuicedR
 
         } catch (Exception e) {
             log.error("Error during server startup", e);
-            startPromise.fail(e);
+           // startPromise.fail(e);
         }
     }
 }

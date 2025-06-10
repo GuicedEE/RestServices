@@ -108,8 +108,13 @@ public class CorsHandlerConfigurator {
         } else {
             for (String p : path) {
                 if (p != null && !p.isEmpty()) {
+                    // Add handler for the exact path
+                    router.route(p).handler(corsHandler);
+                    log.debug("Added CORS handler to exact path: " + p);
+
+                    // Add handler for subpaths
                     router.route(p + "/*").handler(corsHandler);
-                    log.debug("Added CORS handler to path: " + p);
+                    log.debug("Added CORS handler to path with wildcard: " + p + "/*");
                 }
             }
         }

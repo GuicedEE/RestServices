@@ -1,7 +1,9 @@
 package com.guicedee.guicedservlets.rest.services;
 
+import io.vertx.core.Future;
+
 public interface RestInterceptor
 {
-    void onStart();
-    void onEnd();
+    Future<Boolean> onStart();
+    Future<Boolean> onEnd();
 }
