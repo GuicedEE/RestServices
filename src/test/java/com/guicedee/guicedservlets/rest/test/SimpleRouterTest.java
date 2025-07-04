@@ -7,7 +7,9 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -48,37 +50,51 @@ public class SimpleRouterTest {
         // Start server
         CountDownLatch latch = new CountDownLatch(1);
         server.listen(8081)
-            .onSuccess(s -> {
-                System.out.println("Server started on port 8081");
-                latch.countDown();
-            })
-            .onFailure(cause -> {
-                System.err.println("Failed to start server: " + cause.getMessage());
-            });
+                .onSuccess(s -> {
+                    System.out.println("Server started on port 8081");
+                    latch.countDown();
+
+
+                    // Create HTTP client
+                    HttpClient client = HttpClient.newBuilder()
+                            .connectTimeout(Duration.of(5, ChronoUnit.SECONDS))
+                            .build();
+
+                    // Test the route
+                    System.out.println("Testing route...");
+                    HttpResponse<String> response = null;
+                    try {
+                        response = client.send(HttpRequest.newBuilder()
+                                        .GET()
+                                        .uri(new URI("http://localhost:8081/test"))
+                                        .timeout(Duration.of(5, ChronoUnit.SECONDS))
+                                        .build(),
+                                HttpResponse.BodyHandlers.ofString());
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    } catch (URISyntaxException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    System.out.println("Response: " + response.statusCode() + " - " + response.body());
+                    assertEquals(200, response.statusCode());
+                    assertEquals("Test route works!", response.body());
+
+
+                    // Clean up
+                    server.close();
+                    vertx.close();
+
+                })
+                .onFailure(cause -> {
+                    System.err.println("Failed to start server: " + cause.getMessage());
+                });
 
         // Wait for server to start
-        latch.await(5, TimeUnit.SECONDS);
+        //latch.await(5, TimeUnit.SECONDS);
 
-        // Create HTTP client
-        HttpClient client = HttpClient.newBuilder()
-                .connectTimeout(Duration.of(5, ChronoUnit.SECONDS))
-                .build();
 
-        // Test the route
-        System.out.println("Testing route...");
-        HttpResponse<String> response = client.send(HttpRequest.newBuilder()
-                        .GET()
-                        .uri(new URI("http://localhost:8081/test"))
-                        .timeout(Duration.of(5, ChronoUnit.SECONDS))
-                        .build(),
-                HttpResponse.BodyHandlers.ofString());
-
-        System.out.println("Response: " + response.statusCode() + " - " + response.body());
-        assertEquals(200, response.statusCode());
-        assertEquals("Test route works!", response.body());
-
-        // Clean up
-        server.close();
-        vertx.close();
     }
 }
