@@ -14,15 +14,15 @@ import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Registers Jakarta WS annotated classes and methods with the Vert.x router.
  */
 public class OperationRegistry implements VertxRouterConfigurator
 {
-    private static final Logger logger = Logger.getLogger(OperationRegistry.class.getName());
+    private static final Logger logger = LogManager.getLogger(OperationRegistry.class);
     private static final Set<String> registeredRoutes = new HashSet<>();
 
     @Inject
@@ -64,7 +64,7 @@ public class OperationRegistry implements VertxRouterConfigurator
                 registerResourceMethod(router, resourceInfo, method);
             }
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error registering resource class: " + resourceClass.getName(), e);
+            logger.error("Error registering resource class: " + resourceClass.getName(), e);
         }
     }
 
@@ -80,7 +80,7 @@ public class OperationRegistry implements VertxRouterConfigurator
             // Get HTTP method
             HttpMethod httpMethod = HttpMethodHandler.getHttpMethod(method);
             if (httpMethod == null) {
-                logger.warning("No HTTP method annotation found for method: " + method.getName());
+                logger.warn("No HTTP method annotation found for method: " + method.getName());
                 return;
             }
 
@@ -92,7 +92,7 @@ public class OperationRegistry implements VertxRouterConfigurator
 
             // Check if this route has already been registered
             if (registeredRoutes.contains(routeKey)) {
-                logger.fine("Route already registered, skipping: " + httpMethod + " " + fullPath);
+                logger.debug("Route already registered, skipping: " + httpMethod + " " + fullPath);
                 return;
             }
 
@@ -107,7 +107,7 @@ public class OperationRegistry implements VertxRouterConfigurator
 
             logger.info("Registered route: " + httpMethod + " " + fullPath);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error registering resource method: " + method.getName(), e);
+            logger.error("Error registering resource method: " + method.getName(), e);
         }
     }
 
@@ -119,7 +119,7 @@ public class OperationRegistry implements VertxRouterConfigurator
      * @param method The resource method
      */
     private void handleRequest(RoutingContext context, JakartaWsScanner.ResourceInfo resourceInfo, Method method) {
-        logger.fine("Handling request: " + context.request().method() + " " + context.request().path());
+        logger.debug("Handling request: " + context.request().method() + " " + context.request().path());
 
         // Check authentication and authorization
         if (SecurityHandler.requiresAuthentication(resourceInfo.getResourceClass(), method)) {
@@ -137,33 +137,33 @@ public class OperationRegistry implements VertxRouterConfigurator
         // Execute the method on the appropriate thread
         EventLoopHandler.executeTask(vertx, context, () -> {
             try {
-                logger.fine("Executing method: " + method.getName() + " on class: " + resourceInfo.getResourceClass().getName());
+                logger.debug("Executing method: " + method.getName() + " on class: " + resourceInfo.getResourceClass().getName());
 
                 // Extract parameters
-                logger.fine("Extracting parameters for method: " + method.getName());
+                logger.debug("Extracting parameters for method: " + method.getName());
                 Object[] parameters = ParameterExtractor.extractParameters(method, context);
 
                 // Log parameters at FINER level
-                if (logger.isLoggable(Level.FINER)) {
+                if (logger.isTraceEnabled()) {
                     for (int i = 0; i < parameters.length; i++) {
-                        logger.finer("Parameter " + i + ": " + (parameters[i] != null ? parameters[i].toString() : "null"));
+                        logger.trace("Parameter " + i + ": " + (parameters[i] != null ? parameters[i].toString() : "null"));
                     }
                 }
 
                 // Get resource instance
                 Object instance = resourceInfo.getResourceInstance();
-                logger.fine("Resource instance: " + (instance != null ? instance.getClass().getName() : "null"));
+                logger.debug("Resource instance: " + (instance != null ? instance.getClass().getName() : "null"));
 
                 // Invoke the method
-                logger.fine("Invoking method: " + method.getName());
+                logger.debug("Invoking method: " + method.getName());
                 Object result = method.invoke(instance, parameters);
-                logger.fine("Method execution completed, result: " + (result != null ? result.toString() : "null"));
+                logger.debug("Method execution completed, result: " + (result != null ? result.toString() : "null"));
 
                 // Process the response
-                logger.fine("Processing response");
+                logger.debug("Processing response");
                 ResponseHandler.processResponse(context, result, method);
             } catch (Exception e) {
-                logger.log(Level.SEVERE, "Error handling request", e);
+                logger.error("Error handling request", e);
                 ResponseHandler.handleException(context, e);
             }
         }, method);

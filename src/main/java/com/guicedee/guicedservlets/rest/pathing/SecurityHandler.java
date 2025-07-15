@@ -15,14 +15,14 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Handles security aspects of Jakarta WS endpoints.
  */
 public class SecurityHandler {
-    private static final Logger logger = Logger.getLogger(SecurityHandler.class.getName());
+    private static final Logger logger = LogManager.getLogger(SecurityHandler.class);
 
     // Store the authentication handler to be used by default
     private static AuthenticationHandler defaultAuthenticationHandler;
@@ -144,7 +144,7 @@ public class SecurityHandler {
         }
 
         // Otherwise, return null and let the caller handle authentication
-        logger.warning("No default authentication handler set. Authentication will be handled manually.");
+        logger.warn("No default authentication handler set. Authentication will be handled manually.");
         return null;
     }
 
@@ -164,7 +164,7 @@ public class SecurityHandler {
 
         if (rolesAllowed.isEmpty()) {
             // No roles allowed, deny all
-            logger.fine("No roles allowed for method: " + method.getName());
+            logger.debug("No roles allowed for method: " + method.getName());
             return null; // Authorization will be handled manually in isAuthorized
         }
 
@@ -180,12 +180,12 @@ public class SecurityHandler {
 
                 return authorizationHandler;
             } catch (Exception e) {
-                logger.log(Level.SEVERE, "Error creating authorization handler", e);
+                logger.error("Error creating authorization handler", e);
             }
         }
 
         // Otherwise, return null and let the caller handle authorization
-        logger.warning("No default authorization provider set. Authorization will be handled manually.");
+        logger.warn("No default authorization provider set. Authorization will be handled manually.");
         return null;
     }
 
