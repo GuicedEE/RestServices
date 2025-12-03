@@ -1,4 +1,4 @@
-import com.guicedee.guicedinjection.interfaces.IGuiceModule;
+import com.guicedee.client.services.lifecycle.IGuiceModule;
 import com.guicedee.guicedservlets.rest.test.RestTestBinding;
 
 module guiced.rest.services.test {

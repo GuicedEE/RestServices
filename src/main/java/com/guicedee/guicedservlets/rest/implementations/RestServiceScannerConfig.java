@@ -1,8 +1,8 @@
 package com.guicedee.guicedservlets.rest.implementations;
 
 
-import com.guicedee.guicedinjection.interfaces.IGuiceConfig;
-import com.guicedee.guicedinjection.interfaces.IGuiceConfigurator;
+import com.guicedee.client.services.IGuiceConfig;
+import com.guicedee.client.services.lifecycle.IGuiceConfigurator;
 
 public class RestServiceScannerConfig implements IGuiceConfigurator
 {

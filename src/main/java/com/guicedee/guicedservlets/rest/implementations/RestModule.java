@@ -1,9 +1,7 @@
 package com.guicedee.guicedservlets.rest.implementations;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.matcher.Matchers;
-import com.guicedee.guicedinjection.interfaces.IGuiceModule;
-import jakarta.ws.rs.*;
+import com.guicedee.client.services.lifecycle.IGuiceModule;
 
 public class RestModule extends AbstractModule implements IGuiceModule<RestModule>
 {

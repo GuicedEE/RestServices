@@ -1,6 +1,6 @@
 package com.guicedee.guicedservlets.rest.services;
 
-import com.guicedee.guicedinjection.interfaces.IGuicePreStartup;
+import com.guicedee.client.services.lifecycle.IGuicePreStartup;
 import io.vertx.core.Future;
 
 import java.util.Collections;

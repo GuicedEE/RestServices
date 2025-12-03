@@ -1,7 +1,7 @@
 package com.guicedee.guicedservlets.rest.test;
 
 import com.google.inject.AbstractModule;
-import com.guicedee.guicedinjection.interfaces.IGuiceModule;
+import com.guicedee.client.services.lifecycle.IGuiceModule;
 
 @SuppressWarnings("PointlessBinding")
 public class RestTestBinding

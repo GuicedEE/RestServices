@@ -2,9 +2,9 @@ package com.guicedee.guicedservlets.rest.implementations;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
-import com.guicedee.client.CallScopeProperties;
-import com.guicedee.client.CallScopeSource;
-import com.guicedee.client.CallScoper;
+import com.guicedee.client.scopes.CallScopeProperties;
+import com.guicedee.client.scopes.CallScopeSource;
+import com.guicedee.client.scopes.CallScoper;
 import com.guicedee.client.IGuiceContext;
 import com.guicedee.guicedservlets.rest.services.RestInterceptor;
 import com.guicedee.services.jsonrepresentation.IJsonRepresentation;

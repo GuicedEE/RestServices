@@ -1,6 +1,7 @@
-import com.guicedee.guicedinjection.interfaces.IGuiceModule;
-import com.guicedee.guicedinjection.interfaces.IGuicePreStartup;
-import com.guicedee.guicedinjection.interfaces.IPackageRejectListScanner;
+import com.guicedee.client.services.lifecycle.IGuiceConfigurator;
+import com.guicedee.client.services.lifecycle.IGuiceModule;
+import com.guicedee.client.services.lifecycle.IGuicePreStartup;
+import com.guicedee.client.services.config.IPackageRejectListScanner;
 import com.guicedee.guicedservlets.rest.implementations.PackageRejectListScanner;
 import com.guicedee.guicedservlets.rest.implementations.RestModule;
 import com.guicedee.guicedservlets.rest.pathing.OperationRegistry;
@@ -29,7 +30,7 @@ module com.guicedee.rest {
 	requires static lombok;
     requires org.slf4j;
 
-    provides com.guicedee.guicedinjection.interfaces.IGuiceConfigurator with com.guicedee.guicedservlets.rest.implementations.RestServiceScannerConfig;
+    provides IGuiceConfigurator with com.guicedee.guicedservlets.rest.implementations.RestServiceScannerConfig;
 	provides IGuicePreStartup with GuicedRestPreStartup;
 	provides IGuiceModule with RestModule;
 	provides IPackageRejectListScanner with PackageRejectListScanner;

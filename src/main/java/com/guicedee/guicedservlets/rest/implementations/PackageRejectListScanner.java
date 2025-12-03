@@ -1,6 +1,6 @@
 package com.guicedee.guicedservlets.rest.implementations;
 
-import com.guicedee.guicedinjection.interfaces.IPackageRejectListScanner;
+import com.guicedee.client.services.config.IPackageRejectListScanner;
 
 import java.util.Set;
 
