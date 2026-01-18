@@ -3,9 +3,18 @@ package com.guicedee.guicedservlets.rest.implementations;
 import com.google.inject.AbstractModule;
 import com.guicedee.client.services.lifecycle.IGuiceModule;
 
+/**
+ * Guice module for REST-specific bindings and interceptors.
+ *
+ * <p>Currently this module does not register interceptors by default, but it
+ * serves as the extension point to wire in request-scoped behavior.</p>
+ */
 public class RestModule extends AbstractModule implements IGuiceModule<RestModule>
 {
 
+    /**
+     * Configures Guice bindings for REST services.
+     */
     @Override
     protected void configure()
     {

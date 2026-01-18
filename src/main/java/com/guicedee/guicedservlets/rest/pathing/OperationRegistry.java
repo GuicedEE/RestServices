@@ -18,9 +18,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Registers Jakarta WS annotated classes and methods with the Vert.x router.
+ * Discovers and registers Jakarta REST endpoint methods with a Vert.x router.
+ *
+ * <p>The registry scans for resource classes via {@link JakartaWsScanner}, maps
+ * HTTP method annotations to Vert.x routes, and wires request handling to the
+ * request lifecycle utilities such as {@link ParameterExtractor},
+ * {@link EventLoopHandler}, and {@link ResponseHandler}.</p>
  */
-public class OperationRegistry implements VertxRouterConfigurator
+public class OperationRegistry implements VertxRouterConfigurator<OperationRegistry>
 {
     private static final Logger logger = LogManager.getLogger(OperationRegistry.class);
     private static final Set<String> registeredRoutes = new HashSet<>();
@@ -28,6 +33,18 @@ public class OperationRegistry implements VertxRouterConfigurator
     @Inject
     private Vertx vertx;
 
+    @Override
+    public Integer sortOrder()
+    {
+        return 100;
+    }
+
+    /**
+     * Builds a router by registering all discovered resource classes.
+     *
+     * @param builder The router to configure
+     * @return The configured router
+     */
     @Override
     public Router builder(Router builder)
     {
@@ -49,10 +66,10 @@ public class OperationRegistry implements VertxRouterConfigurator
     }
 
     /**
-     * Registers a resource class with the router.
+     * Registers every resource method from the provided resource class.
      *
-     * @param router The router
-     * @param resourceClass The resource class
+     * @param router The router to register with
+     * @param resourceClass The resource class to register
      */
     private void registerResourceClass(Router router, Class<?> resourceClass) {
         try {
@@ -69,11 +86,11 @@ public class OperationRegistry implements VertxRouterConfigurator
     }
 
     /**
-     * Registers a resource method with the router.
+     * Registers a single resource method and binds the request handler.
      *
-     * @param router The router
-     * @param resourceInfo The resource info
-     * @param method The resource method
+     * @param router The router to register with
+     * @param resourceInfo The resource metadata
+     * @param method The resource method to register
      */
     private void registerResourceMethod(Router router, JakartaWsScanner.ResourceInfo resourceInfo, Method method) {
         try {
@@ -112,11 +129,14 @@ public class OperationRegistry implements VertxRouterConfigurator
     }
 
     /**
-     * Handles a request.
+     * Executes the resource method and renders a response.
+     *
+     * <p>This method performs authentication checks, extracts parameters,
+     * invokes the resource method, and delegates the response rendering.</p>
      *
      * @param context The routing context
-     * @param resourceInfo The resource info
-     * @param method The resource method
+     * @param resourceInfo The resource metadata
+     * @param method The resource method to invoke
      */
     private void handleRequest(RoutingContext context, JakartaWsScanner.ResourceInfo resourceInfo, Method method) {
         logger.debug("Handling request: " + context.request().method() + " " + context.request().path());

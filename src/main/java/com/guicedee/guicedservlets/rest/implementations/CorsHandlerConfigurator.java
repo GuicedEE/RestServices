@@ -17,7 +17,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Configures CORS handling for REST services based on the Cors annotation or environment variables.
+ * Configures CORS handling for REST services.
+ *
+ * <p>Configuration can be supplied via {@link Cors} annotations or overridden
+ * by environment variables and system properties. When multiple annotations are
+ * present, the most specific annotation (method over class over verticle) is used.</p>
  */
 @Log4j2
 public class CorsHandlerConfigurator {
@@ -121,7 +125,7 @@ public class CorsHandlerConfigurator {
     }
 
     /**
-     * Scans for resource classes with JAX-RS annotations.
+     * Scans for resource classes with Jakarta REST annotations.
      *
      * @return A list of resource classes
      */
@@ -210,7 +214,7 @@ public class CorsHandlerConfigurator {
      * Checks if CORS is enabled based on the annotation or environment variables.
      *
      * @param corsAnnotation The Cors annotation, if present
-     * @return true if CORS is enabled, false otherwise
+     * @return {@code true} if CORS is enabled
      */
     private static boolean isCorsEnabled(Cors corsAnnotation) {
         if (corsAnnotation != null) {
@@ -292,7 +296,7 @@ public class CorsHandlerConfigurator {
      * Gets the allow credentials setting based on the annotation or environment variables.
      *
      * @param corsAnnotation The Cors annotation, if present
-     * @return true if credentials are allowed, false otherwise
+     * @return {@code true} if credentials are allowed
      */
     private static boolean getAllowCredentials(Cors corsAnnotation) {
         if (corsAnnotation != null) {

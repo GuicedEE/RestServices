@@ -12,10 +12,25 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 /**
- * Handles event loop management for Jakarta WS endpoints.
+ * Executes REST endpoint invocations on the appropriate Vert.x thread.
+ *
+ * <p>Methods that return reactive or future types are treated as non-blocking
+ * and run directly on the event loop. Other methods are executed on a worker
+ * thread using {@code executeBlocking} to avoid blocking the event loop.</p>
+ *
+ * <p>While executing a task, a call scope is established so dependency-scoped
+ * resources can be bound to the lifetime of the request.</p>
  */
 public class EventLoopHandler {
 
+    /**
+     * Runs a task while ensuring a REST call scope is active.
+     *
+     * @param task The task to execute
+     * @param source The call scope source to register
+     * @param <T> The task result type
+     * @return The task result
+     */
     private static <T> T withCallScope(java.util.concurrent.Callable<T> task, CallScopeSource source) {
         CallScoper callScoper = IGuiceContext.get(CallScoper.class);
         boolean startedScope = callScoper.isStartedScope();
@@ -40,10 +55,14 @@ public class EventLoopHandler {
     }
 
     /**
-     * Checks if a method should be executed on a worker thread.
+     * Determines whether a method should be executed on a worker thread.
      *
-     * @param method The method to check
-     * @return true if the method should be executed on a worker thread, false otherwise
+     * <p>This is currently a heuristic based on return type: methods that return
+     * {@code Future} or {@code Uni} are treated as non-blocking and may run on
+     * the event loop. All other methods are treated as blocking.</p>
+     *
+     * @param method The method to inspect
+     * @return {@code true} if the method should be executed on a worker thread
      */
     public static boolean shouldRunOnWorkerThread(Method method) {
         // Check if the method is annotated with a blocking annotation
@@ -55,12 +74,12 @@ public class EventLoopHandler {
     }
 
     /**
-     * Executes a task on the appropriate thread.
+     * Executes a runnable task on the appropriate thread and handles failures.
      *
-     * @param vertx The Vertx instance
-     * @param context The routing context
+     * @param vertx The Vertx instance used to schedule work
+     * @param context The routing context for the current request
      * @param task The task to execute
-     * @param method The method being executed
+     * @param method The endpoint method being executed
      */
     public static void executeTask(Vertx vertx, RoutingContext context, Runnable task, Method method) {
         if (shouldRunOnWorkerThread(method)) {
@@ -88,12 +107,15 @@ public class EventLoopHandler {
     /**
      * Executes a task that returns a value on the appropriate thread.
      *
-     * @param vertx The Vertx instance
-     * @param context The routing context
+     * <p>When executed on a worker thread, the result is awaited before returning.
+     * Any exception is routed to {@link ResponseHandler} and {@code null} is returned.</p>
+     *
+     * @param vertx The Vertx instance used to schedule work
+     * @param context The routing context for the current request
      * @param task The task to execute
-     * @param method The method being executed
+     * @param method The endpoint method being executed
      * @param <T> The return type of the task
-     * @return The result of the task
+     * @return The result of the task, or {@code null} if an error occurs
      */
     public static <T> T executeTaskWithResult(Vertx vertx, RoutingContext context, Supplier<T> task, Method method) {
         if (shouldRunOnWorkerThread(method)) {

@@ -6,12 +6,16 @@ import jakarta.ws.rs.Path;
 import java.lang.reflect.Method;
 
 /**
- * Handles extraction and processing of path information from Jakarta WS annotations.
+ * Extracts and normalizes path information from Jakarta REST annotations.
+ *
+ * <p>Class-level {@link ApplicationPath} and {@link Path} annotations are
+ * combined with method-level {@link Path} annotations to produce a full route
+ * path for registration.</p>
  */
 public class PathHandler {
 
     /**
-     * Gets the base path for a resource class.
+     * Builds the base path for a resource class.
      *
      * @param resourceClass The resource class
      * @return The base path, or empty string if no path annotation is present
@@ -46,7 +50,7 @@ public class PathHandler {
     }
     
     /**
-     * Gets the full path for a resource method.
+     * Builds the full path for a resource method.
      *
      * @param resourceClass The resource class
      * @param method The resource method
@@ -75,7 +79,7 @@ public class PathHandler {
     }
     
     /**
-     * Normalizes a path to ensure it has the correct format.
+     * Normalizes a path to start with a leading slash and to avoid trailing slashes.
      *
      * @param path The path to normalize
      * @return The normalized path

@@ -21,12 +21,26 @@ import java.util.List;
 import java.util.ServiceLoader;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Establishes a call scope around REST method invocations and runs interceptors.
+ *
+ * <p>This interceptor enters the call scope, stores request metadata for
+ * diagnostics, invokes {@link RestInterceptor} hooks, and ensures the scope is
+ * exited after the request completes.</p>
+ */
 public class RestCallScopeInterceptor implements MethodInterceptor
 {
     private static final Logger log = LoggerFactory.getLogger(RestCallScopeInterceptor.class);
     @Inject
     CallScoper callScoper;
 
+    /**
+     * Executes the intercepted method within a REST call scope.
+     *
+     * @param invocation The method invocation being intercepted
+     * @return The result of the intercepted call
+     * @throws Throwable If the invocation or interceptor logic fails
+     */
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable
     {

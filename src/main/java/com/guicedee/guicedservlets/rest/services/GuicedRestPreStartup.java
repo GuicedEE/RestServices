@@ -7,10 +7,18 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Performs pre-startup tasks for the Jakarta WS implementation.
+ * Pre-startup hook for REST module initialization.
+ *
+ * <p>Currently no pre-startup tasks are required, so the implementation returns
+ * an empty list of futures.</p>
  */
 public class GuicedRestPreStartup implements IGuicePreStartup<GuicedRestPreStartup>
 {
+    /**
+     * Executes pre-startup logic before the Vert.x REST services are started.
+     *
+     * @return A list of futures representing startup tasks
+     */
     @Override
     public List<Future<Boolean>> onStartup()
     {

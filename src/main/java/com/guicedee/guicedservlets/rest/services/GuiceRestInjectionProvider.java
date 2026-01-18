@@ -3,8 +3,10 @@ package com.guicedee.guicedservlets.rest.services;
 import com.guicedee.client.IGuiceContext;
 
 /**
- * Provides dependency injection for Jakarta WS resources.
- * This class is used by the OperationRegistry to get instances of resource classes.
+ * Provides Guice-backed instance creation for REST resources.
+ *
+ * <p>Used by {@link com.guicedee.guicedservlets.rest.pathing.OperationRegistry}
+ * to obtain resource instances that can participate in dependency injection.</p>
  */
 public class GuiceRestInjectionProvider
 {
@@ -15,7 +17,8 @@ public class GuiceRestInjectionProvider
      * Gets an instance of a class from the Guice context.
      *
      * @param clazz The class to get an instance of
-     * @return The instance
+     * @param <T> The type of the instance
+     * @return The injected instance
      */
     @SuppressWarnings("unchecked")
     public static <T> T getInstance(Class<T> clazz) {

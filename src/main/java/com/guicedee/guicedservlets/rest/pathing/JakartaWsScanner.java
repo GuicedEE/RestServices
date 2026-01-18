@@ -12,15 +12,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Scans for classes with Jakarta WS annotations.
+ * Scans the classpath for Jakarta REST resources.
+ *
+ * <p>This helper uses ClassGraph results produced by the Guice context to
+ * locate resource classes and HTTP methods annotated with Jakarta REST
+ * annotations.</p>
  */
 public class JakartaWsScanner {
 
     /**
-     * Scans for resource classes with Jakarta WS annotations.
+     * Finds resource classes annotated with {@link ApplicationPath} or {@link Path}.
      *
-     * @param scanResult The scan result
-     * @return A list of resource classes
+     * @param scanResult The ClassGraph scan result
+     * @return A list of concrete, non-inner, non-static resource classes
      */
     public static List<Class<?>> scanForResourceClasses(ScanResult scanResult) {
         List<Class<?>> resourceClasses = new ArrayList<>();
@@ -51,7 +55,7 @@ public class JakartaWsScanner {
     }
 
     /**
-     * Scans for resource methods in a resource class.
+     * Scans a resource class for methods that declare HTTP method annotations.
      *
      * @param resourceClass The resource class
      * @return A list of resource methods
@@ -73,7 +77,7 @@ public class JakartaWsScanner {
     }
 
     /**
-     * Creates a resource instance for a resource class.
+     * Creates a resource instance via the Guice context.
      *
      * @param resourceClass The resource class
      * @return The resource instance
@@ -84,10 +88,10 @@ public class JakartaWsScanner {
     }
 
     /**
-     * Gets information about a resource class.
+     * Creates a {@link ResourceInfo} descriptor for a resource class.
      *
      * @param resourceClass The resource class
-     * @return The resource info
+     * @return The resource information used for registration and invocation
      */
     public static ResourceInfo getResourceInfo(Class<?> resourceClass) {
         String basePath = PathHandler.getBasePath(resourceClass);
@@ -98,7 +102,7 @@ public class JakartaWsScanner {
     }
 
     /**
-     * Class representing information about a resource.
+     * Resource metadata describing class-level paths, methods, and instance.
      */
     public static class ResourceInfo {
         private final Class<?> resourceClass;
@@ -106,6 +110,14 @@ public class JakartaWsScanner {
         private final List<Method> resourceMethods;
         private final Object resourceInstance;
 
+        /**
+         * Creates a new resource info object.
+         *
+         * @param resourceClass The resource class
+         * @param basePath The base path for the resource class
+         * @param resourceMethods The methods annotated with HTTP verbs
+         * @param resourceInstance The instantiated resource object
+         */
         public ResourceInfo(Class<?> resourceClass, String basePath, List<Method> resourceMethods, Object resourceInstance) {
             this.resourceClass = resourceClass;
             this.basePath = basePath;
@@ -113,18 +125,30 @@ public class JakartaWsScanner {
             this.resourceInstance = resourceInstance;
         }
 
+        /**
+         * @return The resource class
+         */
         public Class<?> getResourceClass() {
             return resourceClass;
         }
 
+        /**
+         * @return The base path for the resource class
+         */
         public String getBasePath() {
             return basePath;
         }
 
+        /**
+         * @return The resource methods discovered on the class
+         */
         public List<Method> getResourceMethods() {
             return resourceMethods;
         }
 
+        /**
+         * @return The instantiated resource object
+         */
         public Object getResourceInstance() {
             return resourceInstance;
         }

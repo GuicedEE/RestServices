@@ -24,9 +24,24 @@ import java.util.List;
 import java.util.ServiceLoader;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Boots and configures Vert.x HTTP/HTTPS servers for REST endpoints.
+ *
+ * <p>Reads configuration from environment variables and system properties, wires
+ * router handlers through SPI configurators, and starts any enabled HTTP/S
+ * listeners. This class also registers a simple debug route set.</p>
+ */
 @Log4j2
 public class GuicedRestHttpServerConfigurator implements VerticleStartup<GuicedRestHttpServerConfigurator>
 {
+    /**
+     * Starts the HTTP servers and initializes the REST router.
+     *
+     * @param startPromise Promise used to signal successful startup
+     * @param vertx The Vert.x instance used to create servers and routers
+     * @param verticle The verticle hosting the server
+     * @param assignedPackage Package prefix used to filter SPI configurators
+     */
     @Override
     public void start(Promise<Void> startPromise, Vertx vertx, AbstractVerticle verticle, String assignedPackage)
     {

@@ -11,7 +11,12 @@ import java.util.List;
 import java.util.function.Function;
 
 /**
- * Extracts parameters from the request based on Jakarta WS annotations.
+ * Extracts method parameters for Jakarta REST-style endpoints.
+ *
+ * <p>Supports common parameter annotations like {@link PathParam},
+ * {@link QueryParam}, {@link HeaderParam}, {@link CookieParam},
+ * {@link FormParam}, and {@link MatrixParam}. If no annotation is present,
+ * the request body is returned as a raw string.</p>
  */
 public class ParameterExtractor {
 
@@ -20,7 +25,7 @@ public class ParameterExtractor {
      *
      * @param method The method to extract parameters for
      * @param context The routing context
-     * @return An array of parameter values
+     * @return An array of parameter values, aligned to method parameters
      */
     public static Object[] extractParameters(Method method, RoutingContext context) {
         Parameter[] parameters = method.getParameters();
@@ -37,9 +42,12 @@ public class ParameterExtractor {
     /**
      * Extracts a single parameter value from the routing context.
      *
+     * <p>The method recognizes Jakarta REST parameter annotations and performs
+     * basic string-to-type conversions for primitives, boxed types, and enums.</p>
+     *
      * @param parameter The parameter to extract
      * @param context The routing context
-     * @return The parameter value
+     * @return The parameter value, or {@code null} when unavailable
      */
     private static Object extractParameter(Parameter parameter, RoutingContext context) {
         // Check if the parameter is the RoutingContext itself
@@ -103,11 +111,15 @@ public class ParameterExtractor {
     }
 
     /**
-     * Converts a string value to the specified type.
+     * Converts a string value to the specified Java type.
+     *
+     * <p>Only a small set of simple types is supported. For complex types, a
+     * {@link jakarta.ws.rs.ext.MessageBodyReader} would be required.</p>
      *
      * @param value The string value
      * @param type The target type
-     * @return The converted value
+     * @param <T> The target type
+     * @return The converted value, or {@code null} when conversion is unsupported
      */
     @SuppressWarnings("unchecked")
     private static <T> T convertValue(String value, Class<T> type) {
@@ -143,10 +155,10 @@ public class ParameterExtractor {
     }
 
     /**
-     * Gets information about the parameters of a method.
+     * Describes how each parameter in a method is sourced.
      *
-     * @param method The method to get parameter information for
-     * @return A list of parameter information
+     * @param method The method to describe
+     * @return A list of parameter metadata
      */
     public static List<ParameterInfo> getParameterInfo(Method method) {
         Parameter[] parameters = method.getParameters();
@@ -187,7 +199,7 @@ public class ParameterExtractor {
     }
 
     /**
-     * Enum representing the different types of parameters.
+     * Enumerates supported parameter sources.
      */
     public enum ParameterType {
         PATH,
@@ -201,27 +213,43 @@ public class ParameterExtractor {
     }
 
     /**
-     * Class representing information about a parameter.
+     * Describes a single parameter's name, source type, and Java type.
      */
     public static class ParameterInfo {
         private final String name;
         private final ParameterType type;
         private final Class<?> javaType;
 
+        /**
+         * Creates a parameter descriptor.
+         *
+         * @param name The parameter name or annotation value
+         * @param type The parameter source type
+         * @param javaType The Java type of the parameter
+         */
         public ParameterInfo(String name, ParameterType type, Class<?> javaType) {
             this.name = name;
             this.type = type;
             this.javaType = javaType;
         }
 
+        /**
+         * @return The parameter name or annotation value
+         */
         public String getName() {
             return name;
         }
 
+        /**
+         * @return The parameter source type
+         */
         public ParameterType getType() {
             return type;
         }
 
+        /**
+         * @return The Java type of the parameter
+         */
         public Class<?> getJavaType() {
             return javaType;
         }

@@ -19,7 +19,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Handles security aspects of Jakarta WS endpoints.
+ * Handles authorization and authentication decisions for REST endpoints.
+ *
+ * <p>Inspects Jakarta security annotations such as {@link DenyAll},
+ * {@link PermitAll}, and {@link RolesAllowed} at method and class levels and
+ * decides whether a request requires authentication and which roles are allowed.</p>
  */
 public class SecurityHandler {
     private static final Logger logger = LogManager.getLogger(SecurityHandler.class);
@@ -31,7 +35,7 @@ public class SecurityHandler {
     private static AuthorizationProvider defaultAuthorizationProvider;
 
     /**
-     * Sets the default authentication handler to be used when no specific handler is provided.
+     * Sets the default authentication handler used when a resource requires authentication.
      *
      * @param handler The authentication handler
      */
@@ -40,7 +44,7 @@ public class SecurityHandler {
     }
 
     /**
-     * Sets the default authorization provider to be used when no specific provider is provided.
+     * Sets the default authorization provider used when role checks are required.
      *
      * @param provider The authorization provider
      */
@@ -49,11 +53,11 @@ public class SecurityHandler {
     }
 
     /**
-     * Checks if a method requires authentication.
+     * Determines whether authentication is required for a resource method.
      *
      * @param resourceClass The resource class
      * @param method The method to check
-     * @return true if authentication is required, false otherwise
+     * @return {@code true} if authentication is required
      */
     public static boolean requiresAuthentication(Class<?> resourceClass, Method method) {
         // Check method-level annotations first
@@ -87,11 +91,11 @@ public class SecurityHandler {
     }
 
     /**
-     * Gets the roles allowed for a method.
+     * Resolves the set of roles allowed for a resource method.
      *
      * @param resourceClass The resource class
      * @param method The method to check
-     * @return The set of roles allowed, or null if no roles are specified
+     * @return The set of roles allowed, an empty set for deny-all, or {@code null} for permit-all
      */
     public static Set<String> getRolesAllowed(Class<?> resourceClass, Method method) {
         // Check method-level annotations first
@@ -131,7 +135,7 @@ public class SecurityHandler {
      *
      * @param resourceClass The resource class
      * @param method The method
-     * @return The authentication handler, or null if no authentication is required
+     * @return The authentication handler, or {@code null} if no authentication is required
      */
     public static AuthenticationHandler createAuthenticationHandler(Class<?> resourceClass, Method method) {
         if (!requiresAuthentication(resourceClass, method)) {
@@ -153,7 +157,7 @@ public class SecurityHandler {
      *
      * @param resourceClass The resource class
      * @param method The method
-     * @return The authorization handler, or null if no authorization is required
+     * @return The authorization handler, or {@code null} if no authorization is required
      */
     public static AuthorizationHandler createAuthorizationHandler(Class<?> resourceClass, Method method) {
         Set<String> rolesAllowed = getRolesAllowed(resourceClass, method);
@@ -192,10 +196,14 @@ public class SecurityHandler {
     /**
      * Checks if a user is authorized to access a method.
      *
+     * <p>When {@link RolesAllowed} annotations are present, the role set is
+     * evaluated against the authenticated user. This implementation currently
+     * assumes authenticated users are authorized when role checks are required.</p>
+     *
      * @param context The routing context
      * @param resourceClass The resource class
      * @param method The method
-     * @return true if the user is authorized, false otherwise
+     * @return {@code true} if the user is authorized
      */
     public static boolean isAuthorized(RoutingContext context, Class<?> resourceClass, Method method) {
         Set<String> rolesAllowed = getRolesAllowed(resourceClass, method);

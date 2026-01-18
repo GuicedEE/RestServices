@@ -9,10 +9,25 @@ import java.util.Map;
 import java.util.ServiceLoader;
 
 /**
- * Maps exceptions to HTTP status codes.
+ * Maps thrown exceptions to HTTP status codes for REST responses.
+ *
+ * <p>This utility keeps a small default mapping and optionally consults
+ * {@link jakarta.ws.rs.ext.ExceptionMapper} instances loaded from the service
+ * provider configuration. The lookup is performed by traversing the exception
+ * type hierarchy, so a mapper or default mapping for a superclass can be used
+ * for subclassed exceptions.</p>
+ *
+ * <p>When a {@link WebApplicationException} is supplied, its embedded response
+ * status is always used.</p>
  */
 public class ExceptionStatusMapper {
+    /**
+     * Default exception-to-status mapping used when no custom mapper is found.
+     */
     private static final Map<Class<? extends Throwable>, Integer> defaultStatusCodes = new HashMap<>();
+    /**
+     * Exception mappers discovered via the service loader, keyed by exception type.
+     */
     private static final Map<Class<? extends Throwable>, jakarta.ws.rs.ext.ExceptionMapper<? extends Throwable>> mappers = new HashMap<>();
     
     static {
@@ -35,10 +50,14 @@ public class ExceptionStatusMapper {
     }
     
     /**
-     * Gets the exception type handled by an exception mapper.
+     * Attempts to infer the exception type handled by an exception mapper.
      *
-     * @param mapper The exception mapper
-     * @return The exception type
+     * <p>This inspects the generic parameter of {@link ExceptionMapper} on the
+     * implementation class. If it cannot be resolved, {@code null} is returned
+     * and the mapper is ignored.</p>
+     *
+     * @param mapper The exception mapper instance
+     * @return The exception type handled by the mapper, or {@code null} if unknown
      */
     private static Class<?> getExceptionType(jakarta.ws.rs.ext.ExceptionMapper<?> mapper) {
         // This is a bit of a hack to get the exception type from the generic parameter
@@ -64,10 +83,10 @@ public class ExceptionStatusMapper {
     }
     
     /**
-     * Gets the HTTP status code for an exception.
+     * Resolves the HTTP status code to use for a given exception.
      *
-     * @param exception The exception
-     * @return The HTTP status code
+     * @param exception The exception to map
+     * @return The HTTP status code to return to the client
      */
     public static int getStatusCode(Throwable exception) {
         // Check if the exception is a WebApplicationException
@@ -99,10 +118,10 @@ public class ExceptionStatusMapper {
     }
     
     /**
-     * Finds a mapper for an exception class.
+     * Finds the closest {@link ExceptionMapper} for the provided exception type.
      *
-     * @param exceptionClass The exception class
-     * @return The mapper, or null if none found
+     * @param exceptionClass The exception class to match
+     * @return The mapper, or {@code null} if none found
      */
     private static jakarta.ws.rs.ext.ExceptionMapper<? extends Throwable> findMapper(Class<? extends Throwable> exceptionClass) {
         // Check if there's a mapper for this exact class
@@ -121,10 +140,10 @@ public class ExceptionStatusMapper {
     }
     
     /**
-     * Finds a status code for an exception class.
+     * Finds the closest default status code for the provided exception type.
      *
-     * @param exceptionClass The exception class
-     * @return The status code, or null if none found
+     * @param exceptionClass The exception class to match
+     * @return The status code, or {@code null} if none found
      */
     private static Integer findStatusCode(Class<? extends Throwable> exceptionClass) {
         // Check if there's a status code for this exact class
@@ -143,10 +162,10 @@ public class ExceptionStatusMapper {
     }
     
     /**
-     * Registers a status code for an exception class.
+     * Registers or overrides the status code for a specific exception class.
      *
-     * @param exceptionClass The exception class
-     * @param statusCode The status code
+     * @param exceptionClass The exception class to map
+     * @param statusCode The HTTP status code to return
      */
     public static void registerStatusCode(Class<? extends Throwable> exceptionClass, int statusCode) {
         defaultStatusCodes.put(exceptionClass, statusCode);

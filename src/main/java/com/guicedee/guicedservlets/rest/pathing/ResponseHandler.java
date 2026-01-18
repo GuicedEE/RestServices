@@ -22,13 +22,17 @@ import java.nio.charset.StandardCharsets;
 import java.util.ServiceLoader;
 
 /**
- * Handles processing of responses from resource methods.
+ * Converts resource method results into HTTP responses.
+ *
+ * <p>Handles synchronous results, {@link Future} and {@link Uni} types,
+ * selects an appropriate content type, and writes the response body using
+ * {@link MessageBodyWriter} implementations when available.</p>
  */
 @Slf4j
 public class ResponseHandler {
 
     /**
-     * Processes the result of a resource method invocation and sends the response.
+     * Processes a method result and writes the HTTP response.
      *
      * @param context The routing context
      * @param result The result of the method invocation
@@ -80,10 +84,10 @@ public class ResponseHandler {
     }
 
     /**
-     * Gets the content type for a method based on its annotations.
+     * Determines the response content type based on {@link Produces} annotations.
      *
-     * @param method The method
-     * @return The content type
+     * @param method The method to inspect
+     * @return The selected content type
      */
     private static String getContentType(Method method) {
         if (method.isAnnotationPresent(Produces.class)) {
@@ -105,7 +109,10 @@ public class ResponseHandler {
     }
 
     /**
-     * Converts a result object to a response body.
+     * Converts a result object to the byte representation for the response body.
+     *
+     * <p>The conversion first tries {@link MessageBodyWriter} providers; if none
+     * are suitable, a default JSON or text conversion is applied.</p>
      *
      * @param result The result object
      * @param contentType The content type
@@ -146,6 +153,9 @@ public class ResponseHandler {
     /**
      * Handles an exception that occurred during processing.
      *
+     * <p>The status code is derived using {@link ExceptionStatusMapper} and the
+     * exception message is returned as plain text.</p>
+     *
      * @param context The routing context
      * @param exception The exception
      */
@@ -161,9 +171,12 @@ public class ResponseHandler {
     }
 
     /**
-     * Gets the return type of a method, handling Future and Uni types.
+     * Determines the effective return type for a method.
      *
-     * @param method The method
+     * <p>If a method returns {@link Future} or {@link Uni}, the first generic
+     * type parameter is treated as the actual return type.</p>
+     *
+     * @param method The method to inspect
      * @return The actual return type
      */
     public static Class<?> getActualReturnType(Method method) {
