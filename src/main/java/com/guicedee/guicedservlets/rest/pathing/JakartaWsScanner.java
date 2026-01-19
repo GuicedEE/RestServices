@@ -96,9 +96,8 @@ public class JakartaWsScanner {
     public static ResourceInfo getResourceInfo(Class<?> resourceClass) {
         String basePath = PathHandler.getBasePath(resourceClass);
         List<Method> resourceMethods = scanForResourceMethods(resourceClass);
-        Object resourceInstance = createResourceInstance(resourceClass);
 
-        return new ResourceInfo(resourceClass, basePath, resourceMethods, resourceInstance);
+        return new ResourceInfo(resourceClass, basePath, resourceMethods);
     }
 
     /**
@@ -108,7 +107,6 @@ public class JakartaWsScanner {
         private final Class<?> resourceClass;
         private final String basePath;
         private final List<Method> resourceMethods;
-        private final Object resourceInstance;
 
         /**
          * Creates a new resource info object.
@@ -116,13 +114,11 @@ public class JakartaWsScanner {
          * @param resourceClass The resource class
          * @param basePath The base path for the resource class
          * @param resourceMethods The methods annotated with HTTP verbs
-         * @param resourceInstance The instantiated resource object
          */
-        public ResourceInfo(Class<?> resourceClass, String basePath, List<Method> resourceMethods, Object resourceInstance) {
+        public ResourceInfo(Class<?> resourceClass, String basePath, List<Method> resourceMethods) {
             this.resourceClass = resourceClass;
             this.basePath = basePath;
             this.resourceMethods = resourceMethods;
-            this.resourceInstance = resourceInstance;
         }
 
         /**
@@ -150,7 +146,7 @@ public class JakartaWsScanner {
          * @return The instantiated resource object
          */
         public Object getResourceInstance() {
-            return resourceInstance;
+            return createResourceInstance(resourceClass);
         }
     }
 }

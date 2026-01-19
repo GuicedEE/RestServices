@@ -105,7 +105,7 @@ public class GuicedRestHttpServerConfigurator implements VerticleStartup<GuicedR
                     )
                     .flatMap(a -> httpServers.stream()
                             .map(s -> new AbstractMap.SimpleEntry<>(a, s)))
-                    .forEach(entry -> IGuiceContext.get(entry.getKey().getClass()).builder(entry.getValue()));
+                    .forEach(entry -> entry.getKey().builder(entry.getValue()));
 
             // Create and configure router
             Router router = Router.router(vertx);
@@ -155,7 +155,15 @@ public class GuicedRestHttpServerConfigurator implements VerticleStartup<GuicedR
                     .filter(a -> a.getClass().getPackage().getName().startsWith(assignedPackage) ||
                             a.getClass().getPackage().getName().startsWith("com.guicedee.guicedservlets.rest")
                     )
-                    .forEach(entry -> IGuiceContext.get(entry.getClass()).builder(router));
+                    .forEach(entry -> {
+                        try {
+                            entry.getClass().newInstance().builder(router);
+                        } catch (InstantiationException e) {
+                            throw new RuntimeException(e);
+                        } catch (IllegalAccessException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
 
 
             // Set router for all servers
