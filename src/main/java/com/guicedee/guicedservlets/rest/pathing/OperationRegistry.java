@@ -28,7 +28,7 @@ import org.apache.logging.log4j.Logger;
 public class OperationRegistry implements VertxRouterConfigurator<OperationRegistry>
 {
     private static final Logger logger = LogManager.getLogger(OperationRegistry.class);
-    private static final Set<String> registeredRoutes = new HashSet<>();
+    private final Set<String> registeredRoutes = new HashSet<>();
 
     @Inject
     private Vertx vertx;
@@ -36,7 +36,7 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
     @Override
     public Integer sortOrder()
     {
-        return 100;
+        return 200;
     }
 
     /**
@@ -50,9 +50,6 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
     {
         // Get the scan result from IGuiceContext
         ScanResult scanResult = IGuiceContext.instance().getScanResult();
-
-        // Ensure body handler is registered
-        builder.route().handler(BodyHandler.create());
 
         // Scan for resource classes
         List<Class<?>> resourceClasses = JakartaWsScanner.scanForResourceClasses(scanResult);
@@ -139,7 +136,13 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
      * @param method The resource method to invoke
      */
     private void handleRequest(RoutingContext context, JakartaWsScanner.ResourceInfo resourceInfo, Method method) {
+        long startTime = System.currentTimeMillis();
         logger.debug("Handling request: " + context.request().method() + " " + context.request().path());
+
+        context.response().endHandler(v -> {
+            long duration = System.currentTimeMillis() - startTime;
+            logger.debug("Finished response for " + context.request().method() + " " + context.request().path() + " in " + duration + "ms");
+        });
 
         // Check authentication and authorization
         if (SecurityHandler.requiresAuthentication(resourceInfo.getResourceClass(), method)) {

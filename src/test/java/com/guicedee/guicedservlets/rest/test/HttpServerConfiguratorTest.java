@@ -57,25 +57,22 @@ public class HttpServerConfiguratorTest {
         // Create and use GuicedRestHttpServerConfigurator
         GuicedRestHttpServerConfigurator configurator = new GuicedRestHttpServerConfigurator();
         
-        // Create a promise to pass to the configurator
-        Promise<Void> startPromise = Promise.promise();
+        // Use the configurator to customize the server
+        configurator.builder(server);
         
-        // Start the configurator
-        configurator.start(startPromise, vertx, new AbstractVerticle() {}, "com.guicedee.guicedservlets.rest.test");
-        
-        // Wait for the configurator to complete
+        // Start the server
         CountDownLatch latch = new CountDownLatch(1);
-        startPromise.future().onComplete(ar -> {
+        server.listen(8080).onComplete(ar -> {
             if (ar.succeeded()) {
-                System.out.println("Configurator started successfully");
+                System.out.println("Server started successfully on port 8080");
                 latch.countDown();
             } else {
-                System.err.println("Failed to start configurator: " + ar.cause().getMessage());
+                System.err.println("Failed to start server: " + ar.cause().getMessage());
                 ar.cause().printStackTrace();
             }
         });
         
-        // Wait for the configurator to start
+        // Wait for the server to start
         latch.await(5, TimeUnit.SECONDS);
         
         // Wait a bit more to ensure everything is set up

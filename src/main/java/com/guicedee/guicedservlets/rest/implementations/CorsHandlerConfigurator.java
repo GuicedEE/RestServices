@@ -3,6 +3,7 @@ package com.guicedee.guicedservlets.rest.implementations;
 import com.guicedee.client.Environment;
 import com.guicedee.client.IGuiceContext;
 import com.guicedee.guicedservlets.rest.pathing.JakartaWsScanner;
+import com.guicedee.guicedservlets.rest.pathing.PathHandler;
 import com.guicedee.guicedservlets.rest.services.Cors;
 import io.github.classgraph.ScanResult;
 import io.vertx.core.http.HttpMethod;
@@ -36,6 +37,17 @@ public class CorsHandlerConfigurator {
         // Scan for resource classes with CORS annotations
         List<Class<?>> resourceClasses = scanForResourceClasses();
 
+        Set<String> basePaths = new HashSet<>();
+        for (Class<?> resourceClass : resourceClasses) {
+            String basePath = PathHandler.getBasePath(resourceClass);
+            if (basePath != null && !basePath.isEmpty()) {
+                if (!basePath.startsWith("/")) {
+                    basePath = "/" + basePath;
+                }
+                basePaths.add(basePath + "/*");
+            }
+        }
+
         // Collect all CORS annotations from different levels
         Map<String, Cors> corsAnnotations = collectCorsAnnotations(verticleAnnotation, resourceClasses);
 
@@ -48,13 +60,18 @@ public class CorsHandlerConfigurator {
             }
 
             // Create a default CORS handler from environment variables
-            configureCorsHandler(router, null);
+            if (!basePaths.isEmpty()) {
+                configureCorsHandler(router, null, basePaths.toArray(new String[0]));
+            }
             return;
         }
 
         // Configure CORS handlers for each path
         for (Map.Entry<String, Cors> entry : corsAnnotations.entrySet()) {
             String path = entry.getKey();
+            if (path == null || path.isEmpty()) {
+                path = "/*";
+            }
             Cors annotation = entry.getValue();
 
             // Check if CORS is enabled for this annotation
@@ -107,17 +124,17 @@ public class CorsHandlerConfigurator {
 
         // Add the handler to the router
         if (path == null || path.length == 0 || path[0] == null) {
-            router.route().handler(corsHandler);
+            router.route().order(-1).handler(corsHandler);
             log.debug("Added CORS handler to all routes");
         } else {
             for (String p : path) {
                 if (p != null && !p.isEmpty()) {
                     // Add handler for the exact path
-                    router.route(p).handler(corsHandler);
+                    router.route(p).order(-1).handler(corsHandler);
                     log.debug("Added CORS handler to exact path: " + p);
 
                     // Add handler for subpaths
-                    router.route(p + "/*").handler(corsHandler);
+                    router.route(p + "/*").order(-1).handler(corsHandler);
                     log.debug("Added CORS handler to path with wildcard: " + p + "/*");
                 }
             }

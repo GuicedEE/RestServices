@@ -36,13 +36,13 @@ module com.guicedee.rest {
 	provides IPackageRejectListScanner with PackageRejectListScanner;
 
 
-    provides com.guicedee.vertx.web.spi.VertxRouterConfigurator with OperationRegistry;
+    provides com.guicedee.vertx.web.spi.VertxRouterConfigurator with OperationRegistry, com.guicedee.guicedservlets.rest.implementations.GuicedRestRouterConfigurator;
 
 	opens com.guicedee.guicedservlets.rest.services to com.google.guice;
 	opens com.guicedee.guicedservlets.rest.implementations to com.google.guice;
 	opens com.guicedee.guicedservlets.rest.pathing to com.google.guice, guiced.rest.services.test;
 
-	provides VerticleStartup with com.guicedee.guicedservlets.rest.implementations.GuicedRestHttpServerConfigurator;
+	provides com.guicedee.vertx.web.spi.VertxHttpServerConfigurator with com.guicedee.guicedservlets.rest.implementations.GuicedRestHttpServerConfigurator;
 
     uses jakarta.ws.rs.ext.MessageBodyWriter;
     uses jakarta.ws.rs.ext.MessageBodyReader;

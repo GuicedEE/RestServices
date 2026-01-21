@@ -1,1 +1,2 @@
 com.guicedee.guicedservlets.rest.pathing.OperationRegistry
+com.guicedee.guicedservlets.rest.implementations.GuicedRestRouterConfigurator
