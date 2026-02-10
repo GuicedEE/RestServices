@@ -7,7 +7,6 @@ import com.guicedee.guicedservlets.rest.implementations.RestModule;
 import com.guicedee.guicedservlets.rest.pathing.OperationRegistry;
 import com.guicedee.guicedservlets.rest.services.GuicedRestPreStartup;
 import com.guicedee.guicedservlets.rest.services.RestInterceptor;
-import com.guicedee.vertx.spi.VerticleStartup;
 
 module com.guicedee.rest {
     uses com.guicedee.vertx.web.spi.VertxRouterConfigurator;
@@ -44,8 +43,6 @@ module com.guicedee.rest {
 
 	provides com.guicedee.vertx.web.spi.VertxHttpServerConfigurator with com.guicedee.guicedservlets.rest.implementations.GuicedRestHttpServerConfigurator;
 
-    uses jakarta.ws.rs.ext.MessageBodyWriter;
-    uses jakarta.ws.rs.ext.MessageBodyReader;
 
     uses RestInterceptor;
 }

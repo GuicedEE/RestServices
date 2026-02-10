@@ -1,6 +1,5 @@
 package com.guicedee.guicedservlets.rest.pathing;
 
-import com.guicedee.services.jsonrepresentation.IJsonRepresentation;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.Future;
 import io.vertx.core.buffer.Buffer;
@@ -8,25 +7,19 @@ import io.vertx.core.json.Json;
 import io.vertx.ext.web.RoutingContext;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.ext.MessageBodyWriter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.ServiceLoader;
 
 /**
  * Converts resource method results into HTTP responses.
  *
  * <p>Handles synchronous results, {@link Future} and {@link Uni} types,
  * selects an appropriate content type, and writes the response body using
- * {@link MessageBodyWriter} implementations when available.</p>
+ * Vert.x JSON (backed by Jackson) for serialization.</p>
  */
 @Slf4j
 public class ResponseHandler {
@@ -76,7 +69,7 @@ public class ResponseHandler {
 
         // Convert the result to a response body
         try {
-            byte[] responseBody = convertToResponseBody(result, contentType, method.getReturnType(), method.getGenericReturnType(), method.getAnnotations());
+            byte[] responseBody = convertToResponseBody(result, contentType);
             context.response().setStatusCode(200).end(Buffer.buffer(responseBody));
         } catch (Exception e) {
             handleException(context, e);
@@ -111,43 +104,40 @@ public class ResponseHandler {
     /**
      * Converts a result object to the byte representation for the response body.
      *
-     * <p>The conversion first tries {@link MessageBodyWriter} providers; if none
-     * are suitable, a default JSON or text conversion is applied.</p>
+     * <p>Uses Vert.x JSON (backed by Jackson) for JSON serialization. For text/plain
+     * and other content types, the result is converted to a string.</p>
      *
      * @param result The result object
      * @param contentType The content type
-     * @param resultClass The class of the result
-     * @param genericType The generic type of the result
-     * @param annotations The annotations on the method
      * @return The response body as a byte array
-     * @throws IOException If an error occurs during conversion
      */
-    private static byte[] convertToResponseBody(Object result, String contentType, Class<?> resultClass, Type genericType, Annotation[] annotations) throws IOException {
-        // Try to find a MessageBodyWriter for the result type
-        for (MessageBodyWriter writer : ServiceLoader.load(MessageBodyWriter.class)) {
-            try
-            {
-                if (writer.isWriteable(resultClass, genericType, annotations, MediaType.valueOf(contentType)))
-                {
-                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                    writer.writeTo(result, resultClass, genericType, annotations, MediaType.valueOf(contentType), null, outputStream);
-                    return outputStream.toByteArray();
-                }
-            }catch (Exception classNotFoundException)
-            {
-                log.warn("Could not load class for MessageBodyWriter: " + classNotFoundException.getMessage() + "for writer " + writer.getClass().getName() + ", skipping");
-            }
-        }
-
-        // If no MessageBodyWriter is found, use default conversion
-        if (contentType.equals(MediaType.APPLICATION_JSON)) {
-            return IJsonRepresentation.getObjectMapper().writeValueAsBytes(result);
-        } else if (contentType.equals(MediaType.TEXT_PLAIN)) {
+    private static byte[] convertToResponseBody(Object result, String contentType) {
+        // Check if the content type is JSON (handles variations like application/json;charset=utf-8)
+        if (isJsonContentType(contentType)) {
+            // Use Vert.x Json which internally uses Jackson ObjectMapper
+            return Json.encodeToBuffer(result).getBytes();
+        } else if (contentType.equals(MediaType.TEXT_PLAIN) || contentType.startsWith("text/")) {
             return result.toString().getBytes(StandardCharsets.UTF_8);
         } else {
-            // For other content types, try to convert to string
-            return result.toString().getBytes(StandardCharsets.UTF_8);
+            // For other content types, try JSON encoding as a sensible default
+            return Json.encodeToBuffer(result).getBytes();
         }
+    }
+
+    /**
+     * Checks if the content type indicates JSON.
+     *
+     * @param contentType The content type string
+     * @return true if the content type is a JSON type
+     */
+    private static boolean isJsonContentType(String contentType) {
+        if (contentType == null) {
+            return false;
+        }
+        String lowerContentType = contentType.toLowerCase();
+        return lowerContentType.equals(MediaType.APPLICATION_JSON)
+                || lowerContentType.startsWith(MediaType.APPLICATION_JSON + ";")
+                || lowerContentType.contains("json");
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.guicedee.guicedservlets.rest.pathing;
 
+import io.vertx.core.json.Json;
 import io.vertx.ext.web.RoutingContext;
 import jakarta.ws.rs.*;
 
@@ -8,7 +9,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * Extracts method parameters for Jakarta REST-style endpoints.
@@ -16,7 +16,7 @@ import java.util.function.Function;
  * <p>Supports common parameter annotations like {@link PathParam},
  * {@link QueryParam}, {@link HeaderParam}, {@link CookieParam},
  * {@link FormParam}, and {@link MatrixParam}. If no annotation is present,
- * the request body is returned as a raw string.</p>
+ * the request body is deserialized using Vert.x JSON (backed by Jackson).</p>
  */
 public class ParameterExtractor {
 
@@ -102,9 +102,21 @@ public class ParameterExtractor {
 
         // If no annotation is found, try to extract from request body
         if (context.body() != null && context.body().buffer() != null && context.body().buffer().length() > 0) {
-            // For simplicity, we'll return the body as a string
-            // In a real implementation, we would use a MessageBodyReader to convert the body to the parameter type
-            return context.body().asString();
+            Class<?> targetType = parameter.getType();
+            String bodyString = context.body().asString();
+
+            // If the target type is String, return as-is
+            if (targetType.equals(String.class)) {
+                return bodyString;
+            }
+
+            // Try to deserialize JSON using Vert.x JSON (backed by Jackson)
+            try {
+                return Json.decodeValue(bodyString, targetType);
+            } catch (Exception e) {
+                // If JSON deserialization fails, try simple type conversion
+                return convertValue(bodyString, targetType);
+            }
         }
 
         return null;
