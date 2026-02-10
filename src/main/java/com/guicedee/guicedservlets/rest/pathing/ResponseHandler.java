@@ -7,6 +7,8 @@ import io.vertx.core.json.Json;
 import io.vertx.ext.web.RoutingContext;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
@@ -58,6 +60,49 @@ public class ResponseHandler {
                 item -> processResponse(context, item, method),
                 failure -> handleException(context, failure)
             );
+            return;
+        }
+
+        // Handle JAX-RS Response directly (and avoid RuntimeDelegate usage)
+        if (result instanceof Response) {
+            Response jaxrs = (Response) result;
+
+            // Status
+            int status = jaxrs.getStatus();
+            context.response().setStatusCode(status);
+
+            // Headers
+            MultivaluedMap<String, Object> headers = jaxrs.getHeaders();
+            if (headers != null) {
+                headers.forEach((name, values) -> {
+                    if (values != null) {
+                        // According to HTTP spec, multiple header values can be joined by comma
+                        String joined = values.stream().map(String::valueOf).reduce((a, b) -> a + "," + b).orElse("");
+                        if (!joined.isEmpty()) {
+                            context.response().putHeader(name, joined);
+                        }
+                    }
+                });
+            }
+
+            // Content-Type (prefer entity-specific media type if present)
+            String contentType = jaxrs.getMediaType() != null ? jaxrs.getMediaType().toString() : getContentType(method);
+            if (contentType != null && !contentType.isEmpty()) {
+                context.response().putHeader("Content-Type", contentType);
+            }
+
+            // Entity
+            Object entity = jaxrs.getEntity();
+            if (entity == null) {
+                context.response().end();
+            } else {
+                try {
+                    byte[] responseBody = convertToResponseBody(entity, contentType != null ? contentType : MediaType.APPLICATION_JSON);
+                    context.response().end(Buffer.buffer(responseBody));
+                } catch (Exception e) {
+                    handleException(context, e);
+                }
+            }
             return;
         }
 
