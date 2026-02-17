@@ -119,7 +119,7 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
             // Create route
             router.route(httpMethod, vertxPath).handler(context -> handleRequest(context, resourceInfo, method));
 
-            logger.info("Registered route: " + httpMethod + " " + fullPath);
+            logger.debug("Registered route: " + httpMethod + " " + fullPath);
         } catch (Exception e) {
             logger.error("Error registering resource method: " + method.getName(), e);
         }
