@@ -1,6 +1,7 @@
 package com.guicedee.guicedservlets.rest.pathing;
 
 import io.smallrye.mutiny.Uni;
+import io.smallrye.mutiny.subscription.Cancellable;
 import io.vertx.core.Future;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.Json;
@@ -15,6 +16,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Converts resource method results into HTTP responses.
@@ -40,26 +42,61 @@ public class ResponseHandler {
             return;
         }
 
-        // Handle Future
-        if (result instanceof Future) {
-            Future<?> future = (Future<?>) result;
+        // Handle Future — each Future has a definitive start (composition)
+        // and end (onComplete callback) scoped to this request.
+        if (result instanceof Future<?> future) {
+            final AtomicBoolean completed = new AtomicBoolean(false);
             future.onComplete(ar -> {
-                if (ar.succeeded()) {
-                    processResponse(context, ar.result(), method);
-                } else {
-                    handleException(context, ar.cause());
+                if (completed.compareAndSet(false, true)) {
+                    if (ar.succeeded()) {
+                        processResponse(context, ar.result(), method);
+                    } else {
+                        handleException(context, ar.cause());
+                    }
+                }
+            });
+
+            // Cancel on client disconnect
+            context.request().connection().closeHandler(v -> {
+                if (completed.compareAndSet(false, true)) {
+                    log.debug("Client disconnected, Future result discarded for {} {}", context.request().method(), context.request().path());
                 }
             });
             return;
         }
 
-        // Handle Uni
-        if (result instanceof Uni) {
-            Uni<Object> uni = (Uni<Object>) result;
-            uni.subscribe().with(
-                item -> processResponse(context, item, method),
-                failure -> handleException(context, failure)
+        // Handle Uni — each request gets its own isolated Uni lifecycle with
+        // a definitive start (subscription) and end (response completion).
+        // The Uni is NOT chained into any shared/global pipeline — it is
+        // self-contained per request. Cancellation on client disconnect
+        // prevents orphaned work from continuing after the client is gone.
+        if (result instanceof Uni<?> uni) {
+            final AtomicBoolean completed = new AtomicBoolean(false);
+
+            // Subscribe to the Uni — this is the definitive START of this request's reactive chain
+            Cancellable cancellable = uni.subscribe().with(
+                item -> {
+                    // Definitive END (success) — process the resolved value and write the response
+                    if (completed.compareAndSet(false, true)) {
+                        processResponse(context, item, method);
+                    }
+                },
+                failure -> {
+                    // Definitive END (failure) — write the error response
+                    if (completed.compareAndSet(false, true)) {
+                        handleException(context, failure);
+                    }
+                }
             );
+
+            // If the client disconnects before the Uni completes, cancel the
+            // subscription so no further work is performed for this request.
+            context.request().connection().closeHandler(v -> {
+                if (completed.compareAndSet(false, true)) {
+                    cancellable.cancel();
+                    log.debug("Client disconnected, cancelled Uni for {} {}", context.request().method(), context.request().path());
+                }
+            });
             return;
         }
 
@@ -103,6 +140,18 @@ public class ResponseHandler {
                     handleException(context, e);
                 }
             }
+            return;
+        }
+
+        // Handle raw byte[] — write directly without JSON encoding
+        if (result instanceof byte[] bytes) {
+            String contentType = getContentType(method);
+            if (isJsonContentType(contentType)) {
+                // byte[] with JSON content type makes no sense; override to octet-stream
+                contentType = MediaType.APPLICATION_OCTET_STREAM;
+            }
+            context.response().putHeader("Content-Type", contentType);
+            context.response().setStatusCode(200).end(Buffer.buffer(bytes));
             return;
         }
 
@@ -157,6 +206,10 @@ public class ResponseHandler {
      * @return The response body as a byte array
      */
     private static byte[] convertToResponseBody(Object result, String contentType) {
+        // Raw byte arrays are written as-is regardless of content type
+        if (result instanceof byte[] bytes) {
+            return bytes;
+        }
         // Check if the content type is JSON (handles variations like application/json;charset=utf-8)
         if (isJsonContentType(contentType)) {
             // Use Vert.x Json which internally uses Jackson ObjectMapper
@@ -198,6 +251,7 @@ public class ResponseHandler {
         // Get the status code for the exception
         int statusCode = ExceptionStatusMapper.getStatusCode(exception);
 
+        log.error("Error handling request: " + context.request().method() + " " + context.request().path(), exception);
         // Set the status code and end the response
         context.response()
                .setStatusCode(statusCode)

@@ -8,12 +8,12 @@ import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import io.vertx.ext.web.handler.BodyHandler;
 
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -25,8 +25,7 @@ import org.apache.logging.log4j.Logger;
  * request lifecycle utilities such as {@link ParameterExtractor},
  * {@link EventLoopHandler}, and {@link ResponseHandler}.</p>
  */
-public class OperationRegistry implements VertxRouterConfigurator<OperationRegistry>
-{
+public class OperationRegistry implements VertxRouterConfigurator<OperationRegistry> {
     private static final Logger logger = LogManager.getLogger(OperationRegistry.class);
     private final Set<String> registeredRoutes = new HashSet<>();
 
@@ -34,8 +33,7 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
     private Vertx vertx;
 
     @Override
-    public Integer sortOrder()
-    {
+    public Integer sortOrder() {
         return 200;
     }
 
@@ -46,8 +44,7 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
      * @return The configured router
      */
     @Override
-    public Router builder(Router builder)
-    {
+    public Router builder(Router builder) {
         // Get the scan result from IGuiceContext
         ScanResult scanResult = IGuiceContext.instance().getScanResult();
 
@@ -65,7 +62,7 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
     /**
      * Registers every resource method from the provided resource class.
      *
-     * @param router The router to register with
+     * @param router        The router to register with
      * @param resourceClass The resource class to register
      */
     private void registerResourceClass(Router router, Class<?> resourceClass) {
@@ -85,9 +82,9 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
     /**
      * Registers a single resource method and binds the request handler.
      *
-     * @param router The router to register with
+     * @param router       The router to register with
      * @param resourceInfo The resource metadata
-     * @param method The resource method to register
+     * @param method       The resource method to register
      */
     private void registerResourceMethod(Router router, JakartaWsScanner.ResourceInfo resourceInfo, Method method) {
         try {
@@ -128,12 +125,20 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
     /**
      * Executes the resource method and renders a response.
      *
-     * <p>This method performs authentication checks, extracts parameters,
-     * invokes the resource method, and delegates the response rendering.</p>
+     * <p>Each request receives its own <strong>duplicated Vert.x context</strong> so that
+     * Hibernate Reactive sessions, Mutiny subscriptions, and any other context-local state
+     * are fully isolated per request. This gives every Uni chain a definitive start
+     * (entering the duplicated context) and a definitive end (the response completing
+     * within that context), preventing separate requests from sharing a single Uni pipeline.</p>
      *
-     * @param context The routing context
+     * <p>When the resource class belongs to a package annotated with
+     * {@code @Verticle}, blocking methods are dispatched to that verticle's
+     * named worker pool. Reactive methods (returning {@code Uni} or {@code Future})
+     * run on the event loop within the duplicated context.</p>
+     *
+     * @param context      The routing context
      * @param resourceInfo The resource metadata
-     * @param method The resource method to invoke
+     * @param method       The resource method to invoke
      */
     private void handleRequest(RoutingContext context, JakartaWsScanner.ResourceInfo resourceInfo, Method method) {
         long startTime = System.currentTimeMillis();
@@ -157,7 +162,19 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
             }
         }
 
-        // Execute the method on the appropriate thread
+        // Execute directly on the current event-loop thread. The Vert.x HTTP server
+        // handler is already running on the event-loop thread associated with the
+        // connection. This is the same thread that the Vert.x SQL client pool will
+        // use for its connections, so Hibernate Reactive sessions opened here will
+        // stay on the correct thread throughout the entire reactive chain.
+        //
+        // DO NOT create a new event-loop context via createEventLoopContext() — that
+        // assigns to a random Netty event-loop thread which differs from the SQL
+        // connection's thread, causing HR000069 (session used from different thread).
+        //
+        // Dispatch through EventLoopHandler so that:
+        //  - blocking methods run on the @Verticle worker pool (or default worker pool)
+        //  - reactive (Uni/Future) methods run on the event loop
         EventLoopHandler.executeTask(vertx, context, () -> {
             try {
                 logger.debug("Executing method: " + method.getName() + " on class: " + resourceInfo.getResourceClass().getName());
@@ -165,13 +182,6 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
                 // Extract parameters
                 logger.debug("Extracting parameters for method: " + method.getName());
                 Object[] parameters = ParameterExtractor.extractParameters(method, context);
-
-                // Log parameters at FINER level
-                if (logger.isTraceEnabled()) {
-                    for (int i = 0; i < parameters.length; i++) {
-                        logger.trace("Parameter " + i + ": " + (parameters[i] != null ? parameters[i].toString() : "null"));
-                    }
-                }
 
                 // Get resource instance
                 Object instance = resourceInfo.getResourceInstance();
@@ -185,10 +195,10 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
                 // Process the response
                 logger.debug("Processing response");
                 ResponseHandler.processResponse(context, result, method);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 logger.error("Error handling request", e);
                 ResponseHandler.handleException(context, e);
             }
-        }, method);
+        }, method, resourceInfo.getResourceClass());
     }
 }

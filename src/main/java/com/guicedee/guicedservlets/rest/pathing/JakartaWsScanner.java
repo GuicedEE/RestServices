@@ -6,6 +6,8 @@ import io.github.classgraph.ClassInfoList;
 import io.github.classgraph.ScanResult;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.Path;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -19,6 +21,8 @@ import java.util.List;
  * annotations.</p>
  */
 public class JakartaWsScanner {
+
+    private static final Logger log = LogManager.getLogger(JakartaWsScanner.class);
 
     /**
      * Finds resource classes annotated with {@link ApplicationPath} or {@link Path}.
@@ -84,7 +88,13 @@ public class JakartaWsScanner {
      */
     public static Object createResourceInstance(Class<?> resourceClass) {
         // Use GuiceRestInjectionProvider to get an instance of the resource class
-        return com.guicedee.guicedservlets.rest.services.GuiceRestInjectionProvider.getInstance(resourceClass);
+        try {
+            return com.guicedee.guicedservlets.rest.services.GuiceRestInjectionProvider.getInstance(resourceClass);
+        }catch (Throwable T)
+        {
+            log.error("Failed to create resource instance for class: " + resourceClass.getName(), T);
+            return null;
+        }
     }
 
     /**

@@ -14,7 +14,7 @@
     <packaging>jar</packaging>
     <version>2.0.0-SNAPSHOT</version>
     <name>Guiced Rest Services</name>
-    <description>An integration library for RestEasy into the Guiced framework
+    <description>An integration library for Rest services on vertx
     </description>
     <url>https://github.com/GedMarc/GuicedRestServices</url>
 
@@ -24,11 +24,6 @@
     </properties>
 
     <dependencies>
-
-      <!--  <dependency>
-            <groupId>com.guicedee.services</groupId>
-            <artifactId>vertx-rest</artifactId>
-        </dependency>-->
 
         <dependency>
             <groupId>com.guicedee</groupId>
