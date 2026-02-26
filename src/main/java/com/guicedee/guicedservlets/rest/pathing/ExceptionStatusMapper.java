@@ -38,7 +38,19 @@ public class ExceptionStatusMapper {
         defaultStatusCodes.put(NullPointerException.class, 500);
         defaultStatusCodes.put(RuntimeException.class, 500);
         defaultStatusCodes.put(Exception.class, 500);
-        
+
+        // Map NoResultException (JPA) to 404 Not Found.
+        // The rest module does not depend on jakarta.persistence, so we resolve
+        // the class by name to avoid a hard compile-time dependency.
+        try {
+            @SuppressWarnings("unchecked")
+            Class<? extends Throwable> noResultEx =
+                    (Class<? extends Throwable>) Class.forName("jakarta.persistence.NoResultException");
+            defaultStatusCodes.put(noResultEx, 404);
+        } catch (ClassNotFoundException ignored) {
+            // jakarta.persistence not on the classpath — nothing to register
+        }
+
         // Load exception mappers from service loader
         ServiceLoader<jakarta.ws.rs.ext.ExceptionMapper> serviceLoader = ServiceLoader.load(jakarta.ws.rs.ext.ExceptionMapper.class);
         for (jakarta.ws.rs.ext.ExceptionMapper<?> mapper : serviceLoader) {
@@ -85,6 +97,17 @@ public class ExceptionStatusMapper {
     /**
      * Resolves the HTTP status code to use for a given exception.
      *
+     * <p>The resolution order is:</p>
+     * <ol>
+     *   <li>{@link WebApplicationException} — use its embedded response status</li>
+     *   <li>Custom {@link ExceptionMapper} (service-loaded)</li>
+     *   <li>Default status code mapping for the exception class hierarchy</li>
+     *   <li>Cause-chain traversal — if the direct exception yields only the generic
+     *       500 default, walk the cause chain to find a more specific mapping
+     *       (e.g. a {@code NoResultException} wrapped in a {@code CompletionException})</li>
+     *   <li>Fall back to 500</li>
+     * </ol>
+     *
      * @param exception The exception to map
      * @return The HTTP status code to return to the client
      */
@@ -98,8 +121,6 @@ public class ExceptionStatusMapper {
         jakarta.ws.rs.ext.ExceptionMapper<? extends Throwable> mapper = findMapper(exception.getClass());
         if (mapper != null) {
             try {
-                // This is a bit of a hack to invoke the mapper
-                // In a real implementation, we would use reflection to invoke the mapper
                 Response response = ((jakarta.ws.rs.ext.ExceptionMapper<Throwable>) mapper).toResponse(exception);
                 return response.getStatus();
             } catch (Exception e) {
@@ -112,7 +133,17 @@ public class ExceptionStatusMapper {
         if (statusCode != null) {
             return statusCode;
         }
-        
+
+        // Walk the cause chain — a specific exception (e.g. NoResultException → 404)
+        // may be wrapped inside a generic wrapper (CompletionException, RuntimeException, etc.)
+        Throwable cause = exception.getCause();
+        if (cause != null && cause != exception) {
+            int causeStatus = getStatusCode(cause);
+            if (causeStatus != 500) {
+                return causeStatus;
+            }
+        }
+
         // Default to 500
         return 500;
     }

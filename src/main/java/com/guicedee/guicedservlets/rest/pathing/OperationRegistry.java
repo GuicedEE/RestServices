@@ -6,6 +6,7 @@ import com.guicedee.vertx.web.spi.VertxRouterConfigurator;
 import io.github.classgraph.ScanResult;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.internal.ContextInternal;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 
@@ -125,11 +126,11 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
     /**
      * Executes the resource method and renders a response.
      *
-     * <p>Each request receives its own <strong>duplicated Vert.x context</strong> so that
-     * Hibernate Reactive sessions, Mutiny subscriptions, and any other context-local state
-     * are fully isolated per request. This gives every Uni chain a definitive start
-     * (entering the duplicated context) and a definitive end (the response completing
-     * within that context), preventing separate requests from sharing a single Uni pipeline.</p>
+     * <p>Each request receives its own <strong>duplicated Vert.x context</strong> (via
+     * {@code ContextInternal.duplicate()}) so that Hibernate Reactive sessions, Mutiny
+     * subscriptions, and any other context-local state are fully isolated per request.
+     * The duplicated context runs on the <strong>same event-loop thread</strong> as its
+     * parent, which is critical for thread-affinity with the SQL pool connection.</p>
      *
      * <p>When the resource class belongs to a package annotated with
      * {@code @Verticle}, blocking methods are dispatched to that verticle's
@@ -162,43 +163,50 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
             }
         }
 
-        // Execute directly on the current event-loop thread. The Vert.x HTTP server
-        // handler is already running on the event-loop thread associated with the
-        // connection. This is the same thread that the Vert.x SQL client pool will
-        // use for its connections, so Hibernate Reactive sessions opened here will
-        // stay on the correct thread throughout the entire reactive chain.
+        // Create a duplicated context for this request. Each HTTP request needs its own
+        // isolated Vert.x context-local storage so that Hibernate Reactive sessions,
+        // Mutiny subscriptions, and other context-local state are not shared between
+        // concurrent requests.
         //
-        // DO NOT create a new event-loop context via createEventLoopContext() — that
-        // assigns to a random Netty event-loop thread which differs from the SQL
-        // connection's thread, causing HR000069 (session used from different thread).
+        // ContextInternal.duplicate() creates a child context on the SAME event-loop
+        // thread as the parent, which is critical: the SQL pool connection's I/O is
+        // bound to a specific event-loop thread, and the session must be pinned to
+        // that same thread. A duplicated context preserves the thread while providing
+        // isolated local storage.
         //
-        // Dispatch through EventLoopHandler so that:
-        //  - blocking methods run on the @Verticle worker pool (or default worker pool)
-        //  - reactive (Uni/Future) methods run on the event loop
-        EventLoopHandler.executeTask(vertx, context, () -> {
-            try {
-                logger.debug("Executing method: " + method.getName() + " on class: " + resourceInfo.getResourceClass().getName());
+        // DO NOT use createEventLoopContext() — that assigns to a RANDOM event-loop
+        // thread which will differ from the SQL connection's thread, causing HR000069.
+        ContextInternal currentContext = (ContextInternal) vertx.getOrCreateContext();
+        ContextInternal duplicatedContext = currentContext.duplicate();
+        duplicatedContext.runOnContext(v -> {
+            // Dispatch through EventLoopHandler so that:
+            //  - blocking methods run on the @Verticle worker pool (or default worker pool)
+            //  - reactive (Uni/Future) methods run on the event loop
+            EventLoopHandler.executeTask(vertx, context, () -> {
+                try {
+                    logger.debug("Executing method: " + method.getName() + " on class: " + resourceInfo.getResourceClass().getName());
 
-                // Extract parameters
-                logger.debug("Extracting parameters for method: " + method.getName());
-                Object[] parameters = ParameterExtractor.extractParameters(method, context);
+                    // Extract parameters
+                    logger.debug("Extracting parameters for method: " + method.getName());
+                    Object[] parameters = ParameterExtractor.extractParameters(method, context);
 
-                // Get resource instance
-                Object instance = resourceInfo.getResourceInstance();
-                logger.debug("Resource instance: " + (instance != null ? instance.getClass().getName() : "null"));
+                    // Get resource instance
+                    Object instance = resourceInfo.getResourceInstance();
+                    logger.debug("Resource instance: " + (instance != null ? instance.getClass().getName() : "null"));
 
-                // Invoke the method
-                logger.debug("Invoking method: " + method.getName());
-                Object result = method.invoke(instance, parameters);
-                logger.debug("Method execution completed, result: " + (result != null ? result.toString() : "null"));
+                    // Invoke the method
+                    logger.debug("Invoking method: " + method.getName());
+                    Object result = method.invoke(instance, parameters);
+                    logger.debug("Method execution completed, result: " + (result != null ? result.toString() : "null"));
 
-                // Process the response
-                logger.debug("Processing response");
-                ResponseHandler.processResponse(context, result, method);
-            } catch (Throwable e) {
-                logger.error("Error handling request", e);
-                ResponseHandler.handleException(context, e);
-            }
-        }, method, resourceInfo.getResourceClass());
+                    // Process the response
+                    logger.debug("Processing response");
+                    ResponseHandler.processResponse(context, result, method);
+                } catch (Throwable e) {
+                    logger.error("Error handling request", e);
+                    ResponseHandler.handleException(context, e);
+                }
+            }, method, resourceInfo.getResourceClass());
+        });
     }
 }
