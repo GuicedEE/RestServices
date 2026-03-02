@@ -51,7 +51,7 @@ public class SecuredResourceTest {
 
         // Wait for the server to start up
         System.out.println("Waiting for server to start...");
-        Thread.sleep(2000); // Wait 2 seconds
+        TestServerReady.waitForServer();
         System.out.println("Server should be started now");
 
         // Create an HTTP client

@@ -75,9 +75,6 @@ public class HttpServerConfiguratorTest {
         // Wait for the server to start
         latch.await(5, TimeUnit.SECONDS);
         
-        // Wait a bit more to ensure everything is set up
-        Thread.sleep(2000);
-        
         // Create HTTP client
         HttpClient client = HttpClient.newBuilder()
                 .connectTimeout(Duration.of(5, ChronoUnit.SECONDS))

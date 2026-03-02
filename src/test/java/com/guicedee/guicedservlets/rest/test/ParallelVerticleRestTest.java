@@ -120,7 +120,7 @@ public class ParallelVerticleRestTest {
         IGuiceContext.instance().inject();
 
         System.out.println("Waiting for server to start...");
-        Thread.sleep(2000);
+        TestServerReady.waitForServer();
         System.out.println("Server should be started now");
 
         client = HttpClient.newBuilder()
