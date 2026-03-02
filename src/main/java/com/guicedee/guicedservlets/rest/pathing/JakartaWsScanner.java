@@ -31,6 +31,18 @@ public class JakartaWsScanner {
      * @return A list of concrete, non-inner, non-static resource classes
      */
     public static List<Class<?>> scanForResourceClasses(ScanResult scanResult) {
+        return scanForResourceClasses(scanResult, null);
+    }
+
+    /**
+     * Finds resource classes annotated with {@link ApplicationPath} or {@link Path}, 
+     * optionally filtered by package.
+     *
+     * @param scanResult The ClassGraph scan result
+     * @param packageFilter Optional package prefix to filter resources
+     * @return A list of concrete, non-inner, non-static resource classes
+     */
+    public static List<Class<?>> scanForResourceClasses(ScanResult scanResult, String packageFilter) {
         List<Class<?>> resourceClasses = new ArrayList<>();
 
         // Get classes with @ApplicationPath or @Path annotations
@@ -38,19 +50,25 @@ public class JakartaWsScanner {
         ClassInfoList applicationPathClasses = scanResult.getClassesWithAnnotation(ApplicationPath.class);
         ClassInfoList pathClasses = scanResult.getClassesWithAnnotation(Path.class);
 
-        // Create a combined list of ClassInfo objects
-        List<ClassInfo> combinedList = new ArrayList<>();
-        applicationPathClasses.forEach(combinedList::add);
-        pathClasses.forEach(combinedList::add);
-
-        // Filter out abstract classes, interfaces, inner classes, and static classes
-        for (ClassInfo classInfo : combinedList) {
-            if (!classInfo.isAbstract() && !classInfo.isInterface() && !classInfo.isInnerClass() && !classInfo.isStatic()) {
-                try {
-                    Class<?> resourceClass = classInfo.loadClass(false);
-                    resourceClasses.add(resourceClass);
-                } catch (Exception e) {
-                    // Ignore
+        // Filter and add to combined list
+        for (ClassInfo classInfo : applicationPathClasses) {
+            if (packageFilter == null || classInfo.getPackageName().startsWith(packageFilter)) {
+                if (!classInfo.isAbstract() && !classInfo.isInterface() && !classInfo.isInnerClass() && !classInfo.isStatic()) {
+                    try {
+                        resourceClasses.add(classInfo.loadClass(false));
+                    } catch (Exception ignored) {}
+                }
+            }
+        }
+        for (ClassInfo classInfo : pathClasses) {
+            if (packageFilter == null || classInfo.getPackageName().startsWith(packageFilter)) {
+                if (!classInfo.isAbstract() && !classInfo.isInterface() && !classInfo.isInnerClass() && !classInfo.isStatic()) {
+                    try {
+                        Class<?> resourceClass = classInfo.loadClass(false);
+                        if (!resourceClasses.contains(resourceClass)) {
+                            resourceClasses.add(resourceClass);
+                        }
+                    } catch (Exception ignored) {}
                 }
             }
         }

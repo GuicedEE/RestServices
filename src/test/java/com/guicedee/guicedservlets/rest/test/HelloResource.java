@@ -3,7 +3,10 @@ package com.guicedee.guicedservlets.rest.test;
 import com.google.inject.Inject;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.guicedee.client.IGuiceContext;
+import com.guicedee.client.utils.LogUtils;
 import jakarta.ws.rs.*;
+import org.apache.logging.log4j.Level;
 
 import java.util.Map;
 import java.util.UUID;
@@ -16,6 +19,15 @@ public class HelloResource
 	//or in constructor
 	@Inject
 	private Greeter greeter;
+
+	static void main() {
+		//Configure Logging
+		LogUtils.addHighlightedConsoleLogger(Level.DEBUG);
+		//Register Slim Classpath Scanning and Modularization
+		IGuiceContext.registerModule("com.example.my.module");
+		//Start Guice Context
+		IGuiceContext.instance().inject();
+	}
 
 	/**
 	 * Inner static DTO to mirror the ArrangementCreateDTO pattern

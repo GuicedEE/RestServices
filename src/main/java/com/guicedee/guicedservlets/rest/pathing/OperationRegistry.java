@@ -4,12 +4,13 @@ import com.google.inject.Inject;
 import com.guicedee.client.IGuiceContext;
 import com.guicedee.vertx.web.spi.VertxRouterConfigurator;
 import io.github.classgraph.ScanResult;
+import io.smallrye.mutiny.Uni;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
-import io.vertx.core.internal.ContextInternal;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.List;
@@ -22,9 +23,8 @@ import org.apache.logging.log4j.Logger;
  * Discovers and registers Jakarta REST endpoint methods with a Vert.x router.
  *
  * <p>The registry scans for resource classes via {@link JakartaWsScanner}, maps
- * HTTP method annotations to Vert.x routes, and wires request handling to the
- * request lifecycle utilities such as {@link ParameterExtractor},
- * {@link EventLoopHandler}, and {@link ResponseHandler}.</p>
+ * HTTP method annotations to Vert.x routes, and wires request handling through
+ * {@link ParameterExtractor} and {@link ResponseHandler}.</p>
  */
 public class OperationRegistry implements VertxRouterConfigurator<OperationRegistry> {
     private static final Logger logger = LogManager.getLogger(OperationRegistry.class);
@@ -36,6 +36,13 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
     @Override
     public Integer sortOrder() {
         return 200;
+    }
+
+    private String packageFilter;
+
+    public OperationRegistry setPackageFilter(String packageFilter) {
+        this.packageFilter = packageFilter;
+        return this;
     }
 
     /**
@@ -50,7 +57,7 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
         ScanResult scanResult = IGuiceContext.instance().getScanResult();
 
         // Scan for resource classes
-        List<Class<?>> resourceClasses = JakartaWsScanner.scanForResourceClasses(scanResult);
+        List<Class<?>> resourceClasses = JakartaWsScanner.scanForResourceClasses(scanResult, packageFilter);
 
         // Register each resource class
         for (Class<?> resourceClass : resourceClasses) {
@@ -108,6 +115,9 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
                 return;
             }
 
+            logger.info("📡 Registering REST route: {} {} -> {}.{}()", 
+                    httpMethod, fullPath, resourceInfo.getResourceClass().getSimpleName(), method.getName());
+
             // Add to the set of registered routes
             registeredRoutes.add(routeKey);
 
@@ -126,16 +136,15 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
     /**
      * Executes the resource method and renders a response.
      *
-     * <p>Each request receives its own <strong>duplicated Vert.x context</strong> (via
-     * {@code ContextInternal.duplicate()}) so that Hibernate Reactive sessions, Mutiny
-     * subscriptions, and any other context-local state are fully isolated per request.
-     * The duplicated context runs on the <strong>same event-loop thread</strong> as its
-     * parent, which is critical for thread-affinity with the SQL pool connection.</p>
+     * <p>Execution is dispatched via {@code vertx.runOnContext()} to ensure the
+     * method runs on the Vert.x event-loop thread. This keeps context-local state
+     * (e.g. Hibernate Reactive sessions, Mutiny subscriptions) properly associated
+     * with the current request.</p>
      *
      * <p>When the resource class belongs to a package annotated with
      * {@code @Verticle}, blocking methods are dispatched to that verticle's
      * named worker pool. Reactive methods (returning {@code Uni} or {@code Future})
-     * run on the event loop within the duplicated context.</p>
+     * run on the event loop.</p>
      *
      * @param context      The routing context
      * @param resourceInfo The resource metadata
@@ -163,50 +172,30 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
             }
         }
 
-        // Create a duplicated context for this request. Each HTTP request needs its own
-        // isolated Vert.x context-local storage so that Hibernate Reactive sessions,
-        // Mutiny subscriptions, and other context-local state are not shared between
-        // concurrent requests.
-        //
-        // ContextInternal.duplicate() creates a child context on the SAME event-loop
-        // thread as the parent, which is critical: the SQL pool connection's I/O is
-        // bound to a specific event-loop thread, and the session must be pinned to
-        // that same thread. A duplicated context preserves the thread while providing
-        // isolated local storage.
-        //
-        // DO NOT use createEventLoopContext() — that assigns to a RANDOM event-loop
-        // thread which will differ from the SQL connection's thread, causing HR000069.
-        ContextInternal currentContext = (ContextInternal) vertx.getOrCreateContext();
-        ContextInternal duplicatedContext = currentContext.duplicate();
-        duplicatedContext.runOnContext(v -> {
-            // Dispatch through EventLoopHandler so that:
-            //  - blocking methods run on the @Verticle worker pool (or default worker pool)
-            //  - reactive (Uni/Future) methods run on the event loop
-            EventLoopHandler.executeTask(vertx, context, () -> {
-                try {
-                    logger.debug("Executing method: " + method.getName() + " on class: " + resourceInfo.getResourceClass().getName());
+        vertx.runOnContext(v -> {
+            try {
+                logger.debug("Executing method: " + method.getName() + " on class: " + resourceInfo.getResourceClass().getName());
 
-                    // Extract parameters
-                    logger.debug("Extracting parameters for method: " + method.getName());
-                    Object[] parameters = ParameterExtractor.extractParameters(method, context);
+                // Extract parameters
+                logger.debug("Extracting parameters for method: " + method.getName());
+                Object[] parameters = ParameterExtractor.extractParameters(method, context);
 
-                    // Get resource instance
-                    Object instance = resourceInfo.getResourceInstance();
-                    logger.debug("Resource instance: " + (instance != null ? instance.getClass().getName() : "null"));
+                // Get resource instance
+                Object instance = resourceInfo.getResourceInstance();
+                logger.debug("Resource instance: " + (instance != null ? instance.getClass().getName() : "null"));
 
-                    // Invoke the method
-                    logger.debug("Invoking method: " + method.getName());
-                    Object result = method.invoke(instance, parameters);
-                    logger.debug("Method execution completed, result: " + (result != null ? result.toString() : "null"));
+                // Invoke the method
+                logger.debug("Invoking method: " + method.getName());
+                Object result = method.invoke(instance, parameters);
+                logger.debug("Method execution completed, result: " + (result != null ? result.toString() : "null"));
 
-                    // Process the response
-                    logger.debug("Processing response");
-                    ResponseHandler.processResponse(context, result, method);
-                } catch (Throwable e) {
-                    logger.error("Error handling request", e);
-                    ResponseHandler.handleException(context, e);
-                }
-            }, method, resourceInfo.getResourceClass());
+                // Process the response
+                logger.debug("Processing response");
+                ResponseHandler.processResponse(context, result, method);
+            } catch (Throwable e) {
+                logger.error("Error handling request", e);
+                ResponseHandler.handleException(context, e);
+            }
         });
     }
 }

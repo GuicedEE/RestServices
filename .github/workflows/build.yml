@@ -1,0 +1,19 @@
+name: GuicedEE Rest Library
+on:
+  workflow_dispatch:
+    inputs:
+      centralRelease:
+        type: boolean
+        description: Run a release to maven central
+        default: false
+  push:
+jobs:
+  GuicedClient:
+    uses: GuicedEE/Workflows/.github/workflows/projects.yml@master
+    with:
+      baseDir: ''
+      name: 'Guiced Rest'
+      sonarProjectName: 'GuicedEE_RestServices'
+      sonarOrganization: 'guicedee'
+      publishToCentral: ${{inputs.centralRelease}}
+    secrets: inherit

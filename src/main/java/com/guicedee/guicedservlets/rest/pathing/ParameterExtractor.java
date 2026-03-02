@@ -131,7 +131,7 @@ public class ParameterExtractor {
         if (bodyString != null && !bodyString.isEmpty()) {
             Class<?> targetType = parameter.getType();
             Type genericType = parameter.getParameterizedType();
-            log.debug("Deserializing request body to type: {} (generic: {}) from body: {}", targetType.getName(), genericType.getTypeName(), bodyString);
+            log.trace("Deserializing request body to type: {} (generic: {}) from body: {}", targetType.getName(), genericType.getTypeName(), bodyString);
             // If the target type is String, return as-is
             if (targetType.equals(String.class)) {
                 if (context.parsedHeaders().contentType().value().equalsIgnoreCase("application/json")) {

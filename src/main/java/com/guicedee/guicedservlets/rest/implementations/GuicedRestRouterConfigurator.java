@@ -19,13 +19,20 @@ import java.util.Set;
 @Log4j2
 public class GuicedRestRouterConfigurator implements VertxRouterConfigurator<GuicedRestRouterConfigurator> {
 
+    private String packageFilter;
+
+    public GuicedRestRouterConfigurator setPackageFilter(String packageFilter) {
+        this.packageFilter = packageFilter;
+        return this;
+    }
+
     @Override
     public Router builder(Router router) {
-        log.info("Configuring Rest Router");
+        log.info("Configuring Rest Router" + (packageFilter != null ? " for package: " + packageFilter : ""));
 
         // Scan for resource classes to find the base paths
         ScanResult scanResult = IGuiceContext.instance().getScanResult();
-        List<Class<?>> resourceClasses = JakartaWsScanner.scanForResourceClasses(scanResult);
+        List<Class<?>> resourceClasses = JakartaWsScanner.scanForResourceClasses(scanResult, packageFilter);
         Set<String> basePaths = new HashSet<>();
         for (Class<?> resourceClass : resourceClasses) {
             String basePath = PathHandler.getBasePath(resourceClass);
