@@ -69,9 +69,9 @@ public class EventLoopHandler {
         if (shouldRunOnWorkerThread(method)) {
             // Resolve the worker pool for the resource class's package
             Optional<Verticle> verticleOpt = VerticleBuilder.getVerticleAnnotation(resourceClass);
-            if (verticleOpt.isPresent() && verticleOpt.get().workerPoolName() != null && !verticleOpt.get().workerPoolName().isEmpty()) {
+            if (verticleOpt.isPresent() && verticleOpt.get().value() != null && !verticleOpt.get().value().isEmpty()) {
                 Verticle verticle = verticleOpt.get();
-                String poolName = verticle.workerPoolName();
+                String poolName = verticle.value();
                 int poolSize = verticle.workerPoolSize();
                 long maxExecTime = verticle.maxWorkerExecuteTime();
                 java.util.concurrent.TimeUnit maxExecTimeUnit = verticle.maxWorkerExecuteTimeUnit();
@@ -136,9 +136,9 @@ public class EventLoopHandler {
             // Resolve the worker pool for the resource class's package
             Optional<Verticle> verticleOpt = VerticleBuilder.getVerticleAnnotation(resourceClass);
             io.vertx.core.Future<T> blockingFuture;
-            if (verticleOpt.isPresent() && verticleOpt.get().workerPoolName() != null && !verticleOpt.get().workerPoolName().isEmpty()) {
+            if (verticleOpt.isPresent() && verticleOpt.get().value() != null && !verticleOpt.get().value().isEmpty()) {
                 Verticle verticle = verticleOpt.get();
-                String poolName = verticle.workerPoolName();
+                String poolName = verticle.value();
                 int poolSize = verticle.workerPoolSize();
                 long maxExecTime = verticle.maxWorkerExecuteTime();
                 java.util.concurrent.TimeUnit maxExecTimeUnit = verticle.maxWorkerExecuteTimeUnit();

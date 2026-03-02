@@ -76,7 +76,7 @@ public class EventLoopHandlerVerticleTest {
             }
 
             @Override
-            public String workerPoolName() {
+            public String value() {
                 return workerPoolName;
             }
 
@@ -126,7 +126,7 @@ public class EventLoopHandlerVerticleTest {
 
         Optional<Verticle> result = VerticleBuilder.getVerticleAnnotation(HelloResource.class);
         assertTrue(result.isPresent(), "Should match the package annotation");
-        assertEquals("test-rest-pool", result.get().workerPoolName());
+        assertEquals("test-rest-pool", result.get().value());
     }
 
     @Test
@@ -139,7 +139,7 @@ public class EventLoopHandlerVerticleTest {
 
         Optional<Verticle> result = VerticleBuilder.getVerticleAnnotation(HelloResource.class);
         assertTrue(result.isPresent(), "Should match via parent package prefix");
-        assertEquals("rest-pool", result.get().workerPoolName());
+        assertEquals("rest-pool", result.get().value());
     }
 
     @Test
@@ -153,7 +153,7 @@ public class EventLoopHandlerVerticleTest {
 
         Optional<Verticle> result = VerticleBuilder.getVerticleAnnotation(HelloResource.class);
         assertTrue(result.isPresent(), "Should resolve to the most specific match");
-        assertEquals("child-pool", result.get().workerPoolName(),
+        assertEquals("child-pool", result.get().value(),
                 "Most specific (longest prefix) package should win");
     }
 
@@ -375,7 +375,7 @@ public class EventLoopHandlerVerticleTest {
         // HelloResource is in com.guicedee.guicedservlets.rest.test → should get pool-a
         Optional<Verticle> resolved = VerticleBuilder.getVerticleAnnotation(HelloResource.class);
         assertTrue(resolved.isPresent());
-        assertEquals("pool-a", resolved.get().workerPoolName(),
+        assertEquals("pool-a", resolved.get().value(),
                 "HelloResource should resolve to pool-a");
 
         // A class in com.example.other would get pool-b
@@ -386,7 +386,7 @@ public class EventLoopHandlerVerticleTest {
                 .max(java.util.Comparator.comparingInt(e -> e.getKey().length()))
                 .map(Map.Entry::getValue);
         assertTrue(otherResolved.isPresent());
-        assertEquals("pool-b", otherResolved.get().workerPoolName());
+        assertEquals("pool-b", otherResolved.get().value());
     }
 
     // ─── Helper classes for return-type tests ───────────────────────────────
