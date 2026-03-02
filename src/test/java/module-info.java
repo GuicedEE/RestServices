@@ -1,5 +1,5 @@
 import com.guicedee.client.services.lifecycle.IGuiceModule;
-import com.guicedee.guicedservlets.rest.test.RestTestBinding;
+import com.guicedee.rest.test.RestTestBinding;
 
 module guiced.rest.services.test {
 	requires com.guicedee.rest;
@@ -21,16 +21,16 @@ module guiced.rest.services.test {
 
 	provides IGuiceModule with RestTestBinding;
 
-	exports com.guicedee.guicedservlets.rest.test;
-	exports com.guicedee.guicedservlets.rest.test.verticle1;
-	exports com.guicedee.guicedservlets.rest.test.verticle2;
-	exports com.guicedee.guicedservlets.rest.test.verticle3;
-	exports com.guicedee.guicedservlets.rest.test.verticle4;
+	exports com.guicedee.rest.test;
+	exports com.guicedee.rest.test.verticle1;
+	exports com.guicedee.rest.test.verticle2;
+	exports com.guicedee.rest.test.verticle3;
+	exports com.guicedee.rest.test.verticle4;
 
-	opens com.guicedee.guicedservlets.rest.test to org.junit.platform.commons,com.google.guice,com.fasterxml.jackson.databind;
-	opens com.guicedee.guicedservlets.rest.test.verticle1 to org.junit.platform.commons,com.google.guice,com.fasterxml.jackson.databind;
-	opens com.guicedee.guicedservlets.rest.test.verticle2 to org.junit.platform.commons,com.google.guice,com.fasterxml.jackson.databind;
-	opens com.guicedee.guicedservlets.rest.test.verticle3 to org.junit.platform.commons,com.google.guice,com.fasterxml.jackson.databind;
-	opens com.guicedee.guicedservlets.rest.test.verticle4 to org.junit.platform.commons,com.google.guice,com.fasterxml.jackson.databind;
+	opens com.guicedee.rest.test to org.junit.platform.commons,com.google.guice,com.fasterxml.jackson.databind;
+	opens com.guicedee.rest.test.verticle1 to org.junit.platform.commons,com.google.guice,com.fasterxml.jackson.databind;
+	opens com.guicedee.rest.test.verticle2 to org.junit.platform.commons,com.google.guice,com.fasterxml.jackson.databind;
+	opens com.guicedee.rest.test.verticle3 to org.junit.platform.commons,com.google.guice,com.fasterxml.jackson.databind;
+	opens com.guicedee.rest.test.verticle4 to org.junit.platform.commons,com.google.guice,com.fasterxml.jackson.databind;
 
 }
