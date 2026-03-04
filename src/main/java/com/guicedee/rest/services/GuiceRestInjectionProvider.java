@@ -11,6 +11,9 @@ import com.guicedee.rest.pathing.OperationRegistry;
  */
 public class GuiceRestInjectionProvider
 {
+    /**
+     * Creates a new injection provider.
+     */
     public GuiceRestInjectionProvider() {
     }
 

@@ -21,11 +21,23 @@ public class GuicedRestRouterConfigurator implements VertxRouterConfigurator<Gui
 
     private String packageFilter;
 
+    /**
+     * Sets the package filter to restrict resource scanning.
+     *
+     * @param packageFilter the package prefix to filter by
+     * @return this instance for chaining
+     */
     public GuicedRestRouterConfigurator setPackageFilter(String packageFilter) {
         this.packageFilter = packageFilter;
         return this;
     }
 
+    /**
+     * Configures the router with REST-specific logging and CORS handlers.
+     *
+     * @param router the router to configure
+     * @return the configured router
+     */
     @Override
     public Router builder(Router router) {
         log.info("Configuring Rest Router" + (packageFilter != null ? " for package: " + packageFilter : ""));
@@ -72,6 +84,11 @@ public class GuicedRestRouterConfigurator implements VertxRouterConfigurator<Gui
         return router;
     }
 
+    /**
+     * Returns the sort order for router configuration.
+     *
+     * @return the sort order value
+     */
     @Override
     public Integer sortOrder() {
         // Infrastructure level

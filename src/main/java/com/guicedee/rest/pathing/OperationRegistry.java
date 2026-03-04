@@ -31,6 +31,11 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
     @Inject
     private Vertx vertx;
 
+    /**
+     * Returns the sort order for router configuration.
+     *
+     * @return the sort order value
+     */
     @Override
     public Integer sortOrder() {
         return 200;
@@ -38,6 +43,12 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
 
     private String packageFilter;
 
+    /**
+     * Sets the package filter to restrict resource scanning.
+     *
+     * @param packageFilter the package prefix to filter by
+     * @return this instance for chaining
+     */
     public OperationRegistry setPackageFilter(String packageFilter) {
         this.packageFilter = packageFilter;
         return this;

@@ -25,8 +25,8 @@ import java.util.function.Supplier;
  * {@link Vertx#createSharedWorkerExecutor}. Otherwise, the default Vert.x
  * internal worker pool is used.</p>
  *
- * <p>Call scope management is handled by {@link com.guicedee.guicedservlets.rest.implementations.RestCallScopeInterceptor}
- * at the method invocation level and is not duplicated here.</p>
+ * <p>Call scope management is handled at the method invocation level
+ * by the REST call scope interceptor and is not duplicated here.</p>
  */
 public class EventLoopHandler {
 
@@ -174,6 +174,13 @@ public class EventLoopHandler {
 
     /**
      * Backward-compatible overload that uses the default worker pool.
+     *
+     * @param vertx   The Vertx instance used to schedule work
+     * @param context The routing context for the current request
+     * @param task    The task to execute
+     * @param method  The endpoint method being executed
+     * @param <T>     The return type of the task
+     * @return The result of the task, or {@code null} if an error occurs
      */
     public static <T> T executeTaskWithResult(Vertx vertx, RoutingContext context, Supplier<T> task, Method method) {
         return executeTaskWithResult(vertx, context, task, method, method.getDeclaringClass());

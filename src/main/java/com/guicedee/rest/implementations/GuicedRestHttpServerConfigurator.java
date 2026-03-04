@@ -13,6 +13,12 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class GuicedRestHttpServerConfigurator implements VertxHttpServerConfigurator
 {
+    /**
+     * Configures the HTTP server for REST endpoints.
+     *
+     * @param builder the HTTP server to configure
+     * @return the configured HTTP server
+     */
     @Override
     public HttpServer builder(HttpServer builder)
     {
