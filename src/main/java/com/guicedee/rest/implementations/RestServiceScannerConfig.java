@@ -7,7 +7,7 @@ import com.guicedee.client.services.lifecycle.IGuiceConfigurator;
 /**
  * Enables rich ClassGraph scanning for REST service discovery.
  */
-public class RestServiceScannerConfig implements IGuiceConfigurator
+public class RestServiceScannerConfig implements IGuiceConfigurator<RestServiceScannerConfig>
 {
 	/**
 	 * Configures the scan settings needed for Jakarta REST discovery.

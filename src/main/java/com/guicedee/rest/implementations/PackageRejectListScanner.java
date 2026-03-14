@@ -7,7 +7,7 @@ import java.util.Set;
 /**
  * Declares packages that should be excluded from annotation scanning.
  */
-public class PackageRejectListScanner implements IPackageRejectListScanner
+public class PackageRejectListScanner implements IPackageRejectListScanner<PackageRejectListScanner>
 {
     /**
      * Returns packages to exclude from scanning.
