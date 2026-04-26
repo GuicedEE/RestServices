@@ -28,7 +28,7 @@ Built on [Vert.x 5](https://vertx.io/) · [Jakarta REST](https://jakarta.ee/spec
 <summary>Gradle (Kotlin DSL)</summary>
 
 ```kotlin
-implementation("com.guicedee:rest:2.0.0-RC10")
+implementation("com.guicedee:rest:2.0.0-RC11")
 ```
 </details>
 
