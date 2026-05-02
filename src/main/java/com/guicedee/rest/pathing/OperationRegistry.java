@@ -127,7 +127,7 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
                 return;
             }
 
-            logger.info("📡 Registering REST route: {} {} -> {}.{}()", 
+            logger.debug("📡 Registering REST route: {} {} -> {}.{}()",
                     httpMethod, fullPath, resourceInfo.getResourceClass().getSimpleName(), method.getName());
 
             // Add to the set of registered routes

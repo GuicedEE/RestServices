@@ -22,7 +22,7 @@ public class GuicedRestHttpServerConfigurator implements VertxHttpServerConfigur
     @Override
     public HttpServer builder(HttpServer builder)
     {
-        log.info("Configuring REST HTTP Server");
+        log.debug("Configuring REST HTTP Server");
         return builder;
     }
 }

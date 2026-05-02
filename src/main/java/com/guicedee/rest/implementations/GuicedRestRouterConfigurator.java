@@ -40,7 +40,7 @@ public class GuicedRestRouterConfigurator implements VertxRouterConfigurator<Gui
      */
     @Override
     public Router builder(Router router) {
-        log.info("Configuring Rest Router" + (packageFilter != null ? " for package: " + packageFilter : ""));
+        log.debug("Configuring Rest Router" + (packageFilter != null ? " for package: " + packageFilter : ""));
 
         // Scan for resource classes to find the base paths
         ScanResult scanResult = IGuiceContext.instance().getScanResult();

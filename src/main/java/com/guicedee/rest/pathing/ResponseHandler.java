@@ -253,35 +253,17 @@ public class ResponseHandler {
 
         log.error("Error handling request: " + context.request().method() + " " + context.request().path(), exception);
         // Set the status code and end the response
+        if (context.response().ended() || context.response().closed()) {
+            return;
+        }
+        String message = exception.getMessage();
+        if (message == null) {
+            message = exception.getClass().getSimpleName();
+        }
         context.response()
                .setStatusCode(statusCode)
                .putHeader("Content-Type", MediaType.TEXT_PLAIN)
-               .end(exception.getMessage());
+               .end(message);
     }
 
-    /**
-     * Determines the effective return type for a method.
-     *
-     * <p>If a method returns {@link Future} or {@link Uni}, the first generic
-     * type parameter is treated as the actual return type.</p>
-     *
-     * @param method The method to inspect
-     * @return The actual return type
-     */
-    public static Class<?> getActualReturnType(Method method) {
-        Class<?> returnType = method.getReturnType();
-
-        if (returnType.equals(Future.class) || returnType.equals(Uni.class)) {
-            Type genericReturnType = method.getGenericReturnType();
-            if (genericReturnType instanceof ParameterizedType) {
-                ParameterizedType parameterizedType = (ParameterizedType) genericReturnType;
-                Type[] typeArguments = parameterizedType.getActualTypeArguments();
-                if (typeArguments.length > 0 && typeArguments[0] instanceof Class) {
-                    return (Class<?>) typeArguments[0];
-                }
-            }
-        }
-
-        return returnType;
-    }
 }
