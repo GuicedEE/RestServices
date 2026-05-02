@@ -1,7 +1,7 @@
 # GuicedEE REST Services
 
-[![Build](https://github.com/GuicedEE/RestServices/actions/workflows/build.yml/badge.svg)](https://github.com/GuicedEE/GuicedRestServices/actions/workflows/build.yml)
-[![Maven Central](https://img.shields.io/maven-central/v/com.guicedee/rest)](https://central.sonatype.com/artifact/com.guicedee/rest)
+[![Build](https://github.com/GuicedEE/RestServices/actions/workflows/build.yml/badge.svg)](https://github.com/GuicedEE/RestServices/actions/workflows/build.yml)
+[![Maven Central](https://img.shields.io/maven-central/v/com.guicedee/rest)](https://github.com/GuicedEE/RestServices)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue)](https://www.apache.org/licenses/LICENSE-2.0)
 
 ![Java 25+](https://img.shields.io/badge/Java-25%2B-green)
