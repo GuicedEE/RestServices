@@ -104,7 +104,7 @@ public class EventLoopHandlerVerticleTest {
 
     // ─── Dummy classes in simulated packages for resolution tests ───────────
 
-    // HelloResource is in com.guicedee.guicedservlets.rest.test
+    // HelloResource is in com.guicedee.rest.test
 
     // ─── getVerticleAnnotation tests ────────────────────────────────────────
 
@@ -122,7 +122,7 @@ public class EventLoopHandlerVerticleTest {
         VerticleBuilder.getVerticleAnnotations().clear();
         Verticle annotation = createVerticleAnnotation("test-rest-pool", 5);
         // Register for the package that HelloResource lives in
-        VerticleBuilder.getVerticleAnnotations().put("com.guicedee.guicedservlets.rest.test", annotation);
+        VerticleBuilder.getVerticleAnnotations().put("com.guicedee.rest.test", annotation);
 
         Optional<Verticle> result = VerticleBuilder.getVerticleAnnotation(HelloResource.class);
         assertTrue(result.isPresent(), "Should match the package annotation");
@@ -135,7 +135,7 @@ public class EventLoopHandlerVerticleTest {
         VerticleBuilder.getVerticleAnnotations().clear();
         Verticle annotation = createVerticleAnnotation("rest-pool", 10);
         // Register for a parent package
-        VerticleBuilder.getVerticleAnnotations().put("com.guicedee.guicedservlets.rest", annotation);
+        VerticleBuilder.getVerticleAnnotations().put("com.guicedee.rest", annotation);
 
         Optional<Verticle> result = VerticleBuilder.getVerticleAnnotation(HelloResource.class);
         assertTrue(result.isPresent(), "Should match via parent package prefix");
@@ -148,8 +148,8 @@ public class EventLoopHandlerVerticleTest {
         VerticleBuilder.getVerticleAnnotations().clear();
         Verticle parentAnnotation = createVerticleAnnotation("parent-pool", 5);
         Verticle childAnnotation = createVerticleAnnotation("child-pool", 3);
-        VerticleBuilder.getVerticleAnnotations().put("com.guicedee.guicedservlets.rest", parentAnnotation);
-        VerticleBuilder.getVerticleAnnotations().put("com.guicedee.guicedservlets.rest.test", childAnnotation);
+        VerticleBuilder.getVerticleAnnotations().put("com.guicedee.rest", parentAnnotation);
+        VerticleBuilder.getVerticleAnnotations().put("com.guicedee.rest.test", childAnnotation);
 
         Optional<Verticle> result = VerticleBuilder.getVerticleAnnotation(HelloResource.class);
         assertTrue(result.isPresent(), "Should resolve to the most specific match");
@@ -214,7 +214,7 @@ public class EventLoopHandlerVerticleTest {
     void testExecuteTask_dispatchesToNamedWorkerPool() throws Exception {
         VerticleBuilder.getVerticleAnnotations().clear();
         Verticle annotation = createVerticleAnnotation("test-dispatch-pool", 4);
-        VerticleBuilder.getVerticleAnnotations().put("com.guicedee.guicedservlets.rest.test", annotation);
+        VerticleBuilder.getVerticleAnnotations().put("com.guicedee.rest.test", annotation);
 
         CountDownLatch latch = new CountDownLatch(1);
         AtomicReference<String> executingThread = new AtomicReference<>();
@@ -316,7 +316,7 @@ public class EventLoopHandlerVerticleTest {
     void testExecuteTask_eventLoopMethod_runsInline() throws Exception {
         VerticleBuilder.getVerticleAnnotations().clear();
         Verticle annotation = createVerticleAnnotation("should-not-use-pool", 4);
-        VerticleBuilder.getVerticleAnnotations().put("com.guicedee.guicedservlets.rest.test", annotation);
+        VerticleBuilder.getVerticleAnnotations().put("com.guicedee.rest.test", annotation);
 
         CountDownLatch latch = new CountDownLatch(1);
         AtomicReference<String> executingThread = new AtomicReference<>();
@@ -369,10 +369,10 @@ public class EventLoopHandlerVerticleTest {
         VerticleBuilder.getVerticleAnnotations().clear();
         Verticle poolA = createVerticleAnnotation("pool-a", 2);
         Verticle poolB = createVerticleAnnotation("pool-b", 2);
-        VerticleBuilder.getVerticleAnnotations().put("com.guicedee.guicedservlets.rest.test", poolA);
+        VerticleBuilder.getVerticleAnnotations().put("com.guicedee.rest.test", poolA);
         VerticleBuilder.getVerticleAnnotations().put("com.example.other", poolB);
 
-        // HelloResource is in com.guicedee.guicedservlets.rest.test → should get pool-a
+        // HelloResource is in com.guicedee.rest.test → should get pool-a
         Optional<Verticle> resolved = VerticleBuilder.getVerticleAnnotation(HelloResource.class);
         assertTrue(resolved.isPresent());
         assertEquals("pool-a", resolved.get().value(),
