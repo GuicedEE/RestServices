@@ -2,6 +2,9 @@ package com.guicedee.rest.pathing;
 
 import com.google.inject.Inject;
 import com.guicedee.client.IGuiceContext;
+import com.guicedee.client.scopes.CallScoper;
+import com.guicedee.client.scopes.CallScopeProperties;
+import com.guicedee.client.scopes.CallScopeSource;
 import com.guicedee.vertx.web.spi.VertxRouterConfigurator;
 import io.github.classgraph.ScanResult;
 import io.vertx.core.Vertx;
@@ -182,7 +185,23 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
         }
 
         vertx.runOnContext(v -> {
+            CallScoper callScoper = null;
+            boolean started = false;
             try {
+                callScoper = IGuiceContext.get(CallScoper.class);
+                if (!callScoper.isStartedScope()) {
+                    callScoper.enter();
+                    started = true;
+                }
+
+                CallScopeProperties props = IGuiceContext.get(CallScopeProperties.class);
+                if (props.getSource() == null || props.getSource() == CallScopeSource.Unknown) {
+                    props.setSource(CallScopeSource.Rest);
+                }
+                props.getProperties().put("RoutingContext", context);
+                props.getProperties().put("HttpServerRequest", context.request());
+                props.getProperties().put("HttpServerResponse", context.response());
+
                 logger.debug("Executing method: " + method.getName() + " on class: " + resourceInfo.getResourceClass().getName());
 
                 // Extract parameters
@@ -204,6 +223,10 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
             } catch (Throwable e) {
                 logger.error("Error handling request", e);
                 ResponseHandler.handleException(context, e);
+            } finally {
+                if (started && callScoper != null) {
+                    callScoper.exit();
+                }
             }
         });
     }
