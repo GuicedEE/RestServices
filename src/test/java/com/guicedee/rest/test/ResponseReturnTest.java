@@ -1,6 +1,7 @@
 package com.guicedee.rest.test;
 
 import com.guicedee.client.IGuiceContext;
+import com.guicedee.client.utils.LogUtils;
 import io.vertx.core.Vertx;
 import org.junit.jupiter.api.*;
 
@@ -28,6 +29,7 @@ public class ResponseReturnTest {
 
     @BeforeAll
     void setUp() throws Exception {
+        LogUtils.addConsoleLogger();
         IGuiceContext.instance().inject();
         TestServerReady.waitForServer();
         client = HttpClient.newBuilder()

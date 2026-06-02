@@ -46,6 +46,7 @@ module com.guicedee.rest {
 
 	provides com.guicedee.vertx.web.spi.VertxHttpServerConfigurator with GuicedRestHttpServerConfigurator;
 
+	provides jakarta.ws.rs.ext.RuntimeDelegate with com.guicedee.rest.implementations.GuicedRuntimeDelegate;
 
     uses RestInterceptor;
 }
