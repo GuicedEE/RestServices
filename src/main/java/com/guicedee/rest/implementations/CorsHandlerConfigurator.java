@@ -77,7 +77,7 @@ public class CorsHandlerConfigurator {
             // Check if CORS is enabled for this annotation
             boolean corsEnabled = isCorsEnabled(annotation);
             if (!corsEnabled) {
-                log.debug("CORS is disabled for path: " + path);
+                log.debug("🔒 CORS is disabled for path: " + path);
                 continue;
             }
 
