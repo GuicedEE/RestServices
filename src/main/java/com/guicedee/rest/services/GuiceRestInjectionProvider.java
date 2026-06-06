@@ -24,7 +24,6 @@ public class GuiceRestInjectionProvider
      * @param <T> The type of the instance
      * @return The injected instance
      */
-    @SuppressWarnings("unchecked")
     public static <T> T getInstance(Class<T> clazz) {
         return IGuiceContext.get(clazz);
     }

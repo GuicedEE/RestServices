@@ -35,7 +35,6 @@ public class ResponseHandler {
      * @param result The result of the method invocation
      * @param method The resource method
      */
-    @SuppressWarnings("unchecked")
     public static void processResponse(RoutingContext context, Object result, Method method) {
         if (result == null) {
             context.response().setStatusCode(204).end();
