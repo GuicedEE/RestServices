@@ -9,8 +9,10 @@ import com.guicedee.vertx.web.spi.VertxRouterConfigurator;
 import io.github.classgraph.ScanResult;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.AuthenticationHandler;
 
 import java.lang.reflect.Method;
 import java.util.HashSet;
@@ -137,7 +139,19 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
             String vertxPath = fullPath.replaceAll("\\{([^/]+?)\\}", ":$1");
 
             // Create route
-            router.route(httpMethod, vertxPath).handler(context -> handleRequest(context, resourceInfo, method));
+            Route route = router.route(httpMethod, vertxPath);
+
+            // When the resource requires authentication, run the configured authentication handler
+            // first so it can populate the routing context's user before the request is dispatched.
+            // If a secured resource has no authentication handler configured, handleRequest fails the
+            // request closed (401) because context.user() will be null.
+            AuthenticationHandler authenticationHandler =
+                    SecurityHandler.createAuthenticationHandler(resourceInfo.getResourceClass(), method);
+            if (authenticationHandler != null) {
+                route.handler(authenticationHandler);
+            }
+
+            route.handler(context -> handleRequest(context, resourceInfo, method));
 
             logger.debug("✅ Registered route: " + httpMethod + " " + fullPath);
         } catch (Exception e) {
