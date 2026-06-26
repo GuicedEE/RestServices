@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -38,6 +39,11 @@ public class SecurityHandler {
     // Store the authorization provider to be used by default
     private static AuthorizationProvider defaultAuthorizationProvider;
 
+    // Guards so the "no default handler/provider" fallback notices are logged once per JVM rather
+    // than once per secured route (which produced noisy, repeated WARN lines at startup).
+    private static final AtomicBoolean missingAuthHandlerLogged = new AtomicBoolean(false);
+    private static final AtomicBoolean missingAuthzProviderLogged = new AtomicBoolean(false);
+
     /**
      * Principal/attribute claim keys that may carry a caller's roles when an authentication provider
      * populates claims rather than (or in addition to) Vert.x {@link Authorizations}. Checked as a
@@ -52,6 +58,8 @@ public class SecurityHandler {
      */
     public static void setDefaultAuthenticationHandler(AuthenticationHandler handler) {
         defaultAuthenticationHandler = handler;
+        // A handler is now available — allow a future absence to be reported again.
+        missingAuthHandlerLogged.set(false);
     }
 
     /**
@@ -61,6 +69,7 @@ public class SecurityHandler {
      */
     public static void setDefaultAuthorizationProvider(AuthorizationProvider provider) {
         defaultAuthorizationProvider = provider;
+        missingAuthzProviderLogged.set(false);
     }
 
     /**
@@ -159,7 +168,11 @@ public class SecurityHandler {
         }
 
         // Otherwise, return null and let the caller handle authentication
-        logger.warn("No default authentication handler set. Authentication will be handled manually.");
+        if (missingAuthHandlerLogged.compareAndSet(false, true)) {
+            logger.warn("No default authentication handler set. Secured endpoints will be handled manually " +
+                    "(unauthenticated requests are rejected with 401). Call " +
+                    "SecurityHandler.setDefaultAuthenticationHandler(...) to wire one.");
+        }
         return null;
     }
 
@@ -200,7 +213,10 @@ public class SecurityHandler {
         }
 
         // Otherwise, return null and let the caller handle authorization
-        logger.warn("No default authorization provider set. Authorization will be handled manually.");
+        if (missingAuthzProviderLogged.compareAndSet(false, true)) {
+            logger.warn("No default authorization provider set. Role checks will be handled manually " +
+                    "via SecurityHandler.isAuthorized(). Call SecurityHandler.setDefaultAuthorizationProvider(...) to wire one.");
+        }
         return null;
     }
 

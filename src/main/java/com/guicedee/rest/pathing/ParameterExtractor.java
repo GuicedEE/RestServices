@@ -1,8 +1,8 @@
 package com.guicedee.rest.pathing;
 
-import com.fasterxml.jackson.core.StreamReadConstraints;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.StreamReadConstraints;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.ObjectMapper;
 import com.guicedee.client.IGuiceContext;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.jackson.DatabindCodec;
@@ -203,7 +203,7 @@ public class ParameterExtractor {
             return (T) new java.math.BigInteger(value);
         }
 
-        // JAX-RS §3.2 fallback: try static valueOf(String), fromString(String), then String constructor
+        // JAX-RS 3.2 fallback: try static valueOf(String), fromString(String), then String constructor
         try {
             java.lang.reflect.Method valueOf = type.getDeclaredMethod("valueOf", String.class);
             if (java.lang.reflect.Modifier.isStatic(valueOf.getModifiers()) && type.isAssignableFrom(valueOf.getReturnType())) {

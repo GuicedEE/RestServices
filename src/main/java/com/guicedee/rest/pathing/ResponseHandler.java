@@ -1,22 +1,25 @@
 package com.guicedee.rest.pathing;
 
+import com.guicedee.client.IGuiceContext;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.subscription.Cancellable;
 import io.vertx.core.Future;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.json.Json;
 import io.vertx.ext.web.RoutingContext;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.databind.ObjectMapper;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.guicedee.client.implementations.ObjectBinderKeys.DefaultObjectMapper;
 
 /**
  * Converts resource method results into HTTP responses.
@@ -197,8 +200,13 @@ public class ResponseHandler {
     /**
      * Converts a result object to the byte representation for the response body.
      *
-     * <p>Uses Vert.x JSON (backed by Jackson) for JSON serialization. For text/plain
-     * and other content types, the result is converted to a string.</p>
+     * <p>Uses the GuicedEE-configured {@code DefaultObjectMapper} (Jackson) for JSON
+     * serialization. Vert.x's built-in {@code Json}/{@code DatabindCodec} is intentionally
+     * avoided because it binds to Jackson 2 ({@code com.fasterxml.jackson.databind}); the
+     * GuicedEE runtime uses Jackson 3 ({@code tools.jackson.databind}), so delegating to the
+     * managed mapper keeps serialization consistent and avoids the
+     * "Mapping ... is not available without Jackson Databind on the classpath" error.
+     * For text/plain and other content types, the result is converted to a string.</p>
      *
      * @param result The result object
      * @param contentType The content type
@@ -211,14 +219,26 @@ public class ResponseHandler {
         }
         // Check if the content type is JSON (handles variations like application/json;charset=utf-8)
         if (isJsonContentType(contentType)) {
-            // Use Vert.x Json which internally uses Jackson ObjectMapper
-            return Json.encodeToBuffer(result).getBytes();
+            // Use the GuicedEE-managed Jackson 3 ObjectMapper for serialization
+            return encodeJson(result);
         } else if (contentType.equals(MediaType.TEXT_PLAIN) || contentType.startsWith("text/")) {
             return result.toString().getBytes(StandardCharsets.UTF_8);
         } else {
             // For other content types, try JSON encoding as a sensible default
-            return Json.encodeToBuffer(result).getBytes();
+            return encodeJson(result);
         }
+    }
+
+    /**
+     * Serializes the given value to JSON bytes using the GuicedEE-managed Jackson 3
+     * {@code DefaultObjectMapper} binding.
+     *
+     * @param result The value to serialize
+     * @return The JSON-encoded bytes
+     */
+    private static byte[] encodeJson(Object result) {
+        ObjectMapper mapper = IGuiceContext.get(DefaultObjectMapper);
+        return mapper.writeValueAsBytes(result);
     }
 
     /**
