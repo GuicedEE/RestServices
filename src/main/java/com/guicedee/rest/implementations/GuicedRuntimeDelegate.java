@@ -49,7 +49,13 @@ public class GuicedRuntimeDelegate extends RuntimeDelegate {
         if (type == Date.class) {
             return (HeaderDelegate<T>) new DateHeaderDelegate();
         }
+        if (type == CacheControl.class) {
+            return (HeaderDelegate<T>) new CacheControlHeaderDelegate();
+        }
         // Fallback: toString/fromString pass-through
+        // NOTE: Do NOT call value.toString() here for types whose toString() delegates back to
+        // RuntimeDelegate.createHeaderDelegate (e.g. CacheControl, NewCookie) — that causes
+        // infinite recursion. Unknown types that follow this pattern must be added above.
         return new HeaderDelegate<>() {
             @Override
             public T fromString(String value) {
@@ -545,6 +551,49 @@ public class GuicedRuntimeDelegate extends RuntimeDelegate {
         @Override
         public String toString(Date value) {
             return value == null ? "" : value.toString();
+        }
+    }
+
+    private static class CacheControlHeaderDelegate implements HeaderDelegate<CacheControl> {
+        @Override
+        public CacheControl fromString(String value) {
+            throw new UnsupportedOperationException("Cache-Control header parsing not supported.");
+        }
+
+        @Override
+        public String toString(CacheControl cc) {
+            if (cc == null) return "";
+            StringBuilder sb = new StringBuilder();
+            if (cc.isNoCache()) {
+                appendDirective(sb, "no-cache");
+                for (String field : cc.getNoCacheFields()) {
+                    sb.append("=\"").append(field).append('"');
+                }
+            }
+            if (cc.isNoStore()) appendDirective(sb, "no-store");
+            if (cc.isNoTransform()) appendDirective(sb, "no-transform");
+            if (cc.isMustRevalidate()) appendDirective(sb, "must-revalidate");
+            if (cc.isProxyRevalidate()) appendDirective(sb, "proxy-revalidate");
+            if (cc.isPrivate()) {
+                appendDirective(sb, "private");
+                for (String field : cc.getPrivateFields()) {
+                    sb.append("=\"").append(field).append('"');
+                }
+            }
+            if (!cc.isPrivate() && !cc.isNoCache()) appendDirective(sb, "public");
+            if (cc.getMaxAge() != -1) appendDirective(sb, "max-age=" + cc.getMaxAge());
+            if (cc.getSMaxAge() != -1) appendDirective(sb, "s-maxage=" + cc.getSMaxAge());
+            for (Map.Entry<String, String> ext : cc.getCacheExtension().entrySet()) {
+                String key = ext.getKey();
+                String val = ext.getValue();
+                appendDirective(sb, val == null || val.isEmpty() ? key : key + "=" + val);
+            }
+            return sb.toString();
+        }
+
+        private static void appendDirective(StringBuilder sb, String directive) {
+            if (!sb.isEmpty()) sb.append(", ");
+            sb.append(directive);
         }
     }
 }
