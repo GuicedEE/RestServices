@@ -9,7 +9,7 @@
 ![Vert.X 5](https://img.shields.io/badge/Vert.x-5%2B-green)
 
 Lightweight **Jakarta REST (JAX-RS) adapter for Vert.x 5** with full [GuicedEE](https://github.com/GuicedEE) integration.
-Annotate your classes with standard `@Path`, `@GET`, `@POST`, etc. — routes are discovered at startup via ClassGraph and registered on the Vert.x `Router` automatically. Resource instances are created through Guice, so `@Inject` works everywhere.
+Annotate your classes with standard `@Path`, `@GET`, `@POST`, etc. — routes are discovered at startup via ClassGraph and registered on the Vert.x `RouterConfig` automatically. Resource instances are created through Guice, so `@Inject` works everywhere.
 
 Built on [Vert.x 5](https://vertx.io/) · [Jakarta REST](https://jakarta.ee/specifications/restful-ws/) · [Google Guice](https://github.com/google/guice) · JPMS module `com.guicedee.rest` · Java 25+
 
@@ -366,7 +366,7 @@ When an exception yields a generic 500 status, `ExceptionStatusMapper` walks the
 
 | SPI | Purpose |
 |---|---|
-| `VertxRouterConfigurator` | Customize the Vert.x `Router` (CORS, logging, etc.) |
+| `VertxRouterConfigurator` | Customize the Vert.x `RouterConfig` (CORS, logging, etc.) |
 | `VertxHttpServerConfigurator` | Customize the Vert.x `HttpServer` |
 | `VertxHttpServerOptionsConfigurator` | Customize `HttpServerOptions` |
 | `jakarta.ws.rs.ext.ExceptionMapper` | Map exceptions to HTTP responses |

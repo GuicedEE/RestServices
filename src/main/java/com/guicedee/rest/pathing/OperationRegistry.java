@@ -125,11 +125,11 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
 
             // Check if this route has already been registered
             if (registeredRoutes.contains(routeKey)) {
-                logger.debug("Route already registered, skipping: " + httpMethod + " " + fullPath);
+                logger.trace("Route already registered, skipping: " + httpMethod + " " + fullPath);
                 return;
             }
 
-            logger.debug("📡 Registering REST route: {} {} -> {}.{}()",
+            logger.trace("📡 Registering REST route: {} {} -> {}.{}()",
                     httpMethod, fullPath, resourceInfo.getResourceClass().getSimpleName(), method.getName());
 
             // Add to the set of registered routes
@@ -178,11 +178,11 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
      */
     private void handleRequest(RoutingContext context, JakartaWsScanner.ResourceInfo resourceInfo, Method method) {
         long startTime = System.currentTimeMillis();
-        logger.debug("Handling request: " + context.request().method() + " " + context.request().path());
+        logger.trace("Handling request: " + context.request().method() + " " + context.request().path());
 
         context.response().endHandler(v -> {
             long duration = System.currentTimeMillis() - startTime;
-            logger.debug("Finished response for " + context.request().method() + " " + context.request().path() + " in " + duration + "ms");
+            logger.trace("Finished response for " + context.request().method() + " " + context.request().path() + " in " + duration + "ms");
         });
 
         // Check authentication and authorization
@@ -216,23 +216,23 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
                 props.getProperties().put("HttpServerRequest", context.request());
                 props.getProperties().put("HttpServerResponse", context.response());
 
-                logger.debug("Executing method: " + method.getName() + " on class: " + resourceInfo.getResourceClass().getName());
+                logger.trace("Executing method: " + method.getName() + " on class: " + resourceInfo.getResourceClass().getName());
 
                 // Extract parameters
-                logger.debug("Extracting parameters for method: " + method.getName());
+                logger.trace("Extracting parameters for method: " + method.getName());
                 Object[] parameters = ParameterExtractor.extractParameters(method, context);
 
                 // Get resource instance
                 Object instance = resourceInfo.getResourceInstance();
-                logger.debug("Resource instance: " + (instance != null ? instance.getClass().getName() : "null"));
+                logger.trace("Resource instance: " + (instance != null ? instance.getClass().getName() : "null"));
 
                 // Invoke the method
-                logger.debug("Invoking method: " + method.getName());
+                logger.trace("Invoking method: " + method.getName());
                 Object result = method.invoke(instance, parameters);
-                logger.debug("Method execution completed, result: " + (result != null ? result.toString() : "null"));
+                logger.trace("Method execution completed, result: " + (result != null ? result.toString() : "null"));
 
                 // Process the response
-                logger.debug("Processing response");
+                logger.trace("Processing response");
                 ResponseHandler.processResponse(context, result, method);
             } catch (Throwable e) {
                 logger.error("Error handling request", e);
