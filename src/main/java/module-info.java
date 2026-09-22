@@ -18,6 +18,7 @@ module com.guicedee.rest {
     uses jakarta.ws.rs.ext.ExceptionMapper;
 
     requires transitive com.guicedee.vertx.web;
+    requires com.guicedee.telemetry;
 
     // Add Vert.x auth modules
     requires transitive io.vertx.auth.common;

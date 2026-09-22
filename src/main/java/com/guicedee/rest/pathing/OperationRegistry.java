@@ -5,6 +5,7 @@ import com.guicedee.client.IGuiceContext;
 import com.guicedee.client.scopes.CallScoper;
 import com.guicedee.client.scopes.CallScopeProperties;
 import com.guicedee.client.scopes.CallScopeSource;
+import com.guicedee.telemetry.GuicedTelemetry;
 import com.guicedee.vertx.web.spi.VertxRouterConfigurator;
 import io.github.classgraph.ScanResult;
 import io.vertx.core.Vertx;
@@ -178,10 +179,13 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
      */
     private void handleRequest(RoutingContext context, JakartaWsScanner.ResourceInfo resourceInfo, Method method) {
         long startTime = System.currentTimeMillis();
+        var span = GuicedTelemetry.startServerSpan(context.request().method().name(), context.request().path(), context.request().headers());
         logger.trace("Handling request: " + context.request().method() + " " + context.request().path());
 
         context.response().endHandler(v -> {
             long duration = System.currentTimeMillis() - startTime;
+            span.setAttribute("http.response.status_code", context.response().getStatusCode());
+            GuicedTelemetry.end(span, null);
             logger.trace("Finished response for " + context.request().method() + " " + context.request().path() + " in " + duration + "ms");
         });
 
@@ -199,6 +203,7 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
         }
 
         vertx.runOnContext(v -> {
+            try (var ignored = GuicedTelemetry.makeCurrent(span)) {
             CallScoper callScoper = null;
             boolean started = false;
             try {
@@ -233,6 +238,9 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
 
                 // Process the response
                 logger.trace("Processing response");
+                if (result instanceof io.smallrye.mutiny.Uni<?> uni) {
+                    result = GuicedTelemetry.withSpan(span, uni);
+                }
                 ResponseHandler.processResponse(context, result, method);
             } catch (Throwable e) {
                 logger.error("Error handling request", e);
@@ -241,6 +249,7 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
                 if (started && callScoper != null) {
                     callScoper.exit();
                 }
+            }
             }
         });
     }

@@ -74,6 +74,10 @@
             <artifactId>inject</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.guicedee</groupId>
+            <artifactId>guiced-telemetry</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
