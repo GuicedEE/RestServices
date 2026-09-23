@@ -44,14 +44,6 @@
             <artifactId>web</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.guicedee</groupId>
-            <artifactId>client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.guicedee.modules.representations</groupId>
-            <artifactId>json-representation</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.guicedee.modules.representations</groupId>
             <artifactId>xml-representation</artifactId>
         </dependency>
@@ -62,16 +54,6 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.guicedee</groupId>
-            <artifactId>inject</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

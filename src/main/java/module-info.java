@@ -20,8 +20,6 @@ module com.guicedee.rest {
     requires transitive com.guicedee.vertx.web;
     requires com.guicedee.telemetry;
 
-    // Add Vert.x auth modules
-    requires transitive io.vertx.auth.common;
 
     requires transitive jakarta.ws.rs;
     requires jakarta.annotation;
