@@ -16,6 +16,7 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.AuthenticationHandler;
 
 import java.lang.reflect.Method;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -94,7 +95,14 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
             JakartaWsScanner.ResourceInfo resourceInfo = JakartaWsScanner.getResourceInfo(resourceClass);
 
             // Register each resource method
-            for (Method method : resourceInfo.getResourceMethods()) {
+            // Reflection order is unspecified. Register the most literal paths first so
+            // /buckets wins over /{resource} before any path-parameter conversion occurs.
+            List<Method> methods = resourceInfo.getResourceMethods().stream()
+                    .sorted(Comparator.comparingInt((Method method) -> PathHandler.getFullPath(resourceClass, method)
+                            .replaceAll("\\{[^}]+\\}", "").length()).reversed()
+                            .thenComparing(Method::toGenericString))
+                    .toList();
+            for (Method method : methods) {
                 registerResourceMethod(router, resourceInfo, method);
             }
         } catch (Exception e) {

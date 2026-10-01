@@ -133,6 +133,9 @@ GET /api/users/42
 
 Path parameters use Jakarta REST `{param}` syntax — they are automatically converted to Vert.x `:param` style at registration time.
 
+Within each resource, routes with more literal path characters register first. A
+literal `/buckets` route therefore wins over `/{resource}` regardless of reflection order.
+
 ## 🔧 Parameter Binding
 
 | Annotation | Source | Example |
@@ -145,6 +148,10 @@ Path parameters use Jakarta REST `{param}` syntax — they are automatically con
 | `@MatrixParam` | Matrix parameter | `@MatrixParam("color") String color` |
 | `@BeanParam` | Composite bean | `@BeanParam SearchCriteria criteria` |
 | *(none)* | Request body | Deserialized via Jackson |
+
+`@DefaultValue` supplies a typed value when a bound parameter is absent. For example,
+`@QueryParam("limit") @DefaultValue("50") int limit` uses 50 when the query omits
+`limit`; a supplied value takes precedence and an invalid supplied number still fails.
 
 ### Type conversion
 

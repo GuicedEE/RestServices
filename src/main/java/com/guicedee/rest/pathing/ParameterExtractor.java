@@ -43,7 +43,12 @@ public class ParameterExtractor {
 
         for (int i = 0; i < parameters.length; i++) {
             Parameter parameter = parameters[i];
-            paramValues[i] = extractParameter(parameter, context);
+            Object value = extractParameter(parameter, context);
+            DefaultValue defaultValue = parameter.getAnnotation(DefaultValue.class);
+            if (value == null && defaultValue != null) {
+                value = convertValue(defaultValue.value(), parameter.getType());
+            }
+            paramValues[i] = value;
         }
 
         return paramValues;
