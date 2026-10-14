@@ -1,5 +1,7 @@
 package com.guicedee.rest.pathing;
 
+import com.guicedee.client.utils.ClassLoading;
+
 import com.guicedee.rest.services.GuiceRestInjectionProvider;
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.ClassInfoList;
@@ -53,18 +55,18 @@ public class JakartaWsScanner {
         // Filter and add to combined list
         for (ClassInfo classInfo : applicationPathClasses) {
             if (packageFilter == null || classInfo.getPackageName().startsWith(packageFilter)) {
-                if (!classInfo.isAbstract() && !classInfo.isInterface() && !classInfo.isInnerClass() && !classInfo.isStatic()) {
+                if (!classInfo.isAbstract() && !classInfo.isInterface() && !classInfo.isNestedClass() && !classInfo.isStatic()) {
                     try {
-                        resourceClasses.add(classInfo.loadClass(false));
+                        resourceClasses.add(ClassLoading.loadClass(classInfo));
                     } catch (Exception ignored) {}
                 }
             }
         }
         for (ClassInfo classInfo : pathClasses) {
             if (packageFilter == null || classInfo.getPackageName().startsWith(packageFilter)) {
-                if (!classInfo.isAbstract() && !classInfo.isInterface() && !classInfo.isInnerClass() && !classInfo.isStatic()) {
+                if (!classInfo.isAbstract() && !classInfo.isInterface() && !classInfo.isNestedClass() && !classInfo.isStatic()) {
                     try {
-                        Class<?> resourceClass = classInfo.loadClass(false);
+                        Class<?> resourceClass = ClassLoading.loadClass(classInfo);
                         if (!resourceClasses.contains(resourceClass)) {
                             resourceClasses.add(resourceClass);
                         }
