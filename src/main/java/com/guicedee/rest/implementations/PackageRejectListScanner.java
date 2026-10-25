@@ -17,6 +17,6 @@ public class PackageRejectListScanner implements IPackageRejectListScanner<Packa
     @Override
     public Set<String> exclude()
     {
-        return Set.of("io.swagger.v3.jaxrs2");
+        return Set.of("io.swagger.v3.rest");
     }
 }
