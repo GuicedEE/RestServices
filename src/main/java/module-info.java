@@ -12,6 +12,7 @@ import com.guicedee.rest.services.RestInterceptor;
 import com.guicedee.rest.implementations.RestServiceScannerConfig;
 
 module com.guicedee.rest {
+    requires com.guicedee.jsonrepresentation;
     uses com.guicedee.vertx.web.spi.VertxRouterConfigurator;
     uses com.guicedee.vertx.web.spi.VertxHttpServerConfigurator;
     uses com.guicedee.vertx.web.spi.VertxHttpServerOptionsConfigurator;

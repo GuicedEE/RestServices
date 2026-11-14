@@ -1,5 +1,9 @@
 # GuicedEE REST Services
 
+REST supports explicit discovery without ClassGraph through `IGuiceDiscovery`. See [SPI registration and compatibility](SPI_DISCOVERY.md).
+
+See [request binding and consumed media types](REQUEST_BINDING.md) for primitive defaults and `@Consumes` validation before resource invocation.
+
 [![Build](https://github.com/GuicedEE/RestServices/actions/workflows/build.yml/badge.svg)](https://github.com/GuicedEE/RestServices/actions/workflows/build.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/com.guicedee/rest)](https://github.com/GuicedEE/RestServices)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue)](https://www.apache.org/licenses/LICENSE-2.0)

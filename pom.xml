@@ -40,6 +40,10 @@
     </properties>
     <dependencies>
         <dependency>
+            <groupId>com.guicedee.modules.representations</groupId>
+            <artifactId>json-representation</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.guicedee</groupId>
             <artifactId>web</artifactId>
         </dependency>

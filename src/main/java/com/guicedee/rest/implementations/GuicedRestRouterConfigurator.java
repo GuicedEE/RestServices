@@ -1,10 +1,8 @@
 package com.guicedee.rest.implementations;
 
-import com.guicedee.client.IGuiceContext;
 import com.guicedee.rest.pathing.JakartaWsScanner;
 import com.guicedee.rest.pathing.PathHandler;
 import com.guicedee.vertx.web.spi.VertxRouterConfigurator;
-import io.github.classgraph.ScanResult;
 import io.vertx.ext.web.Router;
 import lombok.extern.log4j.Log4j2;
 
@@ -43,8 +41,7 @@ public class GuicedRestRouterConfigurator implements VertxRouterConfigurator<Gui
         log.debug("Configuring Rest Router" + (packageFilter != null ? " for package: " + packageFilter : ""));
 
         // Scan for resource classes to find the base paths
-        ScanResult scanResult = IGuiceContext.instance().getScanResult();
-        List<Class<?>> resourceClasses = JakartaWsScanner.scanForResourceClasses(scanResult, packageFilter);
+        List<Class<?>> resourceClasses = JakartaWsScanner.discoverResourceClasses(packageFilter);
         Set<String> basePaths = new HashSet<>();
         for (Class<?> resourceClass : resourceClasses) {
             String basePath = PathHandler.getBasePath(resourceClass);

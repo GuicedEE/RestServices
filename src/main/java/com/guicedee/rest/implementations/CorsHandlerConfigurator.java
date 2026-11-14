@@ -1,11 +1,9 @@
 package com.guicedee.rest.implementations;
 
 import com.guicedee.client.Environment;
-import com.guicedee.client.IGuiceContext;
 import com.guicedee.rest.pathing.JakartaWsScanner;
 import com.guicedee.rest.pathing.PathHandler;
 import com.guicedee.rest.services.Cors;
-import io.github.classgraph.ScanResult;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.CorsHandler;
@@ -147,8 +145,7 @@ public class CorsHandlerConfigurator {
      * @return A list of resource classes
      */
     private static List<Class<?>> scanForResourceClasses() {
-        ScanResult scanResult = IGuiceContext.instance().getScanResult();
-        return JakartaWsScanner.scanForResourceClasses(scanResult);
+        return JakartaWsScanner.discoverResourceClasses(null);
     }
 
     /**

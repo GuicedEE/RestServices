@@ -1,6 +1,7 @@
 package com.guicedee.rest.pathing;
 
 import com.guicedee.client.utils.ClassLoading;
+import com.guicedee.client.utils.Discovery;
 
 import com.guicedee.rest.services.GuiceRestInjectionProvider;
 import io.github.classgraph.ClassInfo;
@@ -14,9 +15,10 @@ import org.apache.logging.log4j.Logger;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.LinkedHashSet;
 
 /**
- * Scans the classpath for Jakarta REST resources.
+ * Discovers Jakarta REST resources through SPI and the optional ClassGraph scan.
  *
  * <p>This helper uses ClassGraph results produced by the Guice context to
  * locate resource classes and HTTP methods annotated with Jakarta REST
@@ -25,6 +27,23 @@ import java.util.List;
 public class JakartaWsScanner {
 
     private static final Logger log = LogManager.getLogger(JakartaWsScanner.class);
+
+    /** Discovers registered resources, augmented by ClassGraph in scan mode. */
+    public static List<Class<?>> discoverResourceClasses(String packageFilter) {
+        var resources = new LinkedHashSet<>(Discovery.annotatedClasses(ApplicationPath.class));
+        resources.addAll(Discovery.annotatedClasses(Path.class));
+        return resources.stream()
+                .filter(Discovery::isConcrete)
+                .filter(type -> type.getEnclosingClass() == null)
+                .filter(type -> matchesPackage(type.getPackageName(), packageFilter))
+                .toList();
+    }
+
+    private static boolean matchesPackage(String name, String filter) {
+        if (filter == null || filter.isEmpty()) return true;
+        String prefix = filter.endsWith(".") ? filter.substring(0, filter.length() - 1) : filter;
+        return name.equals(prefix) || name.startsWith(prefix + ".");
+    }
 
     /**
      * Finds resource classes annotated with {@link ApplicationPath} or {@link Path}.
@@ -54,7 +73,7 @@ public class JakartaWsScanner {
 
         // Filter and add to combined list
         for (ClassInfo classInfo : applicationPathClasses) {
-            if (packageFilter == null || classInfo.getPackageName().startsWith(packageFilter)) {
+            if (matchesPackage(classInfo.getPackageName(), packageFilter)) {
                 if (!classInfo.isAbstract() && !classInfo.isInterface() && !classInfo.isNestedClass() && !classInfo.isStatic()) {
                     try {
                         resourceClasses.add(ClassLoading.loadClass(classInfo));
@@ -63,7 +82,7 @@ public class JakartaWsScanner {
             }
         }
         for (ClassInfo classInfo : pathClasses) {
-            if (packageFilter == null || classInfo.getPackageName().startsWith(packageFilter)) {
+            if (matchesPackage(classInfo.getPackageName(), packageFilter)) {
                 if (!classInfo.isAbstract() && !classInfo.isInterface() && !classInfo.isNestedClass() && !classInfo.isStatic()) {
                     try {
                         Class<?> resourceClass = ClassLoading.loadClass(classInfo);

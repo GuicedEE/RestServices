@@ -19,7 +19,7 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.guicedee.client.implementations.ObjectBinderKeys.DefaultObjectMapper;
+import static com.guicedee.modules.services.jsonrepresentation.ObjectBinderKeys.DefaultObjectMapper;
 
 /**
  * Converts resource method results into HTTP responses.

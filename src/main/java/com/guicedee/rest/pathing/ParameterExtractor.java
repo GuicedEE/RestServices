@@ -17,7 +17,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.guicedee.client.implementations.ObjectBinderKeys.DefaultObjectMapper;
+import static com.guicedee.modules.services.jsonrepresentation.ObjectBinderKeys.DefaultObjectMapper;
 
 /**
  * Extracts method parameters for Jakarta REST-style endpoints.
@@ -48,10 +48,25 @@ public class ParameterExtractor {
             if (value == null && defaultValue != null) {
                 value = convertValue(defaultValue.value(), parameter.getType());
             }
+            if (value == null && parameter.getType().isPrimitive()) {
+                value = primitiveDefault(parameter.getType());
+            }
             paramValues[i] = value;
         }
 
         return paramValues;
+    }
+
+    private static Object primitiveDefault(Class<?> type) {
+        if (type == boolean.class) return false;
+        if (type == char.class) return '\0';
+        if (type == byte.class) return (byte) 0;
+        if (type == short.class) return (short) 0;
+        if (type == int.class) return 0;
+        if (type == long.class) return 0L;
+        if (type == float.class) return 0F;
+        if (type == double.class) return 0D;
+        throw new IllegalArgumentException("Not a parameter primitive: " + type);
     }
 
     /**

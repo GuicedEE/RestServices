@@ -3,6 +3,7 @@ import com.guicedee.rest.test.RestTestBinding;
 
 module guiced.rest.services.test {
 	requires com.guicedee.rest;
+	requires com.fasterxml.jackson.annotation;
 
 	requires java.net.http;
 

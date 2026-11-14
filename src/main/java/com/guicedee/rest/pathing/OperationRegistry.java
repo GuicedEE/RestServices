@@ -7,7 +7,6 @@ import com.guicedee.client.scopes.CallScopeProperties;
 import com.guicedee.client.scopes.CallScopeSource;
 import com.guicedee.telemetry.GuicedTelemetry;
 import com.guicedee.vertx.web.spi.VertxRouterConfigurator;
-import io.github.classgraph.ScanResult;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.Route;
@@ -69,11 +68,7 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
      */
     @Override
     public Router builder(Router builder) {
-        // Get the scan result from IGuiceContext
-        ScanResult scanResult = IGuiceContext.instance().getScanResult();
-
-        // Scan for resource classes
-        List<Class<?>> resourceClasses = JakartaWsScanner.scanForResourceClasses(scanResult, packageFilter);
+        List<Class<?>> resourceClasses = JakartaWsScanner.discoverResourceClasses(packageFilter);
 
         // Register each resource class
         for (Class<?> resourceClass : resourceClasses) {
@@ -160,7 +155,8 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
                 route.handler(authenticationHandler);
             }
 
-            route.handler(context -> handleRequest(context, resourceInfo, method));
+            ConsumedMediaTypes consumedMediaTypes = new ConsumedMediaTypes(resourceInfo.getResourceClass(), method);
+            route.handler(context -> handleRequest(context, resourceInfo, method, consumedMediaTypes));
 
             logger.debug("✅ Registered route: " + httpMethod + " " + fullPath);
         } catch (Exception e) {
@@ -185,7 +181,8 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
      * @param resourceInfo The resource metadata
      * @param method       The resource method to invoke
      */
-    private void handleRequest(RoutingContext context, JakartaWsScanner.ResourceInfo resourceInfo, Method method) {
+    private void handleRequest(RoutingContext context, JakartaWsScanner.ResourceInfo resourceInfo, Method method,
+                               ConsumedMediaTypes consumedMediaTypes) {
         long startTime = System.currentTimeMillis();
         var span = GuicedTelemetry.startServerSpan(context.request().method().name(), context.request().path(), context.request().headers());
         logger.trace("Handling request: " + context.request().method() + " " + context.request().path());
@@ -208,6 +205,12 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
                 context.response().setStatusCode(403).end("Not authorized");
                 return;
             }
+        }
+
+        // Reject unsupported entities before parameter conversion or application invocation.
+        if (!consumedMediaTypes.accepts(context)) {
+            context.response().setStatusCode(415).end("Unsupported Media Type");
+            return;
         }
 
         vertx.runOnContext(v -> {
