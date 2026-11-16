@@ -248,7 +248,7 @@ public class CorsHandlerConfigurator {
         String originsStr;
         if (corsAnnotation != null) {
             originsStr = Environment.getSystemPropertyOrEnvironment("REST_CORS_ALLOWED_ORIGINS", 
-                    String.join(",", corsAnnotation.allowedOrigins()));
+                    ",", corsAnnotation.allowedOrigins());
         } else {
             originsStr = Environment.getSystemPropertyOrEnvironment("REST_CORS_ALLOWED_ORIGINS", "*");
         }
@@ -268,7 +268,7 @@ public class CorsHandlerConfigurator {
         String methodsStr;
         if (corsAnnotation != null) {
             methodsStr = Environment.getSystemPropertyOrEnvironment("REST_CORS_ALLOWED_METHODS", 
-                    String.join(",", corsAnnotation.allowedMethods()));
+                    ",", corsAnnotation.allowedMethods());
         } else {
             methodsStr = Environment.getSystemPropertyOrEnvironment("REST_CORS_ALLOWED_METHODS", 
                     "GET,POST,PUT,DELETE,PATCH,OPTIONS");
@@ -295,7 +295,7 @@ public class CorsHandlerConfigurator {
         String headersStr;
         if (corsAnnotation != null) {
             headersStr = Environment.getSystemPropertyOrEnvironment("REST_CORS_ALLOWED_HEADERS", 
-                    String.join(",", corsAnnotation.allowedHeaders()));
+                    ",", corsAnnotation.allowedHeaders());
         } else {
             headersStr = Environment.getSystemPropertyOrEnvironment("REST_CORS_ALLOWED_HEADERS", 
                     "x-requested-with,Access-Control-Allow-Origin,origin,Content-Type,accept,Authorization");
