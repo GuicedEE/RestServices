@@ -185,13 +185,13 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
                                ConsumedMediaTypes consumedMediaTypes) {
         long startTime = System.currentTimeMillis();
         var span = GuicedTelemetry.startServerSpan(context.request().method().name(), context.request().path(), context.request().headers());
-        logger.trace("Handling request: " + context.request().method() + " " + context.request().path());
+        logger.trace("Handling request: {} {}", context.request().method(), context.request().path());
 
         context.response().endHandler(v -> {
             long duration = System.currentTimeMillis() - startTime;
             span.setAttribute("http.response.status_code", context.response().getStatusCode());
             GuicedTelemetry.end(span, null);
-            logger.trace("Finished response for " + context.request().method() + " " + context.request().path() + " in " + duration + "ms");
+            logger.trace("Finished response for {} {} in {}ms", context.request().method(), context.request().path(), duration);
         });
 
         // Check authentication and authorization
@@ -232,20 +232,20 @@ public class OperationRegistry implements VertxRouterConfigurator<OperationRegis
                 props.getProperties().put("HttpServerRequest", context.request());
                 props.getProperties().put("HttpServerResponse", context.response());
 
-                logger.trace("Executing method: " + method.getName() + " on class: " + resourceInfo.getResourceClass().getName());
+                logger.trace("Executing method: {} on class: {}", method.getName(), resourceInfo.getResourceClass().getName());
 
                 // Extract parameters
-                logger.trace("Extracting parameters for method: " + method.getName());
+                logger.trace("Extracting parameters for method: {}", method.getName());
                 Object[] parameters = ParameterExtractor.extractParameters(method, context);
 
                 // Get resource instance
                 Object instance = resourceInfo.getResourceInstance();
-                logger.trace("Resource instance: " + (instance != null ? instance.getClass().getName() : "null"));
+                logger.trace("Resource instance: {}", instance != null ? instance.getClass().getName() : "null");
 
                 // Invoke the method
-                logger.trace("Invoking method: " + method.getName());
+                logger.trace("Invoking method: {}", method.getName());
                 Object result = method.invoke(instance, parameters);
-                logger.trace("Method execution completed, result: " + (result != null ? result.toString() : "null"));
+                logger.trace("Method execution completed, result: {}", result);
 
                 // Process the response
                 logger.trace("Processing response");

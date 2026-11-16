@@ -70,7 +70,7 @@ public class GuicedRestRouterConfigurator implements VertxRouterConfigurator<Gui
             for (String path : basePaths) {
                 log.debug("🔗 Adding REST logger and CORS for path: {}", path);
                 router.route(path).order(-1).handler(ctx -> {
-                    log.debug("REST Request received: " + ctx.request().method() + " " + ctx.request().path());
+                    log.debug("REST Request received: {} {}", ctx.request().method(), ctx.request().path());
                     ctx.next();
                 });
             }
